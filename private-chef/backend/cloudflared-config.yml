@@ -1,0 +1,10 @@
+# Cloudflare Tunnel template for the backend API.
+# Replace every YOUR_* placeholder before using this file.
+
+tunnel: b27b1311-f940-4f8b-b571-7bb55ff61e8c
+credentials-file: /root/.cloudflared/b27b1311-f940-4f8b-b571-7bb55ff61e8c.json
+
+ingress:
+  - hostname: api.weilanshanshan.top
+    service: http://127.0.0.1:3000
+  - service: http_status:404
