@@ -1,0 +1,18 @@
+.sisyphus/
+├── MEMORY.md
+├── USER.md
+├── skills-index.md
+├── evidence/
+├── notepads/agent-framework/
+└── plans/framework/
+    ├── 00-charter.md
+    ├── 01-intake-routing.md
+    ├── 02-decomposition.md
+    ├── 03-execution-contracts.md
+    ├── 04-evidence-policy.md
+    ├── 05-memory-loop.md
+    ├── 06-review-gates.md
+    ├── 07-context-assembly.md
+    └── templates/
+
+Verified: framework core docs, templates, and live hot-memory files exist.

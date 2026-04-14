@@ -1,0 +1,9 @@
+Verified memory entry template contains:
+- 分类 / 状态 / 日期 / 记录者
+- 背景与挑战
+- 原方案 / 新方案 / 原因
+- 影响范围 / 操作指南
+- References
+- Layer Decision
+
+Conclusion: memory template supports layered-memory routing.

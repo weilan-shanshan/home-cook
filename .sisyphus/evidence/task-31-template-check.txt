@@ -1,0 +1,9 @@
+Verified task template contains:
+- 分类 / 状态 / 优先级
+- 契约依赖与前置任务
+- Definition of Done
+- Guardrails
+- QA Scenarios
+- Notepad Sync
+
+Conclusion: task template supports contract-based decomposition.

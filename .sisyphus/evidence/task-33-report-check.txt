@@ -1,0 +1,8 @@
+Verified review report template contains:
+- 评审类型 / 状态
+- AC Coverage
+- Findings
+- Evidence Verification
+- Conclusion & Next Steps
+
+Conclusion: review report template supports gate-based review workflow.

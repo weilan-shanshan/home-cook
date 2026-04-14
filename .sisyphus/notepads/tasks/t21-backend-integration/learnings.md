@@ -1,0 +1,1 @@
+- T21: Chaining Hono route mounts in  preserves  route inference better than imperative , while a single  centralizes Zod and SQLite UNIQUE handling without changing route-level auth behavior.
