@@ -1,0 +1,38 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "pm2 start ecosystem.config.cjs --env production",
+    "start:local": "node dist/index.js",
+    "deploy": "bash scripts/deploy.sh",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "mkdir -p data && drizzle-kit migrate",
+    "test": "vitest run --passWithNoTests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "@node-rs/argon2": "^1.8.3",
+    "better-sqlite3": "^9.6.0",
+    "cos-nodejs-sdk-v5": "^2.15.4",
+    "dotenv": "^17.4.1",
+    "drizzle-orm": "^0.30.10",
+    "hono": "^4.12.12",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^18.19.130",
+    "drizzle-kit": "^0.21.4",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^1.6.1"
+  }
+}
