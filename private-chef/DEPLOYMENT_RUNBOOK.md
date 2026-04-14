@@ -221,15 +221,15 @@ Check:
 - Host type in repo docs: Tencent Cloud server
 - App dir: `private-chef/backend`
 - Deploy script: `private-chef/backend/scripts/deploy.sh`
-- Remote repo dir in deploy script: `/data/private-chef`
+- Remote repo dir in deploy script: `/data/private-chef` (repo root; app is at `/data/private-chef/private-chef`)
 - PM2 app name: `private-chef-api`
 - PM2 entry file: `dist/index.js`
 - PM2 log files:
-  - `/data/private-chef/logs/error.log`
-  - `/data/private-chef/logs/out.log`
+  - `/data/private-chef/private-chef/logs/error.log`
+  - `/data/private-chef/private-chef/logs/out.log`
 - Backend listens on local port `3000`
 - Tunnel routes `api.weilanshanshan.top` → `http://127.0.0.1:3000`
-- Remote backend SSH target: `ubuntu@101.42.108.88:/data/private-chef/backend/`
+- Remote backend SSH target: `ubuntu@101.42.108.88:/data/private-chef/private-chef/backend/`
 
 ### Standard backend deploy procedure
 
@@ -263,7 +263,7 @@ pm2 startOrRestart ecosystem.config.cjs --env production --update-env
 Check in this order:
 
 1. SSH connectivity in `private-chef/backend/scripts/deploy.sh`
-2. remote repo path `/data/private-chef`
+2. remote repo path `/data/private-chef` (app at `/data/private-chef/private-chef`)
 3. `git pull --ff-only origin main`
 4. `npm ci` output
 5. `npm run build` output
@@ -275,7 +275,7 @@ Check:
 1. `private-chef/backend/ecosystem.config.cjs`
 2. whether `dist/index.js` exists
 3. PM2 process name `private-chef-api`
-4. PM2 logs in `/data/private-chef/logs/`
+4. PM2 logs in `/data/private-chef/private-chef/logs/`
 
 #### C. API hostname is down but backend port works locally
 

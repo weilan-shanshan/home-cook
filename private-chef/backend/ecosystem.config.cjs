@@ -8,8 +8,8 @@ const ecosystemConfig = {
       autorestart: true,
       watch: false,
       time: true,
-      error_file: '/data/private-chef/logs/error.log',
-      out_file: '/data/private-chef/logs/out.log',
+      error_file: '/data/private-chef/private-chef/logs/error.log',
+      out_file: '/data/private-chef/private-chef/logs/out.log',
       env_production: {
         NODE_ENV: 'production',
         PORT: 3000,
