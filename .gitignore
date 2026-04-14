@@ -1,0 +1,11 @@
+.specstory
+.npm-cache/
+.playwright-mcp/
+*.pem
+fix_*.py
+loc.py
+*.png
+requests.txt
+.cursorindexingignore
+out.log
+*.bak
