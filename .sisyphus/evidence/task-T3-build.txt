@@ -1,0 +1,10 @@
+Build command: cd /Users/weilan/ali/ai/cook/private-chef/frontend && npm run build
+
+Result: passed
+- tsc -b: passed
+- vite build: passed
+- errors: 0
+
+Output notes:
+- Build completed successfully.
+- Vite emitted a chunk-size warning only; no build errors.

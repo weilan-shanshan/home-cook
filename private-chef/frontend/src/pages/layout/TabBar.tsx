@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router'
-import { Home, Utensils, Sparkles, User } from 'lucide-react'
+import { ClipboardList, Home, User, Utensils } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function TabBar() {
@@ -8,8 +8,8 @@ export function TabBar() {
 
   const tabs = [
     { name: '首页', path: '/', icon: Home },
-    { name: '点餐', path: '/order/create', icon: Utensils },
-    { name: '许愿', path: '/wishes', icon: Sparkles },
+    { name: '点菜', path: '/menu', icon: Utensils },
+    { name: '订单', path: '/orders', icon: ClipboardList },
     { name: '我的', path: '/profile', icon: User },
   ]
 

@@ -6,10 +6,12 @@ import Login from '@/pages/auth/Login'
 import Register from '@/pages/auth/Register'
 
 import Home from '@/pages/home/Home'
+import MenuPage from '@/pages/menu/MenuPage'
 import RecipeDetail from '@/pages/recipe/RecipeDetail'
 import RecipeForm from '@/pages/recipe/RecipeForm'
 import OrderList from '@/pages/order/OrderList'
 import OrderCreate from '@/pages/order/OrderCreate'
+import OrderDetailV2 from '@/pages/order/OrderDetailV2'
 import WishList from '@/pages/wish/WishList'
 import Favorites from '@/pages/favorites/Favorites'
 import Profile from '@/pages/profile/Profile'
@@ -23,7 +25,9 @@ function App() {
         
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<MenuPage />} />
           <Route path="/orders" element={<OrderList />} />
+          <Route path="/orders/:id" element={<OrderDetailV2 />} />
           <Route path="/order/create" element={<OrderCreate />} />
           <Route path="/wishes" element={<WishList />} />
           <Route path="/favorites" element={<Favorites />} />
