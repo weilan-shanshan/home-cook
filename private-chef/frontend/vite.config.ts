@@ -8,19 +8,23 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: '私厨 — 家庭烹饪管理',
         short_name: '私厨',
         description: '私厨 — 家庭烹饪管理',
+        lang: 'zh-CN',
         theme_color: '#F5F5F7',
         background_color: '#F5F5F7',
+        start_url: '/',
+        scope: '/',
         display: 'standalone',
         icons: [
           {
             src: 'icons/icon-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'icons/icon-512.png',
