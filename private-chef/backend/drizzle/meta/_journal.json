@@ -8,6 +8,27 @@
       "when": 1775800965867,
       "tag": "0000_known_kinsey_walden",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1776243480553,
+      "tag": "0001_furry_greymalkin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776322449999,
+      "tag": "0002_fearless_wolf_cub",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776344597869,
+      "tag": "0003_violet_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

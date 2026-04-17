@@ -1,15 +1,19 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, asc } from 'drizzle-orm'
 import { db, sqlite } from '../db/index.js'
 import {
   orders,
   orderItems,
+  orderLikes,
+  orderShares,
+  orderStatusEvents,
   recipes,
   recipeImages,
+  users,
 } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
-import { notifyNewOrder } from '../lib/wechat.js'
+import { createNotificationEvent } from '../services/notification-service.js'
 
 type AuthEnv = {
   Variables: {
@@ -33,15 +37,17 @@ const createOrderSchema = z.object({
 })
 
 const updateStatusSchema = z.object({
-  status: z.enum(['confirmed', 'completed']),
+  status: z.enum(['confirmed', 'preparing', 'completed', 'cancelled']),
 })
 
 const VALID_TRANSITIONS: Record<string, string> = {
   pending: 'confirmed',
-  confirmed: 'completed',
+  submitted: 'confirmed',
+  confirmed: 'preparing',
+  preparing: 'completed',
 }
 
-const KNOWN_STATUSES = new Set(['pending', 'confirmed', 'completed'])
+const KNOWN_STATUSES = new Set(['pending', 'submitted', 'confirmed', 'preparing', 'completed', 'cancelled'])
 
 const ordersRouter = new Hono<AuthEnv>()
 
@@ -66,6 +72,22 @@ function mapItemRow(item: {
   }
 }
 
+function normalizeOrderStatus(status: string) {
+  return status === 'pending' ? 'submitted' : status
+}
+
+function getStatusUpdatePatch(targetStatus: 'confirmed' | 'preparing' | 'completed' | 'cancelled') {
+  if (targetStatus === 'completed') {
+    return { status: targetStatus, completedAt: new Date().toISOString(), cancelledAt: null }
+  }
+
+  if (targetStatus === 'cancelled') {
+    return { status: targetStatus, cancelledAt: new Date().toISOString(), completedAt: null }
+  }
+
+  return { status: targetStatus, completedAt: null, cancelledAt: null }
+}
+
 ordersRouter.get('/', async (c) => {
   const familyId = c.get('familyId')
   const statusFilter = c.req.query('status')
@@ -87,10 +109,13 @@ ordersRouter.get('/', async (c) => {
     .select({
       id: orders.id,
       userId: orders.userId,
+      cookUserId: orders.cookUserId,
       mealType: orders.mealType,
       mealDate: orders.mealDate,
       note: orders.note,
       status: orders.status,
+      completedAt: orders.completedAt,
+      cancelledAt: orders.cancelledAt,
       createdAt: orders.createdAt,
     })
     .from(orders)
@@ -133,6 +158,7 @@ ordersRouter.get('/', async (c) => {
 
   const result = orderRows.map((order) => ({
     ...order,
+    status: normalizeOrderStatus(order.status),
     items: (itemsByOrder.get(order.id) ?? []).map(mapItemRow),
   }))
 
@@ -175,7 +201,7 @@ ordersRouter.post('/', async (c) => {
       .prepare(
         'INSERT INTO orders (family_id, user_id, meal_type, meal_date, note, status) VALUES (?, ?, ?, ?, ?, ?)',
       )
-      .run(familyId, user.id, meal_type, meal_date, note ?? null, 'pending')
+      .run(familyId, user.id, meal_type, meal_date, note ?? null, 'submitted')
     const id = Number(insertOrder.lastInsertRowid)
 
     const insertItem = sqlite.prepare(
@@ -185,6 +211,12 @@ ordersRouter.post('/', async (c) => {
       insertItem.run(id, item.recipe_id, item.quantity)
     }
 
+    sqlite
+      .prepare(
+        'INSERT INTO order_status_events (order_id, from_status, to_status, operator_id, note) VALUES (?, ?, ?, ?, ?)',
+      )
+      .run(id, null, 'submitted', user.id, 'Order created')
+
     return id
   })()
 
@@ -192,16 +224,31 @@ ordersRouter.post('/', async (c) => {
     familyRecipes.map((r) => [r.id, r.title]),
   )
   const recipeTitles = uniqueRecipeIds.map((id) => recipeTitleById.get(id)!)
-  notifyNewOrder(user.displayName, meal_type, recipeTitles)
+  await createNotificationEvent({
+    familyId,
+    eventType: 'order_created',
+    entityType: 'order',
+    entityId: orderId,
+    payload: {
+      orderId,
+      userName: user.displayName,
+      mealType: meal_type,
+      items: recipeTitles,
+      message: `🍽️ ${user.displayName}点了${meal_type}：${recipeTitles.join('、')}`,
+    },
+  })
 
   const [created] = await db
     .select({
       id: orders.id,
       userId: orders.userId,
+      cookUserId: orders.cookUserId,
       mealType: orders.mealType,
       mealDate: orders.mealDate,
       note: orders.note,
       status: orders.status,
+      completedAt: orders.completedAt,
+      cancelledAt: orders.cancelledAt,
       createdAt: orders.createdAt,
     })
     .from(orders)
@@ -228,9 +275,20 @@ ordersRouter.post('/', async (c) => {
     )
     .where(eq(orderItems.orderId, orderId))
 
+  const likeRows = await db
+    .select({ userId: orderLikes.userId })
+    .from(orderLikes)
+    .where(eq(orderLikes.orderId, orderId))
+
+  const shareRows = await db
+    .select({ id: orderShares.id })
+    .from(orderShares)
+    .where(eq(orderShares.orderId, orderId))
+
   return c.json(
     {
       ...created,
+      status: normalizeOrderStatus(created.status),
       items: createdItems.map(mapItemRow),
     },
     201,
@@ -249,13 +307,18 @@ ordersRouter.get('/:id', async (c) => {
     .select({
       id: orders.id,
       userId: orders.userId,
+      requesterDisplayName: users.displayName,
+      cookUserId: orders.cookUserId,
       mealType: orders.mealType,
       mealDate: orders.mealDate,
       note: orders.note,
       status: orders.status,
+      completedAt: orders.completedAt,
+      cancelledAt: orders.cancelledAt,
       createdAt: orders.createdAt,
     })
     .from(orders)
+    .innerJoin(users, eq(orders.userId, users.id))
     .where(and(eq(orders.id, orderId), eq(orders.familyId, familyId)))
     .limit(1)
 
@@ -283,9 +346,78 @@ ordersRouter.get('/:id', async (c) => {
     )
     .where(eq(orderItems.orderId, orderId))
 
+  const likeRows = await db
+    .select({ userId: orderLikes.userId })
+    .from(orderLikes)
+    .where(eq(orderLikes.orderId, orderId))
+
+  const shareRows = await db
+    .select({ id: orderShares.id })
+    .from(orderShares)
+    .where(eq(orderShares.orderId, orderId))
+
+  const timelineRows = await db
+    .select({
+      id: orderStatusEvents.id,
+      fromStatus: orderStatusEvents.fromStatus,
+      toStatus: orderStatusEvents.toStatus,
+      operatorId: orderStatusEvents.operatorId,
+      operatorDisplayName: users.displayName,
+      note: orderStatusEvents.note,
+      createdAt: orderStatusEvents.createdAt,
+    })
+    .from(orderStatusEvents)
+    .leftJoin(users, eq(orderStatusEvents.operatorId, users.id))
+    .where(eq(orderStatusEvents.orderId, orderId))
+    .orderBy(asc(orderStatusEvents.createdAt), asc(orderStatusEvents.id))
+
+  const cook = order.cookUserId
+    ? await db
+        .select({ id: users.id, displayName: users.displayName })
+        .from(users)
+        .where(eq(users.id, order.cookUserId))
+        .limit(1)
+    : []
+
+  const currentUserId = c.get('user').id
+  const likeCount = likeRows.length
+  const isLikedByMe = likeRows.some((row) => row.userId === currentUserId)
+  const shareCount = shareRows.length
+
   return c.json({
-    ...order,
+    id: order.id,
+    userId: order.userId,
+    cookUserId: order.cookUserId,
+    mealType: order.mealType,
+    mealDate: order.mealDate,
+    note: order.note,
+    status: normalizeOrderStatus(order.status),
+    completedAt: order.completedAt,
+    cancelledAt: order.cancelledAt,
+    createdAt: order.createdAt,
+    requester: {
+      userId: order.userId,
+      displayName: order.requesterDisplayName,
+    },
+    cook: order.cookUserId && cook[0]
+      ? {
+          userId: cook[0].id,
+          displayName: cook[0].displayName,
+        }
+      : null,
+    likeCount,
+    isLikedByMe,
+    shareCount,
     items: itemRows.map(mapItemRow),
+    statusTimeline: timelineRows.map((event) => ({
+      id: event.id,
+      fromStatus: event.fromStatus ? normalizeOrderStatus(event.fromStatus) : null,
+      toStatus: normalizeOrderStatus(event.toStatus),
+      operatorId: event.operatorId,
+      operatorDisplayName: event.operatorDisplayName ?? null,
+      note: event.note,
+      createdAt: event.createdAt,
+    })),
   })
 })
 
@@ -308,7 +440,7 @@ ordersRouter.put('/:id/status', async (c) => {
   const targetStatus = parsed.data.status
 
   const [order] = await db
-    .select({ id: orders.id, status: orders.status })
+    .select({ id: orders.id, status: orders.status, userId: orders.userId })
     .from(orders)
     .where(and(eq(orders.id, orderId), eq(orders.familyId, familyId)))
     .limit(1)
@@ -317,11 +449,14 @@ ordersRouter.put('/:id/status', async (c) => {
     return c.json({ error: 'Order not found' }, 404)
   }
 
-  const allowedNext = VALID_TRANSITIONS[order.status]
+  const currentStatus = normalizeOrderStatus(order.status)
+  const allowedNext = targetStatus === 'cancelled' && currentStatus !== 'completed'
+    ? 'cancelled'
+    : VALID_TRANSITIONS[currentStatus]
   if (allowedNext !== targetStatus) {
     return c.json(
       {
-        error: `Cannot transition from '${order.status}' to '${targetStatus}'`,
+        error: `Cannot transition from '${currentStatus}' to '${targetStatus}'`,
       },
       400,
     )
@@ -329,14 +464,40 @@ ordersRouter.put('/:id/status', async (c) => {
 
   const [updated] = await db
     .update(orders)
-    .set({ status: targetStatus })
-    .where(eq(orders.id, orderId))
+    .set(getStatusUpdatePatch(targetStatus))
+    .where(and(eq(orders.id, orderId), eq(orders.familyId, familyId)))
     .returning({
       id: orders.id,
       status: orders.status,
+      userId: orders.userId,
     })
 
-  return c.json(updated)
+  await db.insert(orderStatusEvents).values({
+    orderId,
+    fromStatus: currentStatus,
+    toStatus: targetStatus,
+    operatorId: c.get('user').id,
+    note: `Order status updated to ${targetStatus}`,
+  })
+
+  await createNotificationEvent({
+    familyId,
+    eventType: 'order_status_updated',
+    entityType: 'order',
+    entityId: orderId,
+    payload: {
+      orderId,
+      fromStatus: currentStatus,
+      toStatus: targetStatus,
+      userId: updated.userId,
+      message: `📦 订单 #${orderId} 状态更新：${currentStatus} → ${targetStatus}`,
+    },
+  })
+
+  return c.json({
+    id: updated.id,
+    status: normalizeOrderStatus(updated.status),
+  })
 })
 
 export { ordersRouter }

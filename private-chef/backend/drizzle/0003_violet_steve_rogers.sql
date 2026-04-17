@@ -1,0 +1,1 @@
+ALTER TABLE `order_comments` ADD `updated_at` text DEFAULT (datetime('now')) NOT NULL;

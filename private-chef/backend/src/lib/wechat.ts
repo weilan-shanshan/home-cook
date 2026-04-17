@@ -1,4 +1,5 @@
 import { env } from './env.js'
+import { createNotificationEvent } from '../services/notification-service.js'
 
 const SEND_INTERVAL = 3_000
 const RATE_LIMIT_WAIT = 60_000
@@ -58,12 +59,27 @@ export function notify(content: string): void {
   void flush()
 }
 
-export function notifyNewOrder(
+export async function notifyNewOrder(
+  familyId: number,
+  orderId: number,
   userName: string,
   mealType: string,
   items: string[],
-): void {
-  notify(`🍽️ ${userName}点了${mealType}：${items.join('、')}`)
+): Promise<void> {
+  const message = `🍽️ ${userName}点了${mealType}：${items.join('、')}`
+  await createNotificationEvent({
+    familyId,
+    eventType: 'order_created',
+    entityType: 'order',
+    entityId: orderId,
+    payload: {
+      orderId,
+      userName,
+      mealType,
+      items,
+      message,
+    },
+  })
 }
 
 export function notifyNewRecipe(

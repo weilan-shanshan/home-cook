@@ -209,10 +209,13 @@ export const orders = sqliteTable('orders', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
+  cookUserId: integer('cook_user_id').references(() => users.id),
   mealType: text('meal_type').notNull(),
   mealDate: text('meal_date').notNull(),
   note: text('note'),
-  status: text('status').notNull().default('pending'),
+  status: text('status').notNull().default('submitted'),
+  completedAt: text('completed_at'),
+  cancelledAt: text('cancelled_at'),
   createdAt: text('created_at')
     .notNull()
     .default(sql`(datetime('now'))`),
@@ -220,6 +223,158 @@ export const orders = sqliteTable('orders', {
 
 export type Order = typeof orders.$inferSelect
 export type NewOrder = typeof orders.$inferInsert
+
+export const orderStatusEvents = sqliteTable('order_status_events', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  orderId: integer('order_id')
+    .notNull()
+    .references(() => orders.id),
+  fromStatus: text('from_status'),
+  toStatus: text('to_status').notNull(),
+  operatorId: integer('operator_id').references(() => users.id),
+  note: text('note'),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+})
+
+export type OrderStatusEvent = typeof orderStatusEvents.$inferSelect
+export type NewOrderStatusEvent = typeof orderStatusEvents.$inferInsert
+
+export const notificationEvents = sqliteTable('notification_events', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  familyId: integer('family_id')
+    .notNull()
+    .references(() => families.id),
+  eventType: text('event_type').notNull(),
+  entityType: text('entity_type').notNull(),
+  entityId: integer('entity_id').notNull(),
+  payload: text('payload').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+  sentAt: text('sent_at'),
+  lastError: text('last_error'),
+})
+
+export type NotificationEvent = typeof notificationEvents.$inferSelect
+export type NewNotificationEvent = typeof notificationEvents.$inferInsert
+
+export const notificationDeliveries = sqliteTable('notification_deliveries', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  notificationId: integer('notification_id')
+    .notNull()
+    .references(() => notificationEvents.id),
+  targetUserId: integer('target_user_id')
+    .notNull()
+    .references(() => users.id),
+  channel: text('channel').notNull().default('wechat'),
+  status: text('status').notNull().default('pending'),
+  attemptCount: integer('attempt_count').notNull().default(0),
+  lastError: text('last_error'),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+})
+
+export type NotificationDelivery = typeof notificationDeliveries.$inferSelect
+export type NewNotificationDelivery = typeof notificationDeliveries.$inferInsert
+
+export const orderComments = sqliteTable('order_comments', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  orderId: integer('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  roleType: text('role_type').notNull(),
+  content: text('content').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+})
+
+export type OrderComment = typeof orderComments.$inferSelect
+export type NewOrderComment = typeof orderComments.$inferInsert
+
+export const orderReviews = sqliteTable(
+  'order_reviews',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    orderId: integer('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    score: integer('score').notNull(),
+    tasteScore: integer('taste_score').notNull(),
+    portionScore: integer('portion_score').notNull(),
+    overallNote: text('overall_note'),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    unqOrderReviewUser: unique('order_reviews_order_id_user_id_unique').on(
+      t.orderId,
+      t.userId,
+    ),
+    scoreRange: check('order_reviews_score_check', sql`${t.score} >= 1 AND ${t.score} <= 5`),
+    tasteScoreRange: check('order_reviews_taste_score_check', sql`${t.tasteScore} >= 1 AND ${t.tasteScore} <= 5`),
+    portionScoreRange: check('order_reviews_portion_score_check', sql`${t.portionScore} >= 1 AND ${t.portionScore} <= 5`),
+  }),
+)
+
+export type OrderReview = typeof orderReviews.$inferSelect
+export type NewOrderReview = typeof orderReviews.$inferInsert
+
+export const orderLikes = sqliteTable(
+  'order_likes',
+  {
+    orderId: integer('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'cascade' }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.orderId, t.userId] }),
+  }),
+)
+
+export type OrderLike = typeof orderLikes.$inferSelect
+export type NewOrderLike = typeof orderLikes.$inferInsert
+
+export const orderShares = sqliteTable('order_shares', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  orderId: integer('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  shareType: text('share_type').notNull(),
+  channel: text('channel').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+})
+
+export type OrderShare = typeof orderShares.$inferSelect
+export type NewOrderShare = typeof orderShares.$inferInsert
 
 export const orderItems = sqliteTable('order_items', {
   id: integer('id').primaryKey({ autoIncrement: true }),

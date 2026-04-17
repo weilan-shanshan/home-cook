@@ -11,6 +11,12 @@ import { favoritesRouter } from './routes/favorites.js'
 import { cookLogsRouter } from './routes/cook-logs.js'
 import { ratingsRouter } from './routes/ratings.js'
 import { familiesRouter } from './routes/families.js'
+import { orderCommentsRouter } from './routes/order-comments.js'
+import { orderReviewsRouter } from './routes/order-reviews.js'
+import { orderInteractionsRouter } from './routes/order-interactions.js'
+import { homeRouter } from './routes/home.js'
+import { profileRouter } from './routes/profile.js'
+import { achievementsRouter } from './routes/achievements.js'
 
 function isSqliteUniqueError(error: unknown): error is Error {
   return error instanceof Error && error.message.includes('UNIQUE constraint failed')
@@ -25,6 +31,12 @@ export function createApp() {
     .route('/api', imagesRouter)
     .route('/api/recipes', recipesRouter)
     .route('/api/orders', ordersRouter)
+    .route('/api/orders', orderCommentsRouter)
+    .route('/api/orders', orderReviewsRouter)
+    .route('/api/orders', orderInteractionsRouter)
+    .route('/api/home', homeRouter)
+    .route('/api/profile', profileRouter)
+    .route('/api/achievements', achievementsRouter)
     .route('/api/wishes', wishesRouter)
     .route('/api/favorites', favoritesRouter)
     .route('/api/cook-logs', cookLogsRouter)
