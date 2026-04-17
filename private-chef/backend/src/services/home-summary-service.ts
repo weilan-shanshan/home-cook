@@ -7,6 +7,7 @@ import {
   recipes,
   users,
 } from '../db/schema.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type RecipeCardSummary = {
   recipeId: number
@@ -72,15 +73,17 @@ function createContentPreview(content: string, maxLength = 80) {
   return `${content.slice(0, maxLength - 1)}…`
 }
 
-function mapRecipeStatsRow(row: RecipeStatsRow): RecipeCardSummary {
+async function mapRecipeStatsRow(row: RecipeStatsRow): Promise<RecipeCardSummary> {
+  const image = await resolveImageUrls(row.imageUrl, row.thumbUrl)
+
   return {
     recipeId: row.recipeId,
     title: row.title,
     orderCount: Number(row.orderCount),
-    image: row.imageUrl
+    image: image
       ? {
-          url: row.imageUrl,
-          thumbUrl: row.thumbUrl,
+          url: image.url,
+          thumbUrl: image.thumbUrl,
         }
       : null,
   }
@@ -165,17 +168,21 @@ export async function getHomeSummary(familyId: number, userId: number): Promise<
   const recipeStats = getRecipeStats(familyId)
   const recentlyOrderedRecipeIds = getRecentlyOrderedRecipeIds(familyId, userId)
 
-  const frequentRecipes = recipeStats
-    .filter((recipe) => Number(recipe.orderCount) > 0)
-    .slice(0, 5)
-    .map(mapRecipeStatsRow)
+  const frequentRecipes = await Promise.all(
+    recipeStats
+      .filter((recipe) => Number(recipe.orderCount) > 0)
+      .slice(0, 5)
+      .map(mapRecipeStatsRow),
+  )
 
   const recommendationPool = recipeStats.filter(
     (recipe) => !recentlyOrderedRecipeIds.has(recipe.recipeId),
   )
-  const recommendedRecipes = (recommendationPool.length > 0 ? recommendationPool : recipeStats)
-    .slice(0, 5)
-    .map(mapRecipeStatsRow)
+  const recommendedRecipes = await Promise.all(
+    (recommendationPool.length > 0 ? recommendationPool : recipeStats)
+      .slice(0, 5)
+      .map(mapRecipeStatsRow),
+  )
 
   const recentOrderRows = await db
     .select({
