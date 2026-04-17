@@ -12,6 +12,7 @@
 - `task-32-entry-check.txt` — Memory entry 模板与分层记忆决策验证
 - `task-33-report-check.txt` — Review report 模板可用性验证
 - `task-34-pilot-result.txt` — T34 试点执行结果
+- `task-34-memory-sync.txt` — T34 试点的 notepad / memory sync 证据
 
 ## 命名规则
 

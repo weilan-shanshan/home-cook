@@ -1,0 +1,16 @@
+__drizzle_migrations     order_items              recipe_tags            
+cook_logs                order_likes              recipes                
+families                 order_reviews            sessions               
+family_members           order_shares             tags                   
+favorites                order_status_events      users                  
+notification_deliveries  orders                   wishes                 
+notification_events      ratings                
+order_comments           recipe_images          
+0|id|INTEGER|1||1
+1|order_id|INTEGER|1||0
+2|user_id|INTEGER|1||0
+3|score|INTEGER|1||0
+4|taste_score|INTEGER|1||0
+5|portion_score|INTEGER|1||0
+6|overall_note|TEXT|0||0
+7|created_at|TEXT|1|datetime('now')|0

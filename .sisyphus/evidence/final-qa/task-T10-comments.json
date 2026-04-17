@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "ok": true,
+  "body": [
+    {
+      "id": 2,
+      "order_id": 10,
+      "user_id": 9,
+      "display_name": "T3 Verifier",
+      "role_type": "requester",
+      "content": "F3 自动验证评论",
+      "created_at": "2026-04-17 03:01:57"
+    }
+  ]
+}

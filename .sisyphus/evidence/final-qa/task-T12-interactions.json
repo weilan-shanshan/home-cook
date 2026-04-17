@@ -1,0 +1,57 @@
+{
+  "like": {
+    "status": 201,
+    "ok": true,
+    "body": {
+      "order_id": 10,
+      "user_id": 9,
+      "liked": true,
+      "created_at": "2026-04-17 03:08:33"
+    }
+  },
+  "unlike": {
+    "status": 200,
+    "ok": true,
+    "body": {
+      "order_id": 10,
+      "user_id": 9,
+      "liked": false
+    }
+  },
+  "share": {
+    "status": 201,
+    "ok": true,
+    "body": {
+      "id": 2,
+      "order_id": 10,
+      "user_id": 9,
+      "share_type": "f3-qa",
+      "channel": "playwright",
+      "created_at": "2026-04-17 03:08:33"
+    }
+  },
+  "shareCard": {
+    "status": 200,
+    "ok": true,
+    "body": {
+      "order": {
+        "id": 10,
+        "mealType": "dinner",
+        "mealDate": "2026-04-17",
+        "note": "F3 自动验证订单",
+        "status": "completed",
+        "createdAt": "2026-04-17 03:01:31"
+      },
+      "items": [
+        {
+          "id": 10,
+          "recipeId": 8,
+          "quantity": 1,
+          "recipeTitle": "F3 自动验证菜谱 1776394891571",
+          "image": null
+        }
+      ],
+      "likeCount": 0
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "ok": true,
+  "body": [
+    {
+      "id": 2,
+      "order_id": 10,
+      "user_id": 9,
+      "display_name": "T3 Verifier",
+      "score": 5,
+      "taste_score": 5,
+      "portion_score": 4,
+      "overall_note": "F3 自动验证评价",
+      "created_at": "2026-04-17 03:01:57"
+    }
+  ]
+}

@@ -5,24 +5,24 @@
 [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
 [36mvite v5.4.21 [32mbuilding for production...[36m[39m
 transforming...
-[32m✓[39m 1944 modules transformed.
+[32m✓[39m 1956 modules transformed.
 rendering chunks...
 computing gzip size...
 [2mdist/[22m[32mregisterSW.js              [39m[1m[2m  0.13 kB[22m[1m[22m
 [2mdist/[22m[32mmanifest.webmanifest       [39m[1m[2m  0.37 kB[22m[1m[22m
 [2mdist/[22m[32mindex.html                 [39m[1m[2m  0.95 kB[22m[1m[22m[2m │ gzip:   0.49 kB[22m
-[2mdist/[22m[2massets/[22m[35mindex-COSNJvA1.css  [39m[1m[2m 40.86 kB[22m[1m[22m[2m │ gzip:   7.56 kB[22m
-[2mdist/[22m[2massets/[22m[36mindex-CP5lu5E0.js   [39m[1m[33m524.02 kB[39m[22m[2m │ gzip: 164.56 kB[22m
+[2mdist/[22m[2massets/[22m[35mindex-DGPvM-sU.css  [39m[1m[2m 45.38 kB[22m[1m[22m[2m │ gzip:   8.44 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-XqhQeyCc.js   [39m[1m[33m554.67 kB[39m[22m[2m │ gzip: 170.18 kB[22m
 [33m
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 2.05s[39m
+[32m✓ built in 1.79s[39m
 
 PWA v0.17.5
 mode      generateSW
-precache  7 entries (555.14 KiB)
+precache  7 entries (590.16 KiB)
 files generated
   dist/sw.js
   dist/workbox-f6d7f489.js

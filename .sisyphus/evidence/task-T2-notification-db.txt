@@ -1,0 +1,18 @@
+5|1|order_created|order|6|sent|{"orderId":6,"userName":"T2 Clean","mealType":"snack","items":["宫保鸡丁"],"message":"🍽️ T2 Clean点了snack：宫保鸡丁"}|2026-04-16 06:20:52|
+6|1|order_created|order|7|pending|{"orderId":7,"userName":"T2 Clean","mealType":"dinner","items":["清蒸鲈鱼"],"message":"🍽️ T2 Clean点了dinner：清蒸鲈鱼"}||Previous delivery failed
+5|1|wechat|sent|1|
+5|2|wechat|sent|1|
+5|3|wechat|sent|1|
+5|5|wechat|sent|1|
+5|6|wechat|sent|1|
+5|7|wechat|sent|1|
+5|8|wechat|sent|1|
+5|11|wechat|sent|1|
+6|1|wechat|failed|1|fetch failed
+6|2|wechat|failed|1|fetch failed
+6|3|wechat|failed|1|fetch failed
+6|5|wechat|failed|1|fetch failed
+6|6|wechat|failed|1|fetch failed
+6|7|wechat|failed|1|fetch failed
+6|8|wechat|failed|1|fetch failed
+6|11|wechat|failed|1|fetch failed

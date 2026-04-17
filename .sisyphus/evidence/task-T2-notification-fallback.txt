@@ -1,0 +1,2 @@
+6|order_created|pending|Previous delivery failed|{"orderId":7,"userName":"T2 Clean","mealType":"dinner","items":["清蒸鲈鱼"],"message":"🍽️ T2 Clean点了dinner：清蒸鲈鱼"}
+5|order_created|sent||{"orderId":6,"userName":"T2 Clean","mealType":"snack","items":["宫保鸡丁"],"message":"🍽️ T2 Clean点了snack：宫保鸡丁"}

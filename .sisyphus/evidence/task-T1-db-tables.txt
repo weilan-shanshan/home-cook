@@ -1,0 +1,17 @@
+__drizzle_migrations     notification_events      recipe_tags            
+cook_logs                order_items              recipes                
+families                 order_status_events      sessions               
+family_members           orders                   tags                   
+favorites                ratings                  users                  
+notification_deliveries  recipe_images            wishes                 
+0|id|INTEGER|1||1
+1|family_id|INTEGER|1||0
+2|user_id|INTEGER|1||0
+3|meal_type|TEXT|1||0
+4|meal_date|TEXT|1||0
+5|note|TEXT|0||0
+6|status|TEXT|1|'pending'|0
+7|created_at|TEXT|1|datetime('now')|0
+8|cook_user_id|INTEGER|0||0
+9|completed_at|TEXT|0||0
+10|cancelled_at|TEXT|0||0
