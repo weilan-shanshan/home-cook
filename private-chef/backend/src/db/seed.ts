@@ -40,7 +40,7 @@ async function seed() {
       .run()
   }
 
-  console.log('Seed complete: admin user "chef" / password "admin123", family "我们家", invite code "888888"')
+  process.stdout.write('Seed complete: admin user "chef" / password "admin123", family "我们家", invite code "888888"\n')
   sqlite.close()
 }
 

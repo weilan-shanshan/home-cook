@@ -5,5 +5,5 @@ import { app } from './app.js'
 export type { AppType } from './app.js'
 
 serve({ fetch: app.fetch, port: env.PORT }, () => {
-  console.log(`Server running on http://localhost:${env.PORT}`)
+  process.stdout.write(`Server running on http://localhost:${env.PORT}\n`)
 })
