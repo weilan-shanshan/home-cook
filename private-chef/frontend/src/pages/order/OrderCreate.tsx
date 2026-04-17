@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, Link, useSearchParams } from 'react-router'
 import { useRecipes } from '@/hooks/useRecipes'
-import { useCreateOrder, CreateOrderParams, MealType } from '@/hooks/useOrders'
+import { useCreateOrder, useOrder, CreateOrderParams, MealType } from '@/hooks/useOrders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +20,7 @@ interface SelectedItem {
 
 export default function OrderCreate() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { toast } = useToast()
   const createOrder = useCreateOrder()
 
@@ -36,9 +37,43 @@ export default function OrderCreate() {
     q,
   })
 
+  const fromOrderId = Number(searchParams.get('from')) || 0
+  const { data: previousOrder } = useOrder(fromOrderId)
+
+  useEffect(() => {
+    if (previousOrder && previousOrder.items) {
+      setSelectedItems(
+        previousOrder.items.map((item) => ({
+          recipe_id: item.recipeId,
+          quantity: item.quantity,
+          title: item.recipeTitle,
+          thumb_url: item.image?.thumbUrl || item.image?.url || null,
+        }))
+      )
+      setMealType(previousOrder.mealType)
+      setNote(previousOrder.note || '')
+    }
+  }, [previousOrder])
+
   const recipes = useMemo(() => {
     return recipesData?.pages.flatMap((page) => page.data) || []
   }, [recipesData])
+
+  useEffect(() => {
+    const rawItems = searchParams.get('items')
+    if (!rawItems) {
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(rawItems) as SelectedItem[]
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setSelectedItems(parsed)
+      }
+    } catch {
+      // ignore malformed query payloads
+    }
+  }, [searchParams])
 
   const handleAddItem = (recipeId: number, title: string, thumbUrl: string | null) => {
     setSelectedItems((prev) => {
@@ -91,9 +126,9 @@ export default function OrderCreate() {
     }
 
     try {
-      await createOrder.mutateAsync(payload)
+      const createdOrder = await createOrder.mutateAsync(payload)
       toast({ title: '订单创建成功！' })
-      navigate('/orders')
+      navigate(`/orders/${createdOrder.id}`)
     } catch (err: unknown) {
       let errorMessage = '发生意外错误。'
       if (err instanceof Error) {

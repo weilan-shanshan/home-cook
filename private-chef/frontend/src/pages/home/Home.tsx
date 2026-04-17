@@ -1,137 +1,259 @@
-import { useState, useMemo } from 'react'
-import { useRecipes, useTags } from '@/hooks/useRecipes'
-import { RecipeCard } from '@/components/recipe/RecipeCard'
-import { Input } from '@/components/ui/input'
+import { Link } from 'react-router'
+import { useHomeSummary } from '@/hooks/useHomeSummary'
+import { Card, CardContent, } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Search, Filter, Loader2, X } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Loader2, Utensils, ClipboardList, Heart, PlusCircle, Star, ChefHat, MessageSquare, Clock } from 'lucide-react'
+
+function formatRelativeTime(dateStr: string) {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) return '刚刚'
+  
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return `${diffInMinutes}分钟前`
+  
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return `${diffInHours}小时前`
+  
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 30) return `${diffInDays}天前`
+  
+  return date.toLocaleDateString('zh-CN')
+}
 
 export default function Home() {
-  const [q, setQ] = useState('')
-  const [tag, setTag] = useState<number | undefined>()
+  const { data, isLoading, isError } = useHomeSummary()
 
-  const {
-    data: recipesData,
-    isLoading: isLoadingRecipes,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useRecipes({
-    limit: 20,
-    q,
-    tag,
-  })
-
-  const { data: tagsData } = useTags()
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4 animate-in fade-in">
+        <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
+        <p className="text-sm font-medium">加载主页中...</p>
+      </div>
+    )
   }
 
-  const handleTagToggle = (id: number) => {
-    setTag((prev) => (prev === id ? undefined : id))
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-muted-foreground gap-4 animate-in fade-in">
+        <p className="text-sm font-medium text-destructive">加载失败，请刷新重试</p>
+      </div>
+    )
   }
-
-  const handleClearFilters = () => {
-    setQ('')
-    setTag(undefined)
-  }
-
-  const recipes = useMemo(() => {
-    return recipesData?.pages.flatMap((page) => page.data) || []
-  }, [recipesData])
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">您的菜谱</h1>
-        
-        <form onSubmit={handleSearch} className="flex gap-2 max-w-sm w-full relative">
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="搜索菜谱..."
-              className="pl-9 pr-4 bg-background/50 backdrop-blur-sm border-muted-foreground/20 focus-visible:ring-primary/50"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-        </form>
+    <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Header / Achievements */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">私厨 Dashboard</h1>
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="rounded-full bg-primary/20 p-3">
+                <Utensils className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">总点餐数</p>
+                <p className="text-2xl font-bold">{data.achievementSummary.totalOrders}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-secondary/30 border-secondary">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="rounded-full bg-secondary p-3">
+                <ChefHat className="h-5 w-5 text-secondary-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">被掌勺数</p>
+                <p className="text-2xl font-bold">{data.achievementSummary.totalCooks}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {(tagsData && tagsData.length > 0) || tag || q ? (
-        <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-border/40">
-          <Filter className="h-4 w-4 text-muted-foreground mr-2" />
-          <span className="text-sm text-muted-foreground mr-2">标签：</span>
-          {tagsData?.map((t) => (
-            <Badge
-              key={t.id}
-              variant={tag === t.id ? 'default' : 'outline'}
-              className="cursor-pointer transition-colors hover:bg-secondary"
-              onClick={() => handleTagToggle(t.id)}
-            >
-              {t.name}
-            </Badge>
-          ))}
-          {(tag || q) && (
-            <Button variant="ghost" size="sm" onClick={handleClearFilters} className="ml-auto text-muted-foreground h-8 px-2 text-xs">
-              <X className="h-3 w-3 mr-1" />
-              清除筛选
-            </Button>
-          )}
-        </div>
-      ) : null}
+      {/* Shortcuts */}
+      <div className="grid grid-cols-4 gap-2">
+        <Link to="/menu" className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+          <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full text-blue-600 dark:text-blue-400">
+            <Utensils className="h-6 w-6" />
+          </div>
+          <span className="text-xs font-medium">点菜</span>
+        </Link>
+        <Link to="/orders" className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+          <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full text-orange-600 dark:text-orange-400">
+            <ClipboardList className="h-6 w-6" />
+          </div>
+          <span className="text-xs font-medium">我的订单</span>
+        </Link>
+        <Link to="/favorites" className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+          <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full text-red-600 dark:text-red-400">
+            <Heart className="h-6 w-6" />
+          </div>
+          <span className="text-xs font-medium">收藏</span>
+        </Link>
+        <Link to="/recipe/new" className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-secondary/50 transition-colors">
+          <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full text-green-600 dark:text-green-400">
+            <PlusCircle className="h-6 w-6" />
+          </div>
+          <span className="text-xs font-medium">发布菜品</span>
+        </Link>
+      </div>
 
-      {isLoadingRecipes ? (
-        <div className="flex items-center justify-center min-h-[400px] w-full">
-          <div className="flex flex-col items-center gap-4 text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
-            <p className="text-sm font-medium">正在加载菜谱...</p>
+      {/* Recommended Recipes */}
+      {data.recommendedRecipes.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+            <h2 className="text-lg font-semibold">今日推荐</h2>
           </div>
-        </div>
-      ) : recipes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-4 text-center glass-card border-dashed">
-          <div className="rounded-full bg-secondary p-4 mb-4">
-            <Search className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2">未找到菜谱</h3>
-          <p className="text-muted-foreground mb-6 max-w-[400px]">
-            {q || tag ? '尝试调整您的搜索或筛选条件以查找您想要的内容。' : '从创建您的第一个菜谱开始。'}
-          </p>
-          {!(q || tag) && (
-            <Button asChild>
-              <a href="/recipe/new">创建菜谱</a>
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
+          <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory hide-scrollbar">
+            {data.recommendedRecipes.map((recipe) => (
+              <Link 
+                key={recipe.recipeId} 
+                to={`/recipe/${recipe.recipeId}`}
+                className="flex-none w-[160px] snap-center group"
+              >
+                <div className="aspect-square rounded-xl bg-secondary/50 overflow-hidden mb-2 relative">
+                  {recipe.image ? (
+                    <img 
+                      src={recipe.image.thumbUrl || recipe.image.url} 
+                      alt={recipe.title}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                      <Utensils className="h-10 w-10" />
+                    </div>
+                  )}
+                </div>
+                <h3 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">{recipe.title}</h3>
+                <p className="text-xs text-muted-foreground">点过 {recipe.orderCount} 次</p>
+              </Link>
             ))}
           </div>
-          {hasNextPage && (
-            <div className="flex justify-center pt-4 pb-8">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="w-full sm:w-auto min-w-[200px] glass-card hover:bg-secondary/50"
+        </div>
+      )}
+
+      {/* Frequent Recipes */}
+      {data.frequentRecipes.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+            <h2 className="text-lg font-semibold">常点好菜</h2>
+          </div>
+          <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 snap-x snap-mandatory hide-scrollbar">
+            {data.frequentRecipes.map((recipe) => (
+              <Link 
+                key={recipe.recipeId} 
+                to={`/recipe/${recipe.recipeId}`}
+                className="flex-none w-[160px] snap-center group"
               >
-                {isFetchingNextPage ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    正在加载...
-                  </>
-                ) : (
-                  '加载更多'
-                )}
-              </Button>
+                <div className="aspect-[4/3] rounded-xl bg-secondary/50 overflow-hidden mb-2 relative">
+                  {recipe.image ? (
+                    <img 
+                      src={recipe.image.thumbUrl || recipe.image.url} 
+                      alt={recipe.title}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                      <Utensils className="h-8 w-8" />
+                    </div>
+                  )}
+                </div>
+                <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">{recipe.title}</h3>
+                <p className="text-xs text-muted-foreground">累计 {recipe.orderCount} 次</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Orders */}
+      {data.recentOrders.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-500" />
+              <h2 className="text-lg font-semibold">最近订单动态</h2>
             </div>
-          )}
+            <Link to="/orders" className="text-sm text-primary hover:underline">
+              全部
+            </Link>
+          </div>
+          <div className="grid gap-3">
+            {data.recentOrders.map((order) => (
+              <Link key={order.id} to={`/orders/${order.id}`}>
+                <Card className="hover:bg-secondary/20 transition-colors">
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0">
+                          {order.status === 'completed' ? '已完成' : 
+                           order.status === 'confirmed' ? '已接单' : 
+                           order.status === 'submitted' ? '待处理' : '已取消'}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {formatRelativeTime(order.createdAt)}
+                        </span>
+                      </div>
+                      <p className="font-medium text-sm line-clamp-1">
+                        {order.recipeTitles.join('、') || '无菜品'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {order.requester.displayName} 点了 {order.mealType === 'lunch' ? '午餐' : order.mealType === 'dinner' ? '晚餐' : order.mealType} ({order.mealDate})
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Comments */}
+      {data.recentComments.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-green-500" />
+            <h2 className="text-lg font-semibold">最新评论</h2>
+          </div>
+          <div className="grid gap-3">
+            {data.recentComments.map((comment) => (
+              <Link key={comment.id} to={`/orders/${comment.orderId}`}>
+                <Card className="hover:bg-secondary/20 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{comment.displayName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-medium">{comment.displayName}</span>
+                            <Badge variant="outline" className="text-[9px] px-1 h-4">
+                              {comment.roleType === 'cook' ? '大厨' : '食客'}
+                            </Badge>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {formatRelativeTime(comment.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {comment.contentPreview}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

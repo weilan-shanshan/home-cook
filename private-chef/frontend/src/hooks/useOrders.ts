@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { baseUrl } from '@/lib/api'
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack'
-export type OrderStatus = 'pending' | 'confirmed' | 'completed'
+export type OrderStatus = 'pending' | 'submitted' | 'confirmed' | 'preparing' | 'completed' | 'cancelled'
 
 export interface OrderItem {
   id: number
@@ -18,12 +18,39 @@ export interface OrderItem {
 export interface Order {
   id: number
   userId: number
+  cookUserId: number | null
   mealType: MealType
   mealDate: string
   note: string | null
   status: OrderStatus
+  completedAt: string | null
+  cancelledAt: string | null
   createdAt: string
   items: OrderItem[]
+}
+
+export interface OrderParticipant {
+  userId: number
+  displayName: string | null
+}
+
+export interface OrderStatusEvent {
+  id: number
+  fromStatus: OrderStatus | null
+  toStatus: OrderStatus
+  operatorId: number | null
+  operatorDisplayName: string | null
+  note: string | null
+  createdAt: string
+}
+
+export interface OrderDetail extends Order {
+  requester: OrderParticipant
+  cook: OrderParticipant | null
+  likeCount: number
+  isLikedByMe: boolean
+  shareCount: number
+  statusTimeline: OrderStatusEvent[]
 }
 
 export interface CreateOrderParams {
@@ -38,7 +65,7 @@ export interface CreateOrderParams {
 
 export interface UpdateOrderStatusParams {
   id: number
-  status: 'confirmed' | 'completed'
+  status: OrderStatus
 }
 
 interface OrdersQueryParams {
@@ -69,7 +96,7 @@ export function useOrders(params?: OrdersQueryParams) {
 export function useOrder(id: number) {
   return useQuery({
     queryKey: ['order', id],
-    queryFn: async (): Promise<Order> => {
+    queryFn: async (): Promise<OrderDetail> => {
       const res = await fetch(`${baseUrl}/api/orders/${id}`, { credentials: 'include' })
       if (!res.ok) {
         throw new Error('Failed to fetch order')

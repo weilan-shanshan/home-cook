@@ -15,6 +15,7 @@ import OrderDetailV2 from '@/pages/order/OrderDetailV2'
 import WishList from '@/pages/wish/WishList'
 import Favorites from '@/pages/favorites/Favorites'
 import Profile from '@/pages/profile/Profile'
+import Achievements from '@/pages/achievements/Achievements'
 
 function App() {
   return (
@@ -29,9 +30,11 @@ function App() {
           <Route path="/orders" element={<OrderList />} />
           <Route path="/orders/:id" element={<OrderDetailV2 />} />
           <Route path="/order/create" element={<OrderCreate />} />
+          <Route path="/menu/create-order" element={<OrderCreate />} />
           <Route path="/wishes" element={<WishList />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/achievements" element={<Achievements />} />
           <Route path="/recipe/new" element={<RecipeForm />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/recipe/:id/edit" element={<RecipeForm />} />
