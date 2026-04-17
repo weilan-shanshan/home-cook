@@ -1,0 +1,47 @@
+schema: spec-driven
+
+context: |
+  Repository: ai/cook
+  Primary app: private-chef/
+
+  Product:
+  - Private Chef is a family cooking and ordering PWA for small households.
+  - Core capabilities include account/family onboarding, recipe management,
+    meal ordering, wishes, favorites, cook logs, ratings, and WeChat notifications.
+
+  Tech stack:
+  - Frontend: React 18, TypeScript, Vite, Tailwind CSS, Radix UI, React Router 7,
+    TanStack Query, vite-plugin-pwa
+  - Backend: Hono, TypeScript, Drizzle ORM, better-sqlite3, Zod, Argon2
+  - Storage/infra: SQLite, Tencent COS, Cloudflare Pages, Cloudflare Tunnel, PM2
+
+  Repository layout:
+  - private-chef/frontend: web app and UI flows
+  - private-chef/backend: REST API, auth, persistence, upload, notifications
+  - root helper scripts and snapshots are operational/dev artifacts, not product modules
+
+  Source documents:
+  - private-chef/README.md
+  - private-chef/DEPLOYMENT_RUNBOOK.md
+  - private-chef/私厨-技术方案.md
+
+rules:
+  proposal:
+    - State why the change is needed and which user flow it affects.
+    - Explicitly name touched modules: frontend, backend, shared contract, deployment.
+    - Separate in-scope and out-of-scope items.
+
+  specs:
+    - Use RFC 2119 keywords (SHALL/SHOULD/MAY).
+    - Use Given/When/Then scenarios.
+    - Baseline specs describe current behavior; change specs describe deltas only.
+    - Favor product behavior and integration contracts over implementation trivia.
+
+  design:
+    - Include API contract changes when backend behavior changes.
+    - Include state/data-flow notes when frontend behavior changes.
+    - Call out deployment or environment variable impact when relevant.
+
+  tasks:
+    - Group tasks by module.
+    - Include verification tasks for diagnostics/tests/build where applicable.
