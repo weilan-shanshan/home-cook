@@ -9,6 +9,7 @@ import {
   tags,
 } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type AuthEnv = {
   Variables: {
@@ -102,15 +103,21 @@ favoritesRouter.get('/', async (c) => {
   }
 
   return c.json(
-    rows.map((row) => ({
-      id: row.recipeId,
-      title: row.title,
-      first_image: row.imageUrl
-        ? { url: row.imageUrl, thumb_url: row.thumbUrl }
-        : null,
-      tags: tagsByRecipe.get(row.recipeId) ?? [],
-      favorited_at: row.favoritedAt,
-    })),
+    await Promise.all(
+      rows.map(async (row) => {
+        const firstImage = await resolveImageUrls(row.imageUrl, row.thumbUrl)
+
+        return {
+          id: row.recipeId,
+          title: row.title,
+          first_image: firstImage
+            ? { url: firstImage.url, thumb_url: firstImage.thumbUrl }
+            : null,
+          tags: tagsByRecipe.get(row.recipeId) ?? [],
+          favorited_at: row.favoritedAt,
+        }
+      }),
+    ),
   )
 })
 
