@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { sqlite } from '../db/index.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { notifyNewRecipe } from '../lib/wechat.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type AuthEnv = {
   Variables: {
@@ -157,22 +158,28 @@ recipesRouter.get('/', async (c) => {
     arr.push({ id: row.tag_id, name: row.tag_name })
   }
 
-  const data = recipeRows.map((r) => ({
-    id: r.id,
-    title: r.title,
-    description: r.description,
-    steps: r.steps ? JSON.parse(r.steps) : [],
-    cook_minutes: r.cook_minutes,
-    servings: r.servings,
-    created_by: r.created_by,
-    created_at: r.created_at,
-    updated_at: r.updated_at,
-    first_image: r.first_image_url
-      ? { url: r.first_image_url, thumb_url: r.first_thumb_url }
-      : null,
-    tags: tagsByRecipe.get(r.id) ?? [],
-    avg_rating: r.avg_rating ? Math.round(r.avg_rating * 10) / 10 : null,
-  }))
+  const data = await Promise.all(
+    recipeRows.map(async (r) => {
+      const firstImage = await resolveImageUrls(r.first_image_url, r.first_thumb_url)
+
+      return {
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        steps: r.steps ? JSON.parse(r.steps) : [],
+        cook_minutes: r.cook_minutes,
+        servings: r.servings,
+        created_by: r.created_by,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        first_image: firstImage
+          ? { url: firstImage.url, thumb_url: firstImage.thumbUrl }
+          : null,
+        tags: tagsByRecipe.get(r.id) ?? [],
+        avg_rating: r.avg_rating ? Math.round(r.avg_rating * 10) / 10 : null,
+      }
+    }),
+  )
 
   return c.json({ data, total, page, limit })
 })
@@ -260,6 +267,18 @@ recipesRouter.get('/:id', async (c) => {
     )
     .get(userId, recipeId) as { is_fav: number } | undefined
 
+  const resolvedImages = await Promise.all(
+    images.map(async (image) => {
+      const resolvedImage = await resolveImageUrls(image.url, image.thumb_url)
+
+      return {
+        ...image,
+        url: resolvedImage?.url ?? image.url,
+        thumb_url: resolvedImage?.thumbUrl ?? image.thumb_url,
+      }
+    }),
+  )
+
   return c.json({
     id: recipe.id,
     title: recipe.title,
@@ -273,7 +292,7 @@ recipesRouter.get('/:id', async (c) => {
     avg_rating: recipe.avg_rating
       ? Math.round(recipe.avg_rating * 10) / 10
       : null,
-    images,
+    images: resolvedImages,
     tags: recipeTags_,
     recent_cook_logs: recentCookLogs,
     is_favorited: !!fav,

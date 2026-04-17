@@ -5,6 +5,7 @@ import { db } from '../db/index.js'
 import { recipes, recipeImages } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { getPresignedUploadUrl } from '../lib/cos.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type AuthEnv = {
   Variables: {
@@ -85,7 +86,16 @@ imagesRouter.post('/recipes/:id/images', async (c) => {
       createdAt: recipeImages.createdAt,
     })
 
-  return c.json(inserted, 201)
+  const resolvedImage = await resolveImageUrls(inserted.url, inserted.thumbUrl)
+
+  return c.json(
+    {
+      ...inserted,
+      url: resolvedImage?.url ?? inserted.url,
+      thumbUrl: resolvedImage?.thumbUrl ?? inserted.thumbUrl,
+    },
+    201,
+  )
 })
 
 imagesRouter.delete('/images/:id', async (c) => {
