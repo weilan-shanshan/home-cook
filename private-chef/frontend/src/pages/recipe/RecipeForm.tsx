@@ -8,6 +8,8 @@ import {
   useSaveRecipeImage,
 } from '@/hooks/useRecipes'
 import { uploadImage } from '@/lib/upload'
+import { RecipeCreateSuccessBanner } from '@/components/recipe/RecipeCreateSuccessBanner'
+import { RecipeUploadQueue } from '@/components/recipe/RecipeUploadQueue'
 import { StepEditor } from '@/components/recipe/StepEditor'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,11 +29,26 @@ interface FormState {
 }
 
 interface ImageState {
+  localId: string
   id?: number
   file?: File
   previewUrl: string
   uploadUrl?: string
-  progress?: number
+  progress: number
+  status: 'idle' | 'uploading' | 'success' | 'error'
+  errorMessage?: string
+}
+
+function createLocalId() {
+  return crypto.randomUUID()
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return '上传失败，请稍后重试'
 }
 
 export default function RecipeForm() {
@@ -56,6 +73,8 @@ export default function RecipeForm() {
     tags: [],
   })
   const [images, setImages] = useState<ImageState[]>([])
+  const [createdRecipeId, setCreatedRecipeId] = useState<number | null>(null)
+  const [showCreateSuccessBanner, setShowCreateSuccessBanner] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const imagesRef = useRef(images)
@@ -76,9 +95,12 @@ export default function RecipeForm() {
       if (recipe.images) {
         setImages(
           recipe.images.map((img) => ({
+            localId: createLocalId(),
             id: img.id,
             previewUrl: img.url,
             uploadUrl: img.url,
+            progress: 100,
+            status: 'success',
           }))
         )
       }
@@ -117,13 +139,85 @@ export default function RecipeForm() {
     const files = Array.from(e.target.files)
     
     const newImages = files.map((file) => ({
+      localId: createLocalId(),
       file,
       previewUrl: URL.createObjectURL(file),
       progress: 0,
+      status: 'idle' as const,
     }))
     
     setImages((prev) => [...prev, ...newImages])
     e.target.value = '' // reset input
+  }
+
+  const activeRecipeId = isEdit ? recipeId : createdRecipeId
+
+  const updateImage = (localId: string, updater: (image: ImageState) => ImageState) => {
+    setImages((prev) => prev.map((image) => (image.localId === localId ? updater(image) : image)))
+  }
+
+  const uploadSingleImage = async (localId: string, targetRecipeId: number) => {
+    const currentImages = imagesRef.current
+    const imageIndex = currentImages.findIndex((image) => image.localId === localId)
+    if (imageIndex === -1) {
+      return
+    }
+
+    const image = currentImages[imageIndex]
+    if (!image.file || image.uploadUrl || image.status === 'uploading') {
+      return
+    }
+
+    updateImage(localId, (current) => ({
+      ...current,
+      status: 'uploading',
+      progress: 0,
+      errorMessage: undefined,
+    }))
+
+    try {
+      const result = await uploadImage(image.file, {
+        onProgress: (progress) => {
+          updateImage(localId, (current) => ({
+            ...current,
+            status: 'uploading',
+            progress,
+          }))
+        },
+      })
+
+      await saveImageMutation.mutateAsync({
+        recipeId: targetRecipeId,
+        json: {
+          url: result.url,
+          sort_order: imageIndex,
+        },
+      })
+
+      updateImage(localId, (current) => ({
+        ...current,
+        uploadUrl: result.url,
+        progress: 100,
+        status: 'success',
+        errorMessage: undefined,
+      }))
+    } catch (error) {
+      updateImage(localId, (current) => ({
+        ...current,
+        status: 'error',
+        errorMessage: getErrorMessage(error),
+      }))
+    }
+  }
+
+  const queuePendingUploads = (targetRecipeId: number) => {
+    const pendingImages = imagesRef.current.filter(
+      (image) => image.file && !image.uploadUrl && image.status !== 'uploading',
+    )
+
+    void Promise.allSettled(
+      pendingImages.map((image) => uploadSingleImage(image.localId, targetRecipeId)),
+    )
   }
 
   const removeImage = (index: number) => {
@@ -160,46 +254,26 @@ export default function RecipeForm() {
         tags: form.tags,
       }
 
-      let targetRecipeId: number
-      if (isEdit) {
-        await updateMutation.mutateAsync({ id: recipeId, json: payload })
-        targetRecipeId = recipeId
-        toast({ title: '菜谱更新成功！' })
+      let targetRecipeId = activeRecipeId
+      if (targetRecipeId) {
+        await updateMutation.mutateAsync({ id: targetRecipeId, json: payload })
+        toast({
+          title: '菜谱已保存',
+          description: '图片会继续在后台上传。',
+        })
       } else {
         const created = await createMutation.mutateAsync(payload)
         targetRecipeId = created.id
-        toast({ title: '菜谱创建成功！' })
+        setCreatedRecipeId(created.id)
+        setShowCreateSuccessBanner(true)
       }
 
-      // Upload and link new images
-      await Promise.all(
-        images.map(async (img, idx) => {
-          if (img.uploadUrl) return img // Already uploaded (from edit mode)
-          if (!img.file) throw new Error('Missing file for new image')
-          
-          const result = await uploadImage(img.file, {
-            onProgress: (p) => {
-              setImages((prev) => {
-                const updated = [...prev]
-                updated[idx].progress = p
-                return updated
-              })
-            },
-          })
-          
-          await saveImageMutation.mutateAsync({
-            recipeId: targetRecipeId,
-            json: {
-              url: result.url,
-              sort_order: idx
-            }
-          })
-          
-          return { ...img, uploadUrl: result.url }
-        })
-      )
-      
-      navigate(`/recipe/${targetRecipeId}`)
+      const hasQueuedUploads = imagesRef.current.some((image) => image.file && !image.uploadUrl)
+      if (hasQueuedUploads) {
+        queuePendingUploads(targetRecipeId)
+      } else if (!isEdit) {
+        setShowCreateSuccessBanner(true)
+      }
     } catch (err: unknown) {
       let errorMessage = '发生意外错误。'
       if (err instanceof Error) {
@@ -247,7 +321,7 @@ export default function RecipeForm() {
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  {img.progress !== undefined && img.progress < 100 && !img.uploadUrl && (
+                  {img.status === 'uploading' && !img.uploadUrl && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center">
                       <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
                       <span className="text-xs font-medium text-primary">{img.progress}%</span>
@@ -270,6 +344,43 @@ export default function RecipeForm() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {showCreateSuccessBanner && createdRecipeId && (
+              <div className="md:col-span-2">
+                <RecipeCreateSuccessBanner
+                  recipeId={createdRecipeId}
+                  uploadedCount={images.filter((image) => image.file && image.status === 'success').length}
+                  pendingCount={images.filter((image) => image.file && image.status !== 'success' && image.status !== 'error').length}
+                  errorCount={images.filter((image) => image.file && image.status === 'error').length}
+                  onViewDetail={() => navigate(`/recipe/${createdRecipeId}`)}
+                  onDismiss={() => setShowCreateSuccessBanner(false)}
+                />
+              </div>
+            )}
+
+            {images.some((image) => image.file) && (
+              <div className="md:col-span-2">
+                <RecipeUploadQueue
+                  items={images
+                    .filter((image) => image.file)
+                    .map((image) => ({
+                      localId: image.localId,
+                      previewUrl: image.previewUrl,
+                      fileName: image.file?.name ?? '未命名图片',
+                      progress: image.progress,
+                      status: image.status,
+                      errorMessage: image.errorMessage,
+                    }))}
+                  canRetry={Boolean(activeRecipeId)}
+                  onRetry={(localId) => {
+                    if (!activeRecipeId) {
+                      return
+                    }
+                    void uploadSingleImage(localId, activeRecipeId)
+                  }}
+                />
+              </div>
+            )}
+
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="title" className="text-base">标题 *</Label>
               <Input
@@ -369,6 +480,8 @@ export default function RecipeForm() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   保存中...
                 </>
+              ) : activeRecipeId ? (
+                '保存更改'
               ) : isEdit ? (
                 '保存更改'
               ) : (
