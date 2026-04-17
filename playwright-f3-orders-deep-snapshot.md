@@ -1,0 +1,52 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e191]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - heading "订单" [level=1] [ref=e194]
+            - paragraph [ref=e195]: 管理您的用餐计划和订单请求。
+          - link "新建订单" [ref=e196] [cursor=pointer]:
+            - /url: /order/create
+            - img [ref=e197]
+            - text: 新建订单
+        - generic [ref=e199]:
+          - generic [ref=e200]:
+            - img [ref=e201]
+            - heading "2026年4月17日" [level=2] [ref=e203]
+          - generic [ref=e205]:
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - heading "晚餐" [level=3] [ref=e209]
+                - paragraph [ref=e210]: "订单 #10"
+              - generic [ref=e211]: 已完成
+            - generic [ref=e212]:
+              - generic [ref=e213]:
+                - img [ref=e214]
+                - paragraph [ref=e217]: F3 自动验证订单
+              - generic [ref=e218]:
+                - heading "菜品" [level=4] [ref=e219]
+                - list [ref=e220]:
+                  - listitem [ref=e221]:
+                    - generic [ref=e222]: F3 自动验证菜谱 1776394891571
+                    - generic [ref=e223]: x1
+    - navigation [ref=e114]:
+      - generic [ref=e115]:
+        - link "首页" [ref=e116] [cursor=pointer]:
+          - /url: /
+          - img [ref=e117]
+          - generic [ref=e120]: 首页
+        - link "点菜" [ref=e121] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e122]
+          - generic [ref=e125]: 点菜
+        - link "订单" [active] [ref=e126] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e127]
+          - generic [ref=e130]: 订单
+        - link "我的" [ref=e131] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e132]
+          - generic [ref=e135]: 我的
+  - region "Notifications (F8)":
+    - list

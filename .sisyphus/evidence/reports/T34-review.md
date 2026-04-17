@@ -27,6 +27,7 @@
 | :--- | :--- | :--- |
 | `task-34-pilot-result.txt` | ✅ | 记录了 pilot 产物和分层记忆路由结果 |
 | `README.md` | ✅ | 建立了 evidence 索引与命名规范 |
+| `task-34-memory-sync.txt` | ✅ | 证明 decisions / learnings / issues 的 notepad 回写已经完成 |
 
 ## 4. 结论与建议 (Conclusion & Next Steps)
 

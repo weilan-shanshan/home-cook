@@ -1,0 +1,9 @@
+T34 Memory Sync Verification
+
+Verified notepad updates for T34 pilot:
+
+- decisions.md includes D07: T34 chose evidence index as the first pilot
+- learnings.md includes L05: first pilot should validate the loop before difficulty
+- issues.md includes I05: second pilot should cover a code task
+
+Conclusion: memory sync step was executed and persisted in project knowledge files.

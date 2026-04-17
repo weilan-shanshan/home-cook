@@ -1,0 +1,12 @@
+{
+  "active_plan": "/Users/weilan/ali/ai/cook/.sisyphus/plans/private-chef-v2.md",
+  "started_at": "2026-04-15T08:52:36.920Z",
+  "session_ids": [
+    "ses_26fa858bfffeikjpEH2Gj2v2dL"
+  ],
+  "session_origins": {
+    "ses_26fa858bfffeikjpEH2Gj2v2dL": "direct"
+  },
+  "plan_name": "private-chef-v2",
+  "agent": "atlas"
+}

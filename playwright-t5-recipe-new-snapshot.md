@@ -1,0 +1,60 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - link "返回" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - text: 返回
+        - generic [ref=e10]:
+          - heading "创建新菜谱" [level=1] [ref=e11]
+          - generic [ref=e12]:
+            - generic [ref=e13]:
+              - text: 照片
+              - generic [ref=e15] [cursor=pointer]:
+                - img [ref=e16]
+                - generic [ref=e19]: 添加照片
+            - generic [ref=e20]:
+              - generic [ref=e21]:
+                - text: 标题 *
+                - textbox "标题 *" [ref=e22]:
+                  - /placeholder: 例如：经典意面
+              - generic [ref=e23]:
+                - text: 描述
+                - textbox "描述" [ref=e24]:
+                  - /placeholder: 分享这道菜背后的故事...
+              - generic [ref=e25]:
+                - text: 烹饪时间（分钟）
+                - spinbutton "烹饪时间（分钟）" [ref=e26]
+              - generic [ref=e27]:
+                - text: 份量
+                - spinbutton "份量" [ref=e28]
+              - generic [ref=e29]:
+                - text: 标签
+                - generic [ref=e31]: 您的家庭暂无可用标签。
+              - generic [ref=e32]:
+                - text: 步骤 *
+                - generic [ref=e33]
+            - generic [ref=e56]:
+              - button "取消" [ref=e57] [cursor=pointer]
+              - button "创建菜谱" [ref=e58] [cursor=pointer]
+    - navigation [ref=e59]:
+      - generic [ref=e60]:
+        - link "首页" [ref=e61] [cursor=pointer]:
+          - /url: /
+          - img [ref=e62]
+          - generic [ref=e65]: 首页
+        - link "点菜" [ref=e66] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e67]
+          - generic [ref=e70]: 点菜
+        - link "订单" [ref=e71] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e72]
+          - generic [ref=e75]: 订单
+        - link "我的" [ref=e76] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e77]
+          - generic [ref=e80]: 我的
+  - region "Notifications (F8)":
+    - list

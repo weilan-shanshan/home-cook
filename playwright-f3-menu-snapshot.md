@@ -1,0 +1,43 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e136]:
+        - generic [ref=e137]:
+          - heading "点菜" [level=1] [ref=e138]
+          - paragraph [ref=e139]: 挑选今天想吃的菜，加入清单后统一去下单。
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - img [ref=e142]
+            - textbox "搜索菜品名称..." [ref=e145]
+          - generic [ref=e147] [cursor=pointer]: 全部
+        - link "F3 自动验证菜谱 1776394891571 用于 F3 真实 QA 15分钟 2 人份 加入清单" [ref=e149] [cursor=pointer]:
+          - /url: /recipe/8
+          - generic [ref=e150]:
+            - button [ref=e152]
+            - img [ref=e157]
+            - generic [ref=e159]
+        - generic [ref=e180]:
+          - img [ref=e182]
+          - generic [ref=e185]:
+            - generic [ref=e186]
+            - paragraph [ref=e190]: 先从上面的列表选择想吃的菜。
+    - navigation [ref=e114]:
+      - generic [ref=e115]:
+        - link "首页" [ref=e116] [cursor=pointer]:
+          - /url: /
+          - img [ref=e117]
+          - generic [ref=e120]: 首页
+        - link "点菜" [active] [ref=e121] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e122]
+          - generic [ref=e125]: 点菜
+        - link "订单" [ref=e126] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e127]
+          - generic [ref=e130]: 订单
+        - link "我的" [ref=e131] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e132]
+          - generic [ref=e135]: 我的
+  - region "Notifications (F8)":
+    - list

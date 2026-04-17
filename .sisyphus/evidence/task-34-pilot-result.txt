@@ -7,6 +7,7 @@ Verified outputs:
 - Evidence files task-29 through task-33 are indexed
 - Pilot execution document exists at .sisyphus/plans/framework/pilots/t34-evidence-index-pilot.md
 - Review report exists at .sisyphus/evidence/reports/T34-review.md
+- Memory sync evidence exists at .sisyphus/evidence/task-34-memory-sync.txt
 
 Layer routing summary:
 - MEMORY.md: unchanged
@@ -15,4 +16,4 @@ Layer routing summary:
 - Skills: unchanged
 - notepads: updated with pilot conclusions
 
-Conclusion: framework loop executed successfully on a real small task.
+Conclusion: framework loop executed successfully on a real small task, including memory sync evidence.

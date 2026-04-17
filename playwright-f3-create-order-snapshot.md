@@ -1,0 +1,73 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e187]:
+        - link "返回订单列表" [ref=e189] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e190]
+          - text: 返回订单列表
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e194]:
+              - heading "创建订单" [level=1] [ref=e195]
+              - generic [ref=e197]:
+                - generic [ref=e198]:
+                  - text: 用餐类型
+                  - combobox "用餐类型" [ref=e199] [cursor=pointer]:
+                    - generic: 晚餐
+                    - img [ref=e200]
+                  - combobox [ref=e202]
+                - generic [ref=e203]:
+                  - text: 日期
+                  - textbox "日期" [ref=e204]: 2026-04-17
+                - generic [ref=e205]:
+                  - text: 备注（可选）
+                  - textbox "备注（可选）" [ref=e206]:
+                    - /placeholder: 有任何特殊要求或说明吗？
+                    - text: F3 自动验证订单
+            - generic [ref=e207]:
+              - heading "浏览菜谱" [level=2] [ref=e208]
+              - generic [ref=e209]:
+                - img [ref=e210]
+                - searchbox "搜索以添加..." [ref=e213]
+              - generic [ref=e215]:
+                - img [ref=e217]
+                - paragraph [ref=e221]: F3 自动验证菜谱 1776394891571
+                - button "添加" [ref=e222] [cursor=pointer]
+          - generic [ref=e224]:
+            - heading "已选项" [level=2] [ref=e225]
+            - generic [ref=e227]:
+              - paragraph [ref=e229]: F3 自动验证菜谱 1776394891571
+              - generic [ref=e230]:
+                - button [disabled]:
+                  - img
+                - generic [ref=e231]: "1"
+                - button [ref=e232] [cursor=pointer]:
+                  - img [ref=e233]
+                - button [ref=e234] [cursor=pointer]:
+                  - img [ref=e235]
+            - generic [ref=e238]:
+              - generic [ref=e239]:
+                - generic [ref=e240]: 总项目数
+                - generic [ref=e241]: "1"
+              - button "提交订单" [ref=e242] [cursor=pointer]
+    - navigation [ref=e165]:
+      - generic [ref=e166]:
+        - link "首页" [ref=e167] [cursor=pointer]:
+          - /url: /
+          - img [ref=e168]
+          - generic [ref=e171]: 首页
+        - link "点菜" [ref=e172] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e173]
+          - generic [ref=e176]: 点菜
+        - link "订单" [ref=e177] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e178]
+          - generic [ref=e181]: 订单
+        - link "我的" [ref=e182] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e183]
+          - generic [ref=e186]: 我的
+  - region "Notifications (F8)":
+    - list

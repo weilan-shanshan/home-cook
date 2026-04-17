@@ -1,0 +1,135 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - heading "晚餐2026/4/17" [level=1] [ref=e8]
+            - generic [ref=e10]:
+              - img [ref=e11]
+              - text: 2026-04-17 下单
+          - generic [ref=e13]: 已完成
+        - generic [ref=e18]:
+          - img [ref=e20]
+          - generic [ref=e23]:
+            - paragraph [ref=e24]: 点单人
+            - paragraph [ref=e25]: T3 Verifier
+        - generic [ref=e26]:
+          - heading "菜品清单" [level=3] [ref=e28]
+          - generic [ref=e29]:
+            - list [ref=e30]:
+              - listitem [ref=e31]:
+                - generic [ref=e32]:
+                  - generic [ref=e33]: 暂无图
+                  - generic [ref=e34]: F3 自动验证菜谱 1776394891571
+                - generic [ref=e35]: x1
+            - generic [ref=e36]:
+              - text: 备注：
+              - paragraph [ref=e37]: F3 自动验证订单
+        - generic [ref=e38]:
+          - heading "状态追踪" [level=3] [ref=e40]
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - img [ref=e46]
+              - generic [ref=e50]:
+                - paragraph [ref=e51]:
+                  - text: 已提交
+                  - generic [ref=e52]: by T3 Verifier
+                - paragraph [ref=e53]: 4-17 03:01
+                - paragraph [ref=e54]: Order created
+            - generic [ref=e55]:
+              - img [ref=e58]
+              - generic [ref=e62]:
+                - paragraph [ref=e63]:
+                  - text: 已确认
+                  - generic [ref=e64]: by T3 Verifier
+                - paragraph [ref=e65]: 4-17 03:01
+                - paragraph [ref=e66]: Order status updated to confirmed
+            - generic [ref=e67]:
+              - img [ref=e70]
+              - generic [ref=e74]:
+                - paragraph [ref=e75]:
+                  - text: 制作中
+                  - generic [ref=e76]: by T3 Verifier
+                - paragraph [ref=e77]: 4-17 03:01
+                - paragraph [ref=e78]: Order status updated to preparing
+            - generic [ref=e79]:
+              - img [ref=e82]
+              - generic [ref=e85]:
+                - paragraph [ref=e86]:
+                  - text: 已完成
+                  - generic [ref=e87]: by T3 Verifier
+                - paragraph [ref=e88]: 4-17 03:01
+                - paragraph [ref=e89]: Order status updated to completed
+        - generic [ref=e90]:
+          - heading "我的评价" [level=3] [ref=e92]
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - generic [ref=e96]: 总评分
+              - generic [ref=e97]:
+                - img [ref=e98]
+                - img [ref=e100]
+                - img [ref=e102]
+                - img [ref=e104]
+                - img [ref=e106]
+            - generic [ref=e108]:
+              - generic [ref=e109]: 口味
+              - generic [ref=e110]:
+                - img [ref=e111]
+                - img [ref=e113]
+                - img [ref=e115]
+                - img [ref=e117]
+                - img [ref=e119]
+            - generic [ref=e121]:
+              - generic [ref=e122]: 分量
+              - generic [ref=e123]:
+                - img [ref=e124]
+                - img [ref=e126]
+                - img [ref=e128]
+                - img [ref=e130]
+                - img [ref=e132]
+            - paragraph [ref=e134]: "\"F3 自动验证评价\""
+        - generic [ref=e135]:
+          - heading "评论" [level=3] [ref=e137]
+          - generic [ref=e138]:
+            - generic [ref=e140]:
+              - generic [ref=e142]: T
+              - generic [ref=e143]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]: T3 Verifier
+                  - generic [ref=e146]: 4-17 03:01
+                - paragraph [ref=e147]: F3 自动验证评论
+            - generic [ref=e148]:
+              - textbox "写下你的评论..." [ref=e149]
+              - button [disabled]:
+                - img
+        - generic [ref=e150]:
+          - button "点赞" [ref=e151] [cursor=pointer]:
+            - img [ref=e152]
+            - text: 点赞
+          - button "分享" [ref=e154] [cursor=pointer]:
+            - img [ref=e155]
+            - text: 分享
+          - button "再来一单" [ref=e161] [cursor=pointer]:
+            - img [ref=e162]
+            - text: 再来一单
+    - navigation [ref=e165]:
+      - generic [ref=e166]:
+        - link "首页" [ref=e167] [cursor=pointer]:
+          - /url: /
+          - img [ref=e168]
+          - generic [ref=e171]: 首页
+        - link "点菜" [ref=e172] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e173]
+          - generic [ref=e176]: 点菜
+        - link "订单" [ref=e177] [cursor=pointer]:
+          - /url: /orders
+          - img [ref=e178]
+          - generic [ref=e181]: 订单
+        - link "我的" [ref=e182] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e183]
+          - generic [ref=e186]: 我的
+  - region "Notifications (F8)":
+    - list

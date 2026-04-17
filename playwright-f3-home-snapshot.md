@@ -1,0 +1,22 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - main [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]
+        - generic [ref=e26]
+        - generic [ref=e49]
+        - generic [ref=e63]
+        - generic [ref=e77]
+        - generic [ref=e95]
+    - navigation [ref=e114]:
+      - generic [ref=e115]:
+        - link "首页" [ref=e116] [cursor=pointer]:
+          - /url: /
+        - link "点菜" [ref=e121] [cursor=pointer]:
+          - /url: /menu
+        - link "订单" [ref=e126] [cursor=pointer]:
+          - /url: /orders
+        - link "我的" [ref=e131] [cursor=pointer]:
+          - /url: /profile
+  - region "Notifications (F8)":
+    - list

@@ -1,0 +1,9 @@
+[POST] http://127.0.0.1:5173/api/auth/login => [500] Internal Server Error
+  Request headers:
+    sec-ch-ua-platform: "macOS"
+    referer: http://127.0.0.1:5173/login
+    user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36
+    sec-ch-ua: "Google Chrome";v="147", "Not.A/Brand";v="8", "Chromium";v="147"
+    content-type: application/json
+    sec-ch-ua-mobile: ?0
+  Request body: {"username":"chef","password":"admin123"}
