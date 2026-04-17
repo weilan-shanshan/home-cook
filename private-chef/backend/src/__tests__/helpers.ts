@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { webcrypto } from 'node:crypto'
@@ -49,7 +49,32 @@ export type TestContext = {
   wechatMock?: WechatMock
 }
 
-const migrationPath = new URL('../../drizzle/0000_known_kinsey_walden.sql', import.meta.url)
+const migrationDir = new URL('../../drizzle/', import.meta.url)
+
+function hasExecutableSql(statement: string) {
+  const withoutBlockComments = statement.replace(/\/\*[\s\S]*?\*\//g, '')
+  return withoutBlockComments.trim().length > 0
+}
+
+async function applyAllMigrations(sqlite: Database.Database) {
+  const entries = await readdir(migrationDir)
+  const migrationFiles = entries
+    .filter((entry) => entry.endsWith('.sql'))
+    .sort((a, b) => a.localeCompare(b))
+
+  for (const fileName of migrationFiles) {
+    const migrationSql = await readFile(new URL(fileName, migrationDir), 'utf8')
+    const statements = migrationSql.split('--> statement-breakpoint')
+
+    for (const statement of statements) {
+      if (!hasExecutableSql(statement)) {
+        continue
+      }
+
+      sqlite.exec(statement)
+    }
+  }
+}
 
 export function getSessionCookie(response: Response): string | null {
   const setCookie = response.headers.get('set-cookie')
@@ -70,7 +95,6 @@ export async function createTestContext(
 ): Promise<TestContext> {
   const tempDir = await mkdtemp(join(tmpdir(), 'private-chef-backend-test-'))
   const dbPath = join(tempDir, 'test.db')
-  const migrationSql = await readFile(migrationPath, 'utf8')
   const originalEnv = {
     NODE_ENV: process.env.NODE_ENV,
     DATABASE_PATH: process.env.DATABASE_PATH,
@@ -104,11 +128,11 @@ export async function createTestContext(
   }
 
   const dbModule = await import('../db/index.js')
-  dbModule.sqlite.exec(migrationSql)
+  await applyAllMigrations(dbModule.sqlite)
 
   const schema = await import('../db/schema.js')
   const authLib = await import('../lib/auth.js')
-  const appModule = await import('../app.js')
+  let appModule: typeof import('../app.js') | null = null
 
   const request = (path: string, init: JsonRequestInit = {}) => {
     const { json, cookie, headers, ...rest } = init
@@ -124,13 +148,18 @@ export async function createTestContext(
       requestHeaders.set('Cookie', cookie)
     }
 
-    return Promise.resolve(
-      appModule.app.request(path, {
-        ...rest,
-        headers: requestHeaders,
-        body,
-      }),
-    )
+    return Promise.resolve()
+      .then(async () => {
+        if (!appModule) {
+          appModule = await import('../app.js')
+        }
+
+        return appModule.app.request(path, {
+          ...rest,
+          headers: requestHeaders,
+          body,
+        })
+      })
   }
 
   const createSessionCookie = (userId: number) => {
@@ -236,6 +265,10 @@ export async function createTestContext(
   }
 
   const cleanup = async () => {
+    const notificationService = await import('../services/notification-service.js')
+    if ('shutdownNotificationService' in notificationService) {
+      await notificationService.shutdownNotificationService()
+    }
     dbModule.sqlite.close()
     vi.doUnmock('../lib/wechat.js')
     vi.resetModules()
