@@ -101,6 +101,10 @@ export async function createTestContext(
     PORT: process.env.PORT,
     FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN,
     SESSION_SECRET: process.env.SESSION_SECRET,
+    COS_SECRET_ID: process.env.COS_SECRET_ID,
+    COS_SECRET_KEY: process.env.COS_SECRET_KEY,
+    COS_BUCKET: process.env.COS_BUCKET,
+    COS_REGION: process.env.COS_REGION,
   }
   const originalCrypto = globalThis.crypto
 
@@ -109,6 +113,10 @@ export async function createTestContext(
   process.env.PORT = '3000'
   process.env.FRONTEND_ORIGIN = options?.frontendOrigin ?? 'http://localhost:5173'
   process.env.SESSION_SECRET = 'test-session-secret-123456'
+  process.env.COS_SECRET_ID = 'test-secret-id'
+  process.env.COS_SECRET_KEY = 'test-secret-key'
+  process.env.COS_BUCKET = 'test-bucket-1250000000'
+  process.env.COS_REGION = 'ap-beijing'
 
   globalThis.crypto = webcrypto as Crypto
 

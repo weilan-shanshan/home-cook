@@ -5,6 +5,7 @@ import { db } from '../db/index.js'
 import { orderItems, orderLikes, orders, orderShares, recipeImages, recipes } from '../db/schema.js'
 import { createNotificationEvent } from '../services/notification-service.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type AuthEnv = {
   Variables: {
@@ -289,18 +290,24 @@ orderInteractionsRouter.get('/:id/share-card', async (c) => {
       status: orderRow.status,
       createdAt: orderRow.createdAt,
     },
-    items: itemRows.map((item) => ({
-      id: item.id,
-      recipeId: item.recipeId,
-      quantity: item.quantity,
-      recipeTitle: item.recipeTitle,
-      image: item.imageUrl
-        ? {
-            url: item.imageUrl,
-            thumbUrl: item.thumbUrl,
-          }
-        : null,
-    })),
+    items: await Promise.all(
+      itemRows.map(async (item) => {
+        const image = await resolveImageUrls(item.imageUrl, item.thumbUrl)
+
+        return {
+          id: item.id,
+          recipeId: item.recipeId,
+          quantity: item.quantity,
+          recipeTitle: item.recipeTitle,
+          image: image
+            ? {
+                url: image.url,
+                thumbUrl: image.thumbUrl,
+              }
+            : null,
+        }
+      }),
+    ),
     likeCount: likeCountRows.length,
   })
 })

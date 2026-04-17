@@ -68,7 +68,7 @@ describe.sequential('orders critical path', () => {
     expect(body.mealType).toBe('dinner')
     expect(body.mealDate).toBe('2026-04-11')
     expect(body.note).toBe('少辣')
-    expect(body.status).toBe('pending')
+    expect(body.status).toBe('submitted')
     expect(body.items).toHaveLength(2)
     expect(body.items).toEqual(
       expect.arrayContaining([
@@ -96,13 +96,37 @@ describe.sequential('orders critical path', () => {
     const itemCount = ctx.sqlite
       .prepare('SELECT COUNT(*) as count FROM order_items WHERE order_id = ?')
       .get(body.id) as { count: number }
+    const notificationEvent = ctx.sqlite
+      .prepare(
+        'SELECT family_id as familyId, event_type as eventType, entity_type as entityType, entity_id as entityId, payload, status FROM notification_events WHERE entity_id = ?',
+      )
+      .get(body.id) as
+      | {
+          familyId: number
+          eventType: string
+          entityType: string
+          entityId: number
+          payload: string
+          status: string
+        }
+      | undefined
 
     expect(orderCount.count).toBe(1)
     expect(itemCount.count).toBe(2)
-    expect(ctx.wechatMock?.notifyNewOrder).toHaveBeenCalledWith('点餐管理员', 'dinner', [
-      '红烧肉',
-      '清炒时蔬',
-    ])
+    expect(notificationEvent).toBeDefined()
+    expect(notificationEvent).toMatchObject({
+      familyId: family.familyId,
+      eventType: 'order_created',
+      entityType: 'order',
+      entityId: body.id,
+    })
+    expect(JSON.parse(notificationEvent!.payload)).toMatchObject({
+      orderId: body.id,
+      userName: '点餐管理员',
+      mealType: 'dinner',
+      items: ['红烧肉', '清炒时蔬'],
+      message: '🍽️ 点餐管理员点了dinner：红烧肉、清炒时蔬',
+    })
   })
 
   test('supports the valid pending -> confirmed -> completed status flow', async () => {
@@ -140,6 +164,17 @@ describe.sequential('orders critical path', () => {
     expect(await readJson<{ id: number; status: string }>(confirmResponse)).toEqual({
       id: created.id,
       status: 'confirmed',
+    })
+
+    const prepareResponse = await ctx.request(`/api/orders/${created.id}/status`, {
+      method: 'PUT',
+      cookie,
+      json: { status: 'preparing' },
+    })
+    expect(prepareResponse.status).toBe(200)
+    expect(await readJson<{ id: number; status: string }>(prepareResponse)).toEqual({
+      id: created.id,
+      status: 'preparing',
     })
 
     const completeResponse = await ctx.request(`/api/orders/${created.id}/status`, {
@@ -189,6 +224,11 @@ describe.sequential('orders critical path', () => {
       method: 'PUT',
       cookie,
       json: { status: 'confirmed' },
+    })
+    await ctx.request(`/api/orders/${created.id}/status`, {
+      method: 'PUT',
+      cookie,
+      json: { status: 'preparing' },
     })
     await ctx.request(`/api/orders/${created.id}/status`, {
       method: 'PUT',

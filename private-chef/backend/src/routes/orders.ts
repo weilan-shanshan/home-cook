@@ -14,6 +14,7 @@ import {
 } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { createNotificationEvent } from '../services/notification-service.js'
+import { resolveImageUrls } from '../lib/image-urls.js'
 
 type AuthEnv = {
   Variables: {
@@ -53,7 +54,7 @@ const ordersRouter = new Hono<AuthEnv>()
 
 ordersRouter.use('*', authMiddleware)
 
-function mapItemRow(item: {
+async function mapItemRow(item: {
   id: number
   recipeId: number
   quantity: number
@@ -61,13 +62,15 @@ function mapItemRow(item: {
   imageUrl: string | null
   thumbUrl: string | null
 }) {
+  const image = await resolveImageUrls(item.imageUrl, item.thumbUrl)
+
   return {
     id: item.id,
     recipeId: item.recipeId,
     quantity: item.quantity,
     recipeTitle: item.recipeTitle,
-    image: item.imageUrl
-      ? { url: item.imageUrl, thumbUrl: item.thumbUrl }
+    image: image
+      ? { url: image.url, thumbUrl: image.thumbUrl }
       : null,
   }
 }
@@ -156,11 +159,13 @@ ordersRouter.get('/', async (c) => {
     itemsByOrder.set(item.orderId, list)
   }
 
-  const result = orderRows.map((order) => ({
-    ...order,
-    status: normalizeOrderStatus(order.status),
-    items: (itemsByOrder.get(order.id) ?? []).map(mapItemRow),
-  }))
+  const result = await Promise.all(
+    orderRows.map(async (order) => ({
+      ...order,
+      status: normalizeOrderStatus(order.status),
+      items: await Promise.all((itemsByOrder.get(order.id) ?? []).map(mapItemRow)),
+    })),
+  )
 
   return c.json(result)
 })
@@ -289,7 +294,7 @@ ordersRouter.post('/', async (c) => {
     {
       ...created,
       status: normalizeOrderStatus(created.status),
-      items: createdItems.map(mapItemRow),
+      items: await Promise.all(createdItems.map(mapItemRow)),
     },
     201,
   )
@@ -408,7 +413,7 @@ ordersRouter.get('/:id', async (c) => {
     likeCount,
     isLikedByMe,
     shareCount,
-    items: itemRows.map(mapItemRow),
+    items: await Promise.all(itemRows.map(mapItemRow)),
     statusTimeline: timelineRows.map((event) => ({
       id: event.id,
       fromStatus: event.fromStatus ? normalizeOrderStatus(event.fromStatus) : null,
