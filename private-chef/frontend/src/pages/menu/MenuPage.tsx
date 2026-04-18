@@ -35,6 +35,7 @@ export default function MenuPage() {
     () => selectedItems.reduce((sum, item) => sum + item.quantity, 0),
     [selectedItems],
   )
+  const hasSelectedItems = selectedItems.length > 0
 
   const addRecipe = (recipe: (typeof recipes)[number]) => {
     const thumbUrl = recipe.first_image?.thumb_url || recipe.first_image?.url || null
@@ -75,7 +76,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 pb-28 animate-in fade-in duration-500">
+    <div className={`space-y-6 animate-in fade-in duration-500 ${hasSelectedItems ? 'pb-40' : 'pb-8'}`}>
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">点菜</h1>
         <p className="text-sm text-muted-foreground">挑选今天想吃的菜，加入清单后统一去下单。</p>
@@ -176,31 +177,30 @@ export default function MenuPage() {
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-20 z-40 px-4 sm:bottom-6 pointer-events-none">
-        <div className="mx-auto max-w-3xl rounded-2xl border bg-background/95 p-4 shadow-2xl backdrop-blur pointer-events-auto">
-          <div className="flex items-start gap-3">
-            <div className="rounded-full bg-primary/10 p-2 text-primary">
-              <ShoppingBag className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold">待下单清单</p>
-                  <p className="text-xs text-muted-foreground">
-                    已选 {selectedItems.length} 道菜，共 {totalSelectedCount} 份
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleGoToOrder}
-                  disabled={selectedItems.length === 0}
-                >
-                  去下单
-                  <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
+      {hasSelectedItems && (
+        <div className="app-shell-floating-action">
+          <div className="rounded-2xl border bg-background/95 p-4 shadow-elevated backdrop-blur pointer-events-auto">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-primary/10 p-2 text-primary">
+                <ShoppingBag className="h-5 w-5" />
               </div>
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">待下单清单</p>
+                    <p className="text-xs text-muted-foreground">
+                      已选 {selectedItems.length} 道菜，共 {totalSelectedCount} 份
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleGoToOrder}
+                  >
+                    去下单
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
 
-              {selectedItems.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {selectedItems.map((item) => (
                     <div
@@ -212,13 +212,11 @@ export default function MenuPage() {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">先从上面的列表选择想吃的菜。</p>
-              )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

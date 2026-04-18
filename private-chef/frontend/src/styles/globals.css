@@ -38,6 +38,19 @@
     /* Apple-style design tokens */
     --radius-card: 1rem;
     --radius-modal: 1.5rem;
+
+    /* Shared app-shell contract */
+    --app-shell-max-width: 28rem;
+    --app-tabbar-height: 4rem;
+    --app-shell-top-padding: calc(1rem + env(safe-area-inset-top));
+    --app-shell-main-padding-bottom: calc(var(--app-tabbar-height) + env(safe-area-inset-bottom) + 1rem);
+    --app-shell-floating-offset: calc(var(--app-tabbar-height) + env(safe-area-inset-bottom) + 0.75rem);
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
   }
 
   * {
@@ -49,8 +62,35 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
     background-color: #F5F5F7;
     color: #1D1D1F;
+    min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply relative mx-auto flex w-full flex-col overflow-x-hidden bg-background sm:border-x sm:border-border/50 sm:shadow-2xl;
+    max-width: var(--app-shell-max-width);
+    min-height: 100dvh;
+  }
+
+  .app-shell-main {
+    @apply flex-1 w-full px-4;
+    padding-top: var(--app-shell-top-padding);
+    padding-bottom: var(--app-shell-main-padding-bottom);
+  }
+
+  .app-shell-tabbar {
+    @apply fixed bottom-0 left-0 right-0 z-50 mx-auto w-full border-t glass-nav sm:border-x sm:border-border/50;
+    max-width: var(--app-shell-max-width);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+
+  .app-shell-floating-action {
+    @apply fixed inset-x-0 z-40 mx-auto w-full px-4 pointer-events-none;
+    max-width: var(--app-shell-max-width);
+    bottom: var(--app-shell-floating-offset);
   }
 }
 

@@ -14,7 +14,7 @@ export function TabBar() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-nav border-t pb-safe">
+    <nav className="app-shell-tabbar">
       <div className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
         {tabs.map((tab) => {
           const isActive = tab.path === '/' 
@@ -27,9 +27,12 @@ export function TabBar() {
             <Link
               key={tab.path}
               to={tab.path}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
-                "flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                'flex h-12 w-16 flex-col items-center justify-center gap-1 rounded-2xl transition-colors',
+                isActive
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
               )}
             >
               <Icon className="w-5 h-5" />

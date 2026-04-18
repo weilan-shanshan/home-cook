@@ -45,31 +45,30 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header / Achievements */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">私厨 Dashboard</h1>
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="rounded-full bg-primary/20 p-3">
-                <Utensils className="h-5 w-5 text-primary" />
+      <div className="flex flex-col gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">私厨</h1>
+          <p className="text-muted-foreground text-sm">今天想吃点什么？</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="bg-primary/5 border-primary/20 shadow-none">
+            <CardContent className="p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <Utensils className="h-4 w-4 text-primary" />
+                <span className="text-xl font-bold">{data.achievementSummary.totalOrders}</span>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">总点餐数</p>
-                <p className="text-2xl font-bold">{data.achievementSummary.totalOrders}</p>
-              </div>
+              <p className="text-xs font-medium text-muted-foreground">总点餐数</p>
             </CardContent>
           </Card>
-          <Card className="bg-secondary/30 border-secondary">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="rounded-full bg-secondary p-3">
-                <ChefHat className="h-5 w-5 text-secondary-foreground" />
+          <Card className="bg-secondary/30 border-secondary shadow-none">
+            <CardContent className="p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <ChefHat className="h-4 w-4 text-secondary-foreground" />
+                <span className="text-xl font-bold">{data.achievementSummary.totalCooks}</span>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">被掌勺数</p>
-                <p className="text-2xl font-bold">{data.achievementSummary.totalCooks}</p>
-              </div>
+              <p className="text-xs font-medium text-muted-foreground">被掌勺数</p>
             </CardContent>
           </Card>
         </div>
