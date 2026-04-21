@@ -3,10 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Loader2, Trophy, Users, ChefHat, MessageSquare, Heart, Share2, Award } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { ShareDialog } from '@/components/share/ShareDialog'
+import { useState } from 'react'
 
 export default function Achievements() {
   const { data: summary, isLoading: isLoadingSummary } = useAchievementsSummary()
   const { data: leaderboard, isLoading: isLoadingLeaderboard } = useAchievementsLeaderboard()
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   if (isLoadingSummary || isLoadingLeaderboard) {
     return (
@@ -45,6 +49,12 @@ export default function Achievements() {
           家庭成就
         </h1>
         <p className="text-sm text-muted-foreground">记录我们的美食旅程</p>
+        <div>
+          <Button variant="outline" className="rounded-full" onClick={() => setShareDialogOpen(true)}>
+            <Share2 className="mr-2 h-4 w-4" />
+            分享成就卡
+          </Button>
+        </div>
       </div>
 
       {/* Family Summary */}
@@ -166,6 +176,15 @@ export default function Achievements() {
           })}
         </CardContent>
       </Card>
+
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        title="分享这段时间的家庭成就"
+        shareCardEndpoint="/api/achievements/share-card"
+        shareActionEndpoint="/api/achievements/share"
+        invalidateKeys={[["achievements-summary"], ["achievements-leaderboard"]]}
+      />
     </div>
   )
 }

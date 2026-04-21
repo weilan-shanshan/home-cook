@@ -3,7 +3,10 @@ import { useHomeSummary } from '@/hooks/useHomeSummary'
 import { Card, CardContent, } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Loader2, Utensils, ClipboardList, Heart, PlusCircle, Star, ChefHat, MessageSquare, Clock } from 'lucide-react'
+import { Loader2, Utensils, ClipboardList, Heart, PlusCircle, Star, ChefHat, MessageSquare, Clock, Share2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { ShareDialog } from '@/components/share/ShareDialog'
+import { useState } from 'react'
 
 function formatRelativeTime(dateStr: string) {
   const date = new Date(dateStr)
@@ -26,6 +29,7 @@ function formatRelativeTime(dateStr: string) {
 
 export default function Home() {
   const { data, isLoading, isError } = useHomeSummary()
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   if (isLoading) {
     return (
@@ -51,6 +55,12 @@ export default function Home() {
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">私厨</h1>
           <p className="text-muted-foreground text-sm">今天想吃点什么？</p>
+        </div>
+        <div>
+          <Button variant="outline" className="rounded-full" onClick={() => setShareDialogOpen(true)}>
+            <Share2 className="mr-2 h-4 w-4" />
+            分享今日菜单
+          </Button>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Card className="bg-primary/5 border-primary/20 shadow-none">
@@ -255,6 +265,15 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        title="分享今日菜单"
+        shareCardEndpoint="/api/home/share-card"
+        shareActionEndpoint="/api/home/share"
+        invalidateKeys={[["home-summary"]]}
+      />
     </div>
   )
 }

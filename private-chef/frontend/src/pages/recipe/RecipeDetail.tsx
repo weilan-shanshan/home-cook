@@ -18,6 +18,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Share2 } from 'lucide-react'
+import { ShareDialog } from '@/components/share/ShareDialog'
 
 function RatingStars({ score, onChange, readonly = false }: { score: number, onChange?: (s: number) => void, readonly?: boolean }) {
   return (
@@ -211,6 +213,7 @@ export default function RecipeDetail() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   if (isLoading) {
     return <div className="p-8 text-center animate-pulse">正在加载菜谱...</div>
@@ -360,6 +363,9 @@ export default function RecipeDetail() {
               >
                 <Heart className={`h-5 w-5 ${recipe.is_favorited ? 'fill-current' : ''}`} />
               </Button>
+              <Button variant="outline" size="icon" className="rounded-full" onClick={() => setShareDialogOpen(true)}>
+                <Share2 className="h-4 w-4" />
+              </Button>
               <Button variant="outline" size="icon" asChild className="rounded-full">
                 <Link to={`/recipe/${recipe.id}/edit`}>
                   <Pencil className="h-4 w-4" />
@@ -414,6 +420,15 @@ export default function RecipeDetail() {
           <CookLogsSection recipeId={recipeId} />
         </div>
       </div>
+
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        title="分享这道菜"
+        shareCardEndpoint={`/api/recipes/${recipeId}/share-card`}
+        shareActionEndpoint={`/api/recipes/${recipeId}/share`}
+        invalidateKeys={[["recipe", recipeId], ["recipes"]]}
+      />
     </div>
   )
 }

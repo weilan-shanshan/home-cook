@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router'
 import { useOrder, OrderItem, OrderStatusEvent, OrderStatus, useUpdateOrderStatus } from '@/hooks/useOrders'
-import { useToggleOrderLike, useCreateOrderShare } from '@/hooks/useOrderInteractions'
+import { useToggleOrderLike } from '@/hooks/useOrderInteractions'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +9,8 @@ import { useToast } from '@/components/ui/use-toast'
 import { OrderCommentThread } from '@/components/comment/OrderCommentThread'
 import { OrderReviewCard } from '@/components/comment/OrderReviewCard'
 import { Heart, Share2, Copy, Calendar as CalendarIcon, Clock, User } from 'lucide-react'
+import { ShareDialog } from '@/components/share/ShareDialog'
+import { useState } from 'react'
 
 function statusColor(status: string) {
   switch (status) {
@@ -58,7 +60,8 @@ export default function OrderDetailV2() {
   const { data: order, isLoading, error } = useOrder(orderId)
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
   const { mutate: toggleLike, isPending: isLikePending } = useToggleOrderLike(orderId)
-  const { mutate: shareOrder, isPending: isSharePending } = useCreateOrderShare(orderId)
+  const isSharePending = false
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   if (isLoading) {
     return (
@@ -92,14 +95,7 @@ export default function OrderDetailV2() {
   }
 
   const handleShare = () => {
-    shareOrder(
-      { shareType: 'url', channel: 'web' },
-      {
-        onSuccess: () => {
-          toast({ title: '分享成功', description: '操作已记录（实际可通过 clipboard 等分享）' })
-        },
-      }
-    )
+    setShareDialogOpen(true)
   }
 
   const handleReorder = () => {
@@ -256,6 +252,15 @@ export default function OrderDetailV2() {
           再来一单
         </Button>
       </div>
+
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        title="分享这份订单"
+        shareCardEndpoint={`/api/orders/${orderId}/share-card`}
+        shareActionEndpoint={`/api/orders/${orderId}/share`}
+        invalidateKeys={[["order", orderId], ["orders"]]}
+      />
     </div>
   )
 }

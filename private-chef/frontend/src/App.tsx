@@ -16,6 +16,7 @@ import WishList from '@/pages/wish/WishList'
 import Favorites from '@/pages/favorites/Favorites'
 import Profile from '@/pages/profile/Profile'
 import Achievements from '@/pages/achievements/Achievements'
+import PublicSharePage from '@/pages/share/PublicSharePage'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/share/:token" element={<PublicSharePage />} />
         
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
