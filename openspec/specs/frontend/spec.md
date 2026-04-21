@@ -23,7 +23,7 @@ The frontend SHALL provide login and registration flows for family onboarding an
 - **Then** the UI reflects the authenticated session and loads app data with cookie-based requests
 
 ### Requirement: Recipe browsing and detail views
-The frontend SHALL allow users to discover and inspect recipe content.
+The frontend SHALL allow users to discover, inspect, and share recipe content.
 
 #### Scenario: Browse recipes
 - **Given** the user is authenticated
@@ -33,7 +33,7 @@ The frontend SHALL allow users to discover and inspect recipe content.
 #### Scenario: View recipe detail
 - **Given** a user selects a recipe
 - **When** the detail page loads successfully
-- **Then** the UI shows recipe description, steps, images, tags, and related household activity such as ratings or cook logs
+- **Then** the UI shows recipe description, steps, images, tags, related household activity such as ratings or cook logs, and a share entry point for the recipe that supports link sharing, WeChat circulation, and poster download
 
 ### Requirement: Recipe authoring flow
 The frontend SHALL provide a recipe form for creating and editing recipes.
@@ -49,7 +49,7 @@ The frontend SHALL provide a recipe form for creating and editing recipes.
 - **Then** the UI compresses images client-side and uploads them through the backend-coordinated COS presign flow
 
 ### Requirement: Order creation and tracking
-The frontend SHALL support creating orders and reviewing their lifecycle.
+The frontend SHALL support creating orders, reviewing their lifecycle, and sharing completed or in-progress order context through external share pages and downloadables.
 
 #### Scenario: Create an order
 - **Given** a user wants to request a meal
@@ -59,7 +59,7 @@ The frontend SHALL support creating orders and reviewing their lifecycle.
 #### Scenario: View order list and detail
 - **Given** a user navigates to order history or current orders
 - **When** order data is loaded
-- **Then** the UI displays order statuses, selected items, and detail context appropriate to the current order state
+- **Then** the UI displays order statuses, selected items, detail context appropriate to the current order state, and a share entry point on the order detail surface that can produce a link, WeChat-friendly share target, or poster
 
 ### Requirement: Wish-list interaction
 The frontend SHALL let users propose dishes they want to eat and monitor fulfillment.
@@ -98,7 +98,7 @@ The frontend SHALL call backend APIs using the configured base URL and include c
 - **Then** requests fall back to relative `/api/...` paths, which is treated as a deployment/configuration concern rather than a product feature
 
 ### Requirement: Responsive app shell
-The frontend SHALL provide a polished mobile-first application structure suitable for daily household use on phones and coherent standalone use when installed on larger screens.
+The frontend SHALL provide a polished mobile-first application structure suitable for daily household use on phones and coherent standalone use when installed on larger screens, including consistent presentation of cross-surface share actions.
 
 #### Scenario: Handheld shell feels app-like
 - **Given** a user opens the authenticated app on a phone-sized screen
@@ -106,9 +106,9 @@ The frontend SHALL provide a polished mobile-first application structure suitabl
 - **Then** the layout uses consistent page framing, navigation placement, spacing rhythm, and safe-area handling so the product feels like one app shell rather than a centered desktop dashboard
 
 #### Scenario: Key surfaces share one visual system
-- **Given** a user navigates between core authenticated pages such as home, menu, and profile
+- **Given** a user navigates between core authenticated pages such as home, menu, profile, achievements, order detail, and recipe detail
 - **When** each page loads
-- **Then** headers, content spacing, bottom actions, and persistent navigation follow a shared visual system instead of page-specific dashboard conventions
+- **Then** headers, content spacing, bottom actions, persistent navigation, authenticated share affordances, and public share-page presentation follow a shared visual system instead of page-specific dashboard conventions
 
 #### Scenario: Wider screens preserve app coherence
 - **Given** a user views the authenticated app on a tablet, laptop, or desktop-sized viewport
@@ -134,4 +134,82 @@ The frontend SHALL preserve a browser-installable PWA experience that can be lau
 #### Scenario: Installed app deep links remain routable
 - **WHEN** a user refreshes or opens a client-side route after installation or standalone launch
 - **THEN** the frontend preserves route access through the SPA fallback instead of failing with a routing error
+
+### Requirement: Cross-surface share entry points
+The frontend SHALL expose sharing entry points on order detail, recipe detail, achievements, and daily menu-related surfaces.
+
+#### Scenario: User opens a supported share surface
+- **Given** the user is authenticated and viewing an order detail page, recipe detail page, achievements page, or home/menu surface with today's recommendations
+- **When** the page renders successfully
+- **Then** the UI shows a discoverable share trigger appropriate to that surface
+
+### Requirement: Reusable share action flow
+The frontend SHALL provide a consistent share interaction model across supported share targets.
+
+#### Scenario: User starts sharing from any supported surface
+- **Given** a share trigger is available on a supported page
+- **When** the user activates the share trigger
+- **Then** the UI loads or reuses the target share payload and presents consistent share actions such as copy link, WeChat-friendly distribution, and poster download
+
+### Requirement: Public share-page rendering
+The frontend SHALL render dedicated public share pages for supported share targets.
+
+#### Scenario: Shared link is opened outside the authenticated app
+- **Given** a recipient opens a supported share URL directly
+- **When** the public share page loads successfully
+- **Then** the UI renders the shared target summary, branded context, and an experience suitable for external viewing without requiring the authenticated application shell
+
+#### Scenario: Public share page shows family and role context
+- **Given** the share payload includes a family name and optional requester or cook display names
+- **When** the public share page renders
+- **Then** the UI displays those fields in a tasteful way that enhances the story of the shared content without overwhelming the layout
+
+### Requirement: Poster export experience
+The frontend SHALL allow users to download a share image that includes a QR code to the dedicated share page.
+
+#### Scenario: User downloads a poster
+- **Given** the user has opened a share flow for a supported target
+- **When** the user selects the poster download action
+- **Then** the UI generates or retrieves a share poster image containing the target summary and QR code and downloads it successfully
+
+#### Scenario: Poster is generated in real time on the client
+- **Given** the user requests a poster download
+- **When** the export flow runs
+- **Then** the frontend composes the poster in real time from the current share payload and QR-code data instead of waiting for a server-rendered image asset
+
+### Requirement: WeChat-oriented presentation quality
+The frontend SHALL present share content in a concise and visually polished way suitable for WeChat forwarding and preview.
+
+#### Scenario: Share copy and preview are shown to the sharer
+- **Given** a user opens the share actions for a supported target
+- **When** the UI presents the WeChat-oriented share option or preview information
+- **Then** the text and visual hierarchy emphasize brevity, quality, and appeal using the target content plus allowed family/requester/cook context
+
+#### Scenario: Different targets use different hero emphasis
+- **Given** the user previews share output for order, recipe, achievements, or daily menu content
+- **When** the preview or poster renders
+- **Then** the UI applies one shared premium visual system but changes the hero emphasis so recipes lead with imagery, achievements lead with rank or score, orders lead with meal and people context, and daily menus lead with grouped dish composition
+
+#### Scenario: Poster layout stays vertically scannable
+- **Given** the user downloads or previews a share poster
+- **When** the poster is composed on the client
+- **Then** the layout follows a vertically structured hierarchy with brand context, hero zone, concise title, limited supporting chips, and a calm QR-code footer suitable for screenshot and chat forwarding
+
+#### Scenario: Different outputs remain visually aligned
+- **Given** the frontend renders a share page, a poster preview, and WeChat-oriented preview information for the same target
+- **When** those outputs are shown
+- **Then** the title theme, hero selection, public family/requester/cook visibility, and QR destination remain aligned so the outputs feel like one system
+
+### Requirement: Share feedback states
+The frontend SHALL provide explicit loading, success, and error feedback for sharing actions.
+
+#### Scenario: Share request is pending
+- **Given** the user has initiated a share flow
+- **When** the frontend is waiting for share mutation or share-card data
+- **Then** the UI indicates loading and prevents accidental duplicate submission for the same in-flight action
+
+#### Scenario: Share request succeeds or fails
+- **Given** the user completes or attempts a share action
+- **When** the backend or browser share capability returns success or failure
+- **Then** the UI shows a clear success confirmation or error message without leaving the current page context
 
