@@ -376,6 +376,33 @@ export const orderShares = sqliteTable('order_shares', {
 export type OrderShare = typeof orderShares.$inferSelect
 export type NewOrderShare = typeof orderShares.$inferInsert
 
+export const shares = sqliteTable(
+  'shares',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    familyId: integer('family_id')
+      .notNull()
+      .references(() => families.id),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    targetType: text('target_type').notNull(),
+    targetId: text('target_id').notNull(),
+    shareType: text('share_type').notNull(),
+    channel: text('channel').notNull(),
+    token: text('token').notNull(),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    tokenUnique: unique().on(t.token),
+  }),
+)
+
+export type Share = typeof shares.$inferSelect
+export type NewShare = typeof shares.$inferInsert
+
 export const orderItems = sqliteTable('order_items', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   orderId: integer('order_id')

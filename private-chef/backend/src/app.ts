@@ -17,6 +17,7 @@ import { orderInteractionsRouter } from './routes/order-interactions.js'
 import { homeRouter } from './routes/home.js'
 import { profileRouter } from './routes/profile.js'
 import { achievementsRouter } from './routes/achievements.js'
+import { sharesRouter } from './routes/shares.js'
 
 function isSqliteUniqueError(error: unknown): error is Error {
   return error instanceof Error && error.message.includes('UNIQUE constraint failed')
@@ -27,6 +28,7 @@ export function createApp() {
     .use('*', corsMiddleware)
     .get('/', (c) => c.json({ status: 'ok' }))
     .route('/api/auth', authRouter)
+    .route('/api/shares', sharesRouter)
     .route('/api/tags', tagsRouter)
     .route('/api', imagesRouter)
     .route('/api/recipes', recipesRouter)

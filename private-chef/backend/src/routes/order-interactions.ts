@@ -6,6 +6,12 @@ import { orderItems, orderLikes, orders, orderShares, recipeImages, recipes } fr
 import { createNotificationEvent } from '../services/notification-service.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { resolveImageUrls } from '../lib/image-urls.js'
+import {
+  createShareResponse,
+  getShareCardPreview,
+  normalizeShareChannel,
+  normalizeShareType,
+} from '../services/sharing-service.js'
 
 type AuthEnv = {
   Variables: {
@@ -202,6 +208,25 @@ orderInteractionsRouter.post('/:id/share', async (c) => {
       createdAt: orderShares.createdAt,
     })
 
+  const normalizedShareType = normalizeShareType(parsed.data.shareType)
+  const normalizedChannel = normalizeShareChannel(parsed.data.channel)
+  if (!normalizedShareType || !normalizedChannel) {
+    return c.json({ error: 'Unsupported share type or channel' }, 400)
+  }
+
+  const shareResponse = await createShareResponse({
+    familyId,
+    userId: user.id,
+    targetType: 'order',
+    targetId: String(order.id),
+    shareType: normalizedShareType,
+    channel: normalizedChannel,
+  })
+
+  if (!shareResponse) {
+    return c.json({ error: 'Failed to build share response' }, 500)
+  }
+
   await createNotificationEvent({
     familyId,
     eventType: 'order_shared',
@@ -225,6 +250,12 @@ orderInteractionsRouter.post('/:id/share', async (c) => {
       share_type: created.shareType,
       channel: created.channel,
       created_at: created.createdAt,
+      target_type: shareResponse.target_type,
+      target_id: shareResponse.target_id,
+      token: shareResponse.token,
+      share_url: shareResponse.share_url,
+      wechat: shareResponse.wechat,
+      poster: shareResponse.poster,
     },
     201,
   )
@@ -242,74 +273,18 @@ orderInteractionsRouter.get('/:id/share-card', async (c) => {
     return c.json({ error: 'Order not found' }, 404)
   }
 
-  const [orderRow] = await db
-    .select({
-      id: orders.id,
-      mealType: orders.mealType,
-      mealDate: orders.mealDate,
-      note: orders.note,
-      status: orders.status,
-      createdAt: orders.createdAt,
-    })
-    .from(orders)
-    .where(and(eq(orders.id, order.id), eq(orders.familyId, familyId)))
-    .limit(1)
+  const payload = await getShareCardPreview({
+    familyId,
+    userId: c.get('user').id,
+    targetType: 'order',
+    targetId: String(order.id),
+  })
 
-  if (!orderRow) {
+  if (!payload) {
     return c.json({ error: 'Order not found' }, 404)
   }
 
-  const itemRows = await db
-    .select({
-      id: orderItems.id,
-      recipeId: orderItems.recipeId,
-      quantity: orderItems.quantity,
-      recipeTitle: recipes.title,
-      imageUrl: recipeImages.url,
-      thumbUrl: recipeImages.thumbUrl,
-    })
-    .from(orderItems)
-    .innerJoin(recipes, eq(orderItems.recipeId, recipes.id))
-    .leftJoin(
-      recipeImages,
-      and(eq(recipeImages.recipeId, recipes.id), eq(recipeImages.sortOrder, 0)),
-    )
-    .where(eq(orderItems.orderId, order.id))
-
-  const likeCountRows = await db
-    .select({ userId: orderLikes.userId })
-    .from(orderLikes)
-    .where(eq(orderLikes.orderId, order.id))
-
-  return c.json({
-    order: {
-      id: orderRow.id,
-      mealType: orderRow.mealType,
-      mealDate: orderRow.mealDate,
-      note: orderRow.note,
-      status: orderRow.status,
-      createdAt: orderRow.createdAt,
-    },
-    items: await Promise.all(
-      itemRows.map(async (item) => {
-        const image = await resolveImageUrls(item.imageUrl, item.thumbUrl)
-
-        return {
-          id: item.id,
-          recipeId: item.recipeId,
-          quantity: item.quantity,
-          recipeTitle: item.recipeTitle,
-          image: image
-            ? {
-                url: image.url,
-                thumbUrl: image.thumbUrl,
-              }
-            : null,
-        }
-      }),
-    ),
-    likeCount: likeCountRows.length,
-  })
+  return c.json(payload)
 })
 
 export { orderInteractionsRouter }

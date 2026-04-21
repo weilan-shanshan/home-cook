@@ -4,6 +4,12 @@ import { sqlite } from '../db/index.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { notifyNewRecipe } from '../lib/wechat.js'
 import { resolveImageUrls } from '../lib/image-urls.js'
+import {
+  createShareResponse,
+  getShareCardPreview,
+  normalizeShareChannel,
+  normalizeShareType,
+} from '../services/sharing-service.js'
 
 type AuthEnv = {
   Variables: {
@@ -30,6 +36,11 @@ const updateRecipeSchema = z.object({
   servings: z.number().int().positive().nullable().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   tags: z.array(z.number()).optional(),
+})
+
+const recipeShareSchema = z.object({
+  shareType: z.string().trim().min(1).max(50),
+  channel: z.string().trim().min(1).max(50),
 })
 
 const recipesRouter = new Hono<AuthEnv>()
@@ -297,6 +308,77 @@ recipesRouter.get('/:id', async (c) => {
     recent_cook_logs: recentCookLogs,
     is_favorited: !!fav,
   })
+})
+
+recipesRouter.post('/:id/share', async (c) => {
+  const recipeId = Number(c.req.param('id'))
+  if (!Number.isFinite(recipeId) || recipeId <= 0) {
+    return c.json({ error: 'Invalid recipe id' }, 400)
+  }
+
+  const parsed = recipeShareSchema.safeParse(await c.req.json())
+  if (!parsed.success) {
+    return c.json({ error: 'Validation failed', details: parsed.error.flatten() }, 400)
+  }
+
+  const shareType = normalizeShareType(parsed.data.shareType)
+  const channel = normalizeShareChannel(parsed.data.channel)
+  if (!shareType || !channel) {
+    return c.json({ error: 'Unsupported share type or channel' }, 400)
+  }
+
+  const familyId = c.get('familyId')
+  const existing = sqlite
+    .prepare('SELECT id FROM recipes WHERE id = ? AND family_id = ?')
+    .get(recipeId, familyId) as { id: number } | undefined
+
+  if (!existing) {
+    return c.json({ error: 'Recipe not found' }, 404)
+  }
+
+  const response = await createShareResponse({
+    familyId,
+    userId: c.get('user').id,
+    targetType: 'recipe',
+    targetId: String(recipeId),
+    shareType,
+    channel,
+  })
+
+  if (!response) {
+    return c.json({ error: 'Failed to share recipe' }, 500)
+  }
+
+  return c.json(response, 201)
+})
+
+recipesRouter.get('/:id/share-card', async (c) => {
+  const recipeId = Number(c.req.param('id'))
+  if (!Number.isFinite(recipeId) || recipeId <= 0) {
+    return c.json({ error: 'Invalid recipe id' }, 400)
+  }
+
+  const familyId = c.get('familyId')
+  const existing = sqlite
+    .prepare('SELECT id FROM recipes WHERE id = ? AND family_id = ?')
+    .get(recipeId, familyId) as { id: number } | undefined
+
+  if (!existing) {
+    return c.json({ error: 'Recipe not found' }, 404)
+  }
+
+  const payload = await getShareCardPreview({
+    familyId,
+    userId: c.get('user').id,
+    targetType: 'recipe',
+    targetId: String(recipeId),
+  })
+
+  if (!payload) {
+    return c.json({ error: 'Recipe not found' }, 404)
+  }
+
+  return c.json(payload)
 })
 
 recipesRouter.post('/', async (c) => {

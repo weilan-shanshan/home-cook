@@ -306,37 +306,41 @@ describe.sequential('order interactions api', () => {
     expect(shareCardResponse.status).toBe(200)
     expect(
       await readJson<{
+        target_type: string
+        title: string
         order: {
           id: number
-          mealType: string
-          mealDate: string
+          meal_type: string
+          meal_date: string
           note: string | null
           status: string
-          createdAt: string
+          created_at: string
         }
         items: Array<{
           id: number
-          recipeId: number
+          recipe_id: number
           quantity: number
-          recipeTitle: string
+          recipe_title: string
           image: { url: string; thumbUrl: string | null } | null
         }>
-        likeCount: number
+        like_count: number
       }>(shareCardResponse),
     ).toEqual(
       expect.objectContaining({
+        target_type: 'order',
+        title: expect.stringContaining('点的'),
         order: expect.objectContaining({
           id: createdOrder.id,
-          mealType: 'dinner',
+          meal_type: 'dinner',
           status: 'submitted',
         }),
         items: [
           expect.objectContaining({
             quantity: 1,
-            recipeTitle: '测试订单菜品',
+            recipe_title: '测试订单菜品',
           }),
         ],
-        likeCount: 1,
+        like_count: 1,
       }),
     )
 
