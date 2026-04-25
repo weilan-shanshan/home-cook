@@ -14,8 +14,8 @@ export function TabBar() {
   ]
 
   return (
-    <nav className="app-shell-tabbar">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
+    <nav className="app-shell-tabbar pb-safe">
+      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-4">
         {tabs.map((tab) => {
           const isActive = tab.path === '/' 
             ? currentPath === '/' 
@@ -29,14 +29,24 @@ export function TabBar() {
               to={tab.path}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex h-12 w-16 flex-col items-center justify-center gap-1 rounded-2xl transition-colors',
+                'relative flex h-14 w-14 flex-col items-center justify-center gap-1 transition-all duration-300 ease-out',
                 isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium leading-none">{tab.name}</span>
+              <div className={cn(
+                "flex items-center justify-center transition-all duration-300",
+                isActive ? "bg-primary/10 rounded-full w-10 h-8" : "w-8 h-8 rounded-full hover:bg-secondary/50"
+              )}>
+                 <Icon className={cn("transition-transform duration-300", isActive ? "w-[22px] h-[22px] scale-110" : "w-5 h-5")} />
+              </div>
+              <span className={cn(
+                "text-[10px] leading-none transition-all duration-300",
+                isActive ? "font-semibold" : "font-medium"
+              )}>
+                {tab.name}
+              </span>
             </Link>
           )
         })}
