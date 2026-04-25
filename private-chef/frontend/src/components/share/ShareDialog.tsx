@@ -299,7 +299,7 @@ export function ShareDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <Card className="mt-5 rounded-3xl border-white/70 bg-white/90 shadow-lg">
+          <Card className="mt-5 rounded-3xl border border-border/60 glass-card shadow-lg">
             <CardContent className="p-5">
               {shareCardQuery.isLoading ? (
                 <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
@@ -335,7 +335,7 @@ export function ShareDialog({
                   </div>
 
                   {payload.facts.length > 0 ? (
-                    <div className="rounded-2xl bg-muted/50 p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl bg-secondary/50 border border-border/40 p-4 text-sm text-muted-foreground">
                       {payload.facts.slice(0, 4).map((fact) => (
                         <div key={fact} className="py-1">{fact}</div>
                       ))}

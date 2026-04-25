@@ -302,7 +302,7 @@ export default function RecipeForm() {
         </Link>
       </div>
 
-      <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-elevated">
+      <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-elevated border border-border/60">
         <h1 className="text-3xl font-bold tracking-tight mb-8">
           {isEdit ? '编辑菜谱' : '创建新菜谱'}
         </h1>

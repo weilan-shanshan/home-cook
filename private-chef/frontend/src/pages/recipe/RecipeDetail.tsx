@@ -84,7 +84,7 @@ function CookLogsSection({ recipeId }: { recipeId: number }) {
   }
 
   return (
-    <section className="glass-card p-6 space-y-6">
+    <section className="glass-card border border-border/60 p-6 space-y-6">
       <div className="flex items-center justify-between border-b border-border/50 pb-3">
         <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -132,7 +132,7 @@ function CookLogsSection({ recipeId }: { recipeId: number }) {
             const hasRated = log.ratings && log.ratings.length > 0
             
             return (
-              <div key={log.id} className="flex flex-col gap-3 p-4 rounded-xl bg-secondary/20 border border-border/50 shadow-sm relative overflow-hidden group">
+              <div key={log.id} className="flex flex-col gap-3 p-4 rounded-xl bg-secondary/50 border border-border/40 shadow-sm relative overflow-hidden group">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-semibold text-foreground/90">{log.cooked_by_name}</div>
@@ -141,7 +141,7 @@ function CookLogsSection({ recipeId }: { recipeId: number }) {
                     </div>
                   </div>
                   {log.avg_rating != null && log.avg_rating > 0 && (
-                    <div className="flex items-center gap-1 bg-background/50 backdrop-blur-md px-2 py-1 rounded-full text-xs font-medium">
+                    <div className="flex items-center gap-1 bg-background/80 backdrop-blur-md px-2 py-1 rounded-full text-xs font-medium">
                       <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                       {log.avg_rating.toFixed(1)}
                     </div>
@@ -149,7 +149,7 @@ function CookLogsSection({ recipeId }: { recipeId: number }) {
                 </div>
                 
                 {log.note && (
-                  <p className="text-sm text-foreground/80 leading-relaxed bg-background/40 p-2.5 rounded-lg italic">
+                  <p className="text-sm text-foreground/80 leading-relaxed bg-background/80 border border-border/40 p-2.5 rounded-lg italic">
                     "{log.note}"
                   </p>
                 )}
@@ -160,7 +160,7 @@ function CookLogsSection({ recipeId }: { recipeId: number }) {
                       <MessageSquare className="h-3.5 w-3.5" /> 评分 ({log.rating_count})
                     </div>
                     {log.ratings.map((r: CookLogRating) => (
-                      <div key={r.id} className="bg-background/60 rounded-lg p-2.5 text-sm">
+                      <div key={r.id} className="bg-background/80 border border-border/40 rounded-lg p-2.5 text-sm">
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium text-xs">{r.display_name}</span>
                           <RatingStars score={r.score} readonly />
@@ -260,7 +260,7 @@ export default function RecipeDetail() {
         </Link>
       </div>
 
-      <div className="glass-card overflow-hidden">
+      <div className="glass-card border border-border/60 overflow-hidden">
         {recipe.images && recipe.images.length > 0 ? (
           <div className="relative aspect-[21/9] w-full overflow-hidden bg-muted group">
             <img
@@ -275,7 +275,7 @@ export default function RecipeDetail() {
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/50 backdrop-blur hover:bg-background/80 z-10"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/80 backdrop-blur hover:bg-background/80 z-10"
                   onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : recipe.images.length - 1))}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -283,7 +283,7 @@ export default function RecipeDetail() {
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/50 backdrop-blur hover:bg-background/80 z-10"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/80 backdrop-blur hover:bg-background/80 z-10"
                   onClick={() => setCurrentImageIndex((prev) => (prev < recipe.images.length - 1 ? prev + 1 : 0))}
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -303,11 +303,11 @@ export default function RecipeDetail() {
             )}
           </div>
         ) : (
-          <div className="h-32 bg-secondary/30 rounded-t-xl" />
+          <div className="h-32 bg-secondary/50 rounded-t-xl" />
         )}
         
         <div className="p-6 sm:p-8 -mt-16 sm:-mt-24 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 glass-modal p-6 rounded-2xl shadow-elevated">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 glass-modal border border-border/60 p-6 rounded-2xl shadow-elevated">
             <div className="space-y-4 flex-1">
               <div className="flex flex-wrap gap-2">
                 {recipe.tags.map((tag) => (
@@ -401,7 +401,7 @@ export default function RecipeDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
-          <section className="glass-card p-6 sm:p-8 space-y-6">
+          <section className="glass-card border border-border/60 p-6 sm:p-8 space-y-6">
             <h2 className="text-2xl font-semibold tracking-tight border-b border-border/50 pb-4">步骤</h2>
             <div className="space-y-6">
               {recipe.steps.map((step, idx) => (
