@@ -11,7 +11,7 @@ export function OrderCommentThread({ orderId }: { orderId: number }) {
   }
 
   return (
-    <Card className="mt-6">
+    <Card className="mt-6 border-border/60">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold">评论</CardTitle>
       </CardHeader>
@@ -31,7 +31,7 @@ export function OrderCommentThread({ orderId }: { orderId: number }) {
                       {comment.display_name?.slice(0, 1).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 bg-muted/30 p-3 rounded-lg">
+                  <div className="flex-1 bg-secondary/50 border border-border/40 p-3 rounded-lg">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-medium text-sm">
                         {comment.display_name || '用户'}

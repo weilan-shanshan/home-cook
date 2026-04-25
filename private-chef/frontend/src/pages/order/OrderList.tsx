@@ -114,7 +114,7 @@ export default function OrderList() {
 
       {sortedDates.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-          <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
+            <div className="bg-secondary/50 p-6 rounded-full mb-6 border border-border/40 dark:border-white/5 shadow-sm">
             <Utensils className="h-10 w-10 text-muted-foreground/50" />
           </div>
           <p className="text-lg font-bold text-foreground mb-2">暂无订单</p>
@@ -140,7 +140,7 @@ export default function OrderList() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groupedOrders[date].map((order) => (
-                  <div key={order.id} className="glass-card rounded-2xl p-5 shadow-card border border-white/40 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden group transition-all duration-300 hover:shadow-elevated hover:border-primary/20">
+                  <div key={order.id} className="glass-card rounded-2xl p-5 shadow-card border border-border/50 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden group transition-all duration-300 hover:shadow-elevated hover:border-primary/20">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">

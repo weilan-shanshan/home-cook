@@ -35,7 +35,7 @@ export function OrderReviewCard({ orderId }: { orderId: number }) {
   if (reviews && reviews.length > 0) {
     const review = reviews[0]
     return (
-      <Card className="mt-6 border-yellow-200 bg-yellow-50/30">
+      <Card className="mt-6 border-border/60 bg-yellow-50/30 dark:bg-yellow-900/10">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold">我的评价</CardTitle>
         </CardHeader>
@@ -54,7 +54,7 @@ export function OrderReviewCard({ orderId }: { orderId: number }) {
               <StarRating value={review.portion_score} readonly />
             </div>
             {review.overall_note && (
-              <p className="mt-2 text-sm italic text-muted-foreground bg-white/50 p-2 rounded border border-yellow-100">
+              <p className="mt-2 text-sm italic text-muted-foreground bg-background/80 p-2 rounded border border-border/40">
                 "{review.overall_note}"
               </p>
             )}
@@ -85,7 +85,7 @@ export function OrderReviewCard({ orderId }: { orderId: number }) {
   }
 
   return (
-    <Card className="mt-6 border-primary/20">
+    <Card className="mt-6 border-border/60">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold">评价本次服务</CardTitle>
         <CardDescription>您的反馈将帮助我们不断改进</CardDescription>

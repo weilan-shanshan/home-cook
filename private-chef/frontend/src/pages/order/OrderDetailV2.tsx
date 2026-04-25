@@ -116,7 +116,7 @@ export default function OrderDetailV2() {
   }
 
   return (
-    <div className="p-4 max-w-2xl mx-auto pb-24 space-y-6">
+      <div className="p-4 max-w-2xl mx-auto pb-24 space-y-6">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-2">
@@ -134,7 +134,7 @@ export default function OrderDetailV2() {
         </Badge>
       </div>
 
-      <Card>
+      <Card className="glass-card">
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -165,14 +165,14 @@ export default function OrderDetailV2() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="glass-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">菜品清单</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-4">
             {order.items.map((item: OrderItem) => (
-              <li key={item.id} className="flex justify-between items-center text-sm">
+              <li key={item.id} className="flex justify-between items-center text-sm rounded-xl border border-border/40 bg-background/60 px-3 py-2.5">
                 <div className="flex items-center gap-3">
                   {item.image?.thumbUrl ? (
                     <img src={item.image.thumbUrl} alt={item.recipeTitle} className="w-12 h-12 object-cover rounded-md shadow-sm" />
@@ -198,7 +198,7 @@ export default function OrderDetailV2() {
       </Card>
 
       {order.statusTimeline && order.statusTimeline.length > 0 && (
-        <Card>
+        <Card className="glass-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">状态追踪</CardTitle>
           </CardHeader>
@@ -220,7 +220,7 @@ export default function OrderDetailV2() {
                       {event.operatorDisplayName && <span className="font-normal text-muted-foreground ml-2">by {event.operatorDisplayName}</span>}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">{formatDate(event.createdAt)}</p>
-                    {event.note && <p className="text-sm mt-2 text-muted-foreground bg-muted/50 p-2 rounded-md">{event.note}</p>}
+                     {event.note && <p className="text-sm mt-2 text-muted-foreground bg-muted/70 p-2.5 rounded-lg border border-border/40">{event.note}</p>}
                   </div>
                 </div>
               ))}
@@ -233,7 +233,7 @@ export default function OrderDetailV2() {
 
       <OrderCommentThread orderId={orderId} />
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t flex items-center justify-around gap-2 pb-safe z-10">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-border/60 flex items-center justify-around gap-2 pb-safe z-10">
         <Button 
           variant={order.isLikedByMe ? "default" : "outline"}
           className={`flex-1 ${order.isLikedByMe ? 'bg-rose-500 hover:bg-rose-600 border-rose-500 text-white' : ''}`}
