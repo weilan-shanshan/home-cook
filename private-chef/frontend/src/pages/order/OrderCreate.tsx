@@ -153,7 +153,7 @@ export default function OrderCreate() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 space-y-6">
-          <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-elevated">
+          <div className="glass-card border border-border/60 p-6 sm:p-8 rounded-2xl shadow-elevated">
             <h1 className="text-3xl font-bold tracking-tight mb-8">创建订单</h1>
             <form id="order-form" onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,14 +197,14 @@ export default function OrderCreate() {
             </form>
           </div>
 
-          <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-elevated flex flex-col h-[500px]">
+          <div className="glass-card border border-border/60 p-6 sm:p-8 rounded-2xl shadow-elevated flex flex-col h-[500px]">
             <h2 className="text-xl font-bold tracking-tight mb-4">浏览菜谱</h2>
             <div className="relative mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="搜索以添加..."
-                className="pl-9 pr-4 bg-background/50 backdrop-blur-sm border-muted-foreground/20 focus-visible:ring-primary/50"
+                className="pl-9 pr-4 bg-background/80 backdrop-blur-sm border-muted-foreground/20 focus-visible:ring-primary/50"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
@@ -224,7 +224,7 @@ export default function OrderCreate() {
                 recipes.map((recipe) => {
                   const thumbUrl = recipe.first_image?.thumb_url || recipe.first_image?.url || null
                   return (
-                    <div key={recipe.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:border-primary/40 bg-card/50 transition-colors">
+                    <div key={recipe.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:border-primary/40 bg-secondary/50 transition-colors">
                       {thumbUrl ? (
                         <img src={thumbUrl} alt={recipe.title} className="w-12 h-12 rounded-md object-cover bg-muted" />
                       ) : (
@@ -258,11 +258,11 @@ export default function OrderCreate() {
         </div>
 
         <div className="lg:col-span-5">
-          <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-elevated sticky top-24">
+          <div className="glass-card border border-border/60 p-6 sm:p-8 rounded-2xl shadow-elevated sticky top-24">
             <h2 className="text-xl font-bold tracking-tight mb-6">已选项</h2>
             
             {selectedItems.length === 0 ? (
-              <div className="text-center py-10 border-2 border-dashed border-border/60 rounded-xl text-muted-foreground bg-muted/20">
+              <div className="text-center py-10 border border-dashed border-border/40 rounded-xl text-muted-foreground bg-secondary/50">
                 <Utensils className="h-8 w-8 mx-auto mb-2 opacity-20" />
                 <p className="text-sm">您的订单为空。</p>
                 <p className="text-xs mt-1">从列表中选择菜谱以添加。</p>
@@ -270,7 +270,7 @@ export default function OrderCreate() {
             ) : (
               <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2 mb-6">
                 {selectedItems.map((item) => (
-                  <div key={item.recipe_id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50">
+                  <div key={item.recipe_id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/40">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm line-clamp-1">{item.title}</p>
                     </div>
