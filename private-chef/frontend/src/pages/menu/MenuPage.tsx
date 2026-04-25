@@ -84,14 +84,14 @@ export default function MenuPage() {
         <p className="text-sm font-medium text-muted-foreground/80">挑选今天想吃的菜，加入清单后统一去下单。</p>
       </div>
 
-      <div className="glass-card rounded-[var(--radius-card)] p-4 sm:p-5 shadow-card border border-white/40 dark:border-white/5">
+      <div className="glass-card rounded-[var(--radius-card)] p-4 sm:p-5 shadow-card border border-border/50 dark:border-white/5">
         <div className="relative group">
           <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             value={q}
             onChange={(event) => setQ(event.target.value)}
             placeholder="搜索你想吃的美味..."
-            className="pl-11 h-12 rounded-full bg-background/50 border-white/20 focus-visible:ring-primary/20 focus-visible:bg-background text-base shadow-inner"
+            className="pl-11 h-12 rounded-full bg-background/80 border-border/50 focus-visible:ring-primary/20 focus-visible:bg-background text-base shadow-inner"
           />
         </div>
 
@@ -119,12 +119,12 @@ export default function MenuPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="glass-card h-72 animate-pulse rounded-[1.5rem] bg-secondary/30 border border-white/20 relative overflow-hidden">
+            <div key={index} className="glass-card h-72 animate-pulse rounded-[1.5rem] bg-secondary/50 border border-border/50 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
             </div>
           ))
         ) : recipes.length === 0 ? (
-          <div className="glass-card col-span-full rounded-[var(--radius-card)] p-12 text-center text-muted-foreground shadow-sm border border-white/20 flex flex-col items-center justify-center gap-4">
+            <div className="glass-card col-span-full rounded-[var(--radius-card)] p-12 text-center text-muted-foreground shadow-card border border-border/50 flex flex-col items-center justify-center gap-4">
             <div className="bg-primary/5 p-4 rounded-full">
               <Sparkles className="h-10 w-10 text-primary/40" />
             </div>
@@ -192,7 +192,7 @@ export default function MenuPage() {
 
       {hasSelectedItems && (
         <div className="app-shell-floating-action">
-          <div className="rounded-[var(--radius-modal)] border border-white/40 dark:border-white/10 bg-background/80 p-4 shadow-elevated backdrop-blur-xl pointer-events-auto transform transition-all duration-300 animate-in slide-in-from-bottom-8">
+          <div className="rounded-[var(--radius-modal)] border border-border/50 dark:border-white/10 bg-background/80 p-4 shadow-elevated backdrop-blur-xl pointer-events-auto transform transition-all duration-300 animate-in slide-in-from-bottom-8">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="rounded-full bg-primary p-3.5 text-primary-foreground shadow-button">

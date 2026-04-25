@@ -26,10 +26,10 @@ export default function Favorites() {
           <p className="text-sm font-medium tracking-wide">正在加载收藏...</p>
         </div>
       ) : !favorites?.length ? (
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-          <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
-            <HeartOff className="h-10 w-10 text-muted-foreground/50" />
-          </div>
+          <div className="glass-card flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500 rounded-[var(--radius-card)] border border-border/50 shadow-card">
+            <div className="bg-secondary/50 p-6 rounded-full mb-6 border border-border/40 dark:border-white/5 shadow-sm">
+              <HeartOff className="h-10 w-10 text-muted-foreground/50" />
+            </div>
           <p className="text-lg font-bold text-foreground mb-2">暂无收藏</p>
           <p className="text-sm text-muted-foreground max-w-[250px] mx-auto mb-8 leading-relaxed">
             您还没有收藏任何菜谱。去首页探索您的下一顿美食吧！
@@ -47,7 +47,7 @@ export default function Favorites() {
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/80 hover:bg-background shadow-sm text-red-500 hover:text-red-600"
+               className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/90 hover:bg-background shadow-sm text-red-500 hover:text-red-600 border border-border/40"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()

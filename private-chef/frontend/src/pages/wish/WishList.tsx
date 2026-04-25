@@ -120,7 +120,7 @@ export default function WishList() {
             </div>
           ) : !pendingWishes?.length ? (
             <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-              <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
+                <div className="bg-secondary/50 p-6 rounded-full mb-6 border border-border/40 dark:border-white/5 shadow-sm">
                 <BookOpen className="h-10 w-10 text-muted-foreground/50" />
               </div>
               <p className="text-lg font-bold text-foreground mb-2">暂无待完成许愿</p>
@@ -135,13 +135,13 @@ export default function WishList() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {pendingWishes.map((wish) => (
-                <Card key={wish.id} className="glass-card rounded-2xl shadow-card border border-white/40 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-elevated hover:border-primary/20 p-5 pb-4">
+                <Card key={wish.id} className="glass-card rounded-2xl shadow-card border border-border/50 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-elevated hover:border-primary/20 p-5 pb-4">
                   <div className="flex justify-between items-start gap-4">
                     <CardTitle className="text-xl font-bold tracking-tight text-foreground/90 line-clamp-1">{wish.dishName}</CardTitle>
                     <Badge variant="outline" className="shrink-0 bg-primary/5 text-primary border-primary/20 rounded-full px-2.5 font-semibold text-[10px] shadow-sm">待完成</Badge>
                   </div>
                   {wish.note && (
-                    <CardDescription className="line-clamp-2 mt-1 text-[13px] bg-secondary/30 p-3 rounded-xl text-foreground/80 leading-relaxed border border-white/50 dark:border-white/5">{wish.note}</CardDescription>
+                    <CardDescription className="line-clamp-2 mt-1 text-[13px] bg-secondary/50 p-3 rounded-xl text-foreground/80 leading-relaxed border border-border/40 dark:border-white/5">{wish.note}</CardDescription>
                   )}
                   <div className="pt-3 border-t border-border/50 mt-1 flex gap-2">
                     <Button 
@@ -184,7 +184,7 @@ export default function WishList() {
             </div>
           ) : !fulfilledWishes?.length ? (
             <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-              <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
+                <div className="bg-secondary/50 p-6 rounded-full mb-6 border border-border/40 dark:border-white/5 shadow-sm">
                 <CheckCircle className="h-10 w-10 text-muted-foreground/50" />
               </div>
               <p className="text-lg font-bold text-foreground mb-2">暂无已完成许愿</p>
@@ -195,13 +195,13 @@ export default function WishList() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {fulfilledWishes.map((wish) => (
-                <Card key={wish.id} className="glass-card rounded-2xl shadow-card border border-white/40 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-elevated hover:border-green-500/20 p-5 pb-4 opacity-90 hover:opacity-100 group">
+                <Card key={wish.id} className="glass-card rounded-2xl shadow-card border border-border/50 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 hover:shadow-elevated hover:border-green-500/20 p-5 pb-4 opacity-90 hover:opacity-100 group">
                   <div className="flex justify-between items-start gap-4">
                     <CardTitle className="text-xl font-bold tracking-tight text-foreground/90 line-clamp-1">{wish.dishName}</CardTitle>
                     <Badge variant="outline" className="shrink-0 bg-green-500/10 text-green-700 border-green-200 rounded-full px-2.5 font-semibold text-[10px] shadow-sm">已完成</Badge>
                   </div>
                   {wish.note && (
-                    <CardDescription className="line-clamp-2 mt-1 text-[13px] bg-secondary/30 p-3 rounded-xl text-foreground/80 leading-relaxed border border-white/50 dark:border-white/5">{wish.note}</CardDescription>
+                    <CardDescription className="line-clamp-2 mt-1 text-[13px] bg-secondary/50 p-3 rounded-xl text-foreground/80 leading-relaxed border border-border/40 dark:border-white/5">{wish.note}</CardDescription>
                   )}
                   <div className="pt-3 border-t border-border/50 mt-1 flex justify-end">
                     {wish.recipeId ? (
