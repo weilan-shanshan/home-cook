@@ -53,9 +53,9 @@ export default {
         modal: 'var(--radius-modal)',
       },
       boxShadow: {
-        card: '0 4px 16px rgba(20, 10, 5, 0.04), 0 1px 4px rgba(20, 10, 5, 0.02)',
-        elevated: '0 12px 32px rgba(20, 10, 5, 0.08), 0 4px 12px rgba(20, 10, 5, 0.04)',
-        button: '0 2px 8px rgba(20, 10, 5, 0.06), 0 1px 2px rgba(20, 10, 5, 0.04)',
+        card: '0 10px 24px rgba(20, 10, 5, 0.08), 0 2px 8px rgba(20, 10, 5, 0.04)',
+        elevated: '0 18px 40px rgba(20, 10, 5, 0.12), 0 6px 16px rgba(20, 10, 5, 0.06)',
+        button: '0 4px 12px rgba(20, 10, 5, 0.08), 0 1px 3px rgba(20, 10, 5, 0.05)',
       },
       keyframes: {
         'accordion-down': {

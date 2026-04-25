@@ -32,7 +32,7 @@ export function RecipeCard({ recipe, actionSlot, onClick }: RecipeCardProps) {
   }
 
   const content = (
-    <div className="bg-card rounded-card shadow-card flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-elevated hover:-translate-y-1 relative">
+    <div className="bg-card rounded-card border border-border/60 shadow-card flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-elevated hover:-translate-y-1 relative">
       <div className="absolute top-3 left-3 z-10">
         <Button
           variant="secondary"
@@ -52,7 +52,7 @@ export function RecipeCard({ recipe, actionSlot, onClick }: RecipeCardProps) {
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground/40 bg-secondary/30">
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground/40 bg-secondary/50">
             <ChefHat className="h-12 w-12" />
           </div>
         )}
@@ -74,12 +74,12 @@ export function RecipeCard({ recipe, actionSlot, onClick }: RecipeCardProps) {
 
         <div className="flex flex-wrap gap-1.5 pt-2">
           {recipe.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag.id} variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wide">
+            <Badge key={tag.id} variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wide border border-border/50">
               {tag.name}
             </Badge>
           ))}
           {recipe.tags.length > 3 && (
-            <Badge variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wide">
+            <Badge variant="secondary" className="px-2 py-0.5 text-[10px] font-bold tracking-wide border border-border/50">
               +{recipe.tags.length - 3}
             </Badge>
           )}
