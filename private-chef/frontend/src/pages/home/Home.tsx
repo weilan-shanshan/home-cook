@@ -77,7 +77,7 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-2 gap-3">
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <Utensils className="h-16 w-16 text-primary" />
             </div>
@@ -89,7 +89,7 @@ export default function Home() {
               <p className="text-xs font-semibold text-muted-foreground">总点餐数</p>
             </div>
           </div>
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <ChefHat className="h-16 w-16 text-secondary-foreground" />
             </div>
@@ -224,7 +224,7 @@ export default function Home() {
           <div className="grid gap-3">
             {data.recentOrders.map((order) => (
               <Link key={order.id} to={`/orders/${order.id}`} className="block group">
-                <div className="glass-card rounded-2xl p-4 shadow-card border border-white/40 dark:border-white/5 group-hover:border-primary/20 transition-all duration-300">
+                <div className="glass-card rounded-2xl p-4 shadow-card border border-border/50 dark:border-white/5 group-hover:border-primary/20 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-2">
                     <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className="rounded-full px-2.5 py-0.5 font-semibold text-[10px] shadow-sm">
                       {order.status === 'completed' ? '已完成' : 
@@ -260,7 +260,7 @@ export default function Home() {
           <div className="grid gap-3">
             {data.recentComments.map((comment) => (
               <Link key={comment.id} to={`/orders/${comment.orderId}`} className="block group">
-                <div className="glass-card rounded-2xl p-4 shadow-card border border-white/40 dark:border-white/5 group-hover:border-primary/20 transition-all duration-300">
+                <div className="glass-card rounded-2xl p-4 shadow-card border border-border/50 dark:border-white/5 group-hover:border-primary/20 transition-all duration-300">
                   <div className="flex items-start gap-3.5">
                     <Avatar className="h-10 w-10 border-2 border-background shadow-sm ring-1 ring-black/5">
                       <AvatarFallback className="bg-primary/10 text-primary font-bold">{comment.displayName[0]}</AvatarFallback>

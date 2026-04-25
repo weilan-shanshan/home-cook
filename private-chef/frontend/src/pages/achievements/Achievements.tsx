@@ -73,7 +73,7 @@ export default function Achievements() {
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <Users className="h-16 w-16 text-primary" />
             </div>
@@ -85,7 +85,7 @@ export default function Achievements() {
               <p className="text-xs font-semibold text-muted-foreground">家庭成员</p>
             </div>
           </div>
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <Heart className="h-16 w-16 text-orange-500" />
             </div>
@@ -97,7 +97,7 @@ export default function Achievements() {
               <p className="text-xs font-semibold text-muted-foreground">活跃成员</p>
             </div>
           </div>
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <Utensils className="h-16 w-16 text-blue-500" />
             </div>
@@ -109,7 +109,7 @@ export default function Achievements() {
               <p className="text-xs font-semibold text-muted-foreground">总点餐数</p>
             </div>
           </div>
-          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-white/40 dark:border-white/5 relative overflow-hidden group">
+          <div className="glass-card rounded-[var(--radius-card)] p-4 shadow-card border border-border/50 dark:border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500">
               <ChefHat className="h-16 w-16 text-green-500" />
             </div>
@@ -133,7 +133,7 @@ export default function Achievements() {
           <h2 className="text-xl font-bold tracking-tight">我的排名</h2>
         </div>
         
-        <div className="glass-card rounded-[var(--radius-card)] shadow-card border border-white/40 dark:border-white/5 p-5 relative overflow-hidden">
+        <div className="glass-card rounded-[var(--radius-card)] shadow-card border border-border/50 dark:border-white/5 p-5 relative overflow-hidden">
           <div className="flex items-center gap-4">
             <div className={`text-4xl font-black drop-shadow-sm ${getRankColor(summary.me.rank)}`}>
               {getRankIcon(summary.me.rank)}
@@ -187,7 +187,7 @@ export default function Achievements() {
             return (
               <div 
                 key={entry.userId} 
-                className="flex items-center gap-4 p-4 glass-card rounded-2xl shadow-card border border-white/40 dark:border-white/5 hover:border-primary/20 transition-all duration-300 group"
+                className="flex items-center gap-4 p-4 glass-card rounded-2xl shadow-card border border-border/50 dark:border-white/5 hover:border-primary/20 transition-all duration-300 group"
               >
                 <div className={`text-2xl font-black min-w-[2rem] text-center drop-shadow-sm ${getRankColor(entry.rank)}`}>
                   {getRankIcon(entry.rank)}
