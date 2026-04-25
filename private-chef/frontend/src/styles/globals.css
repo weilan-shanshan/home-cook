@@ -4,40 +4,44 @@
 
 @layer base {
   :root {
-    /* Apple-style color palette */
-    --background: 0 0% 96.5%;
-    --foreground: 0 0% 11.5%;
+    /* 
+     * Brighter, softer, playful mobile palette.
+     * Note: First-pass implementation focuses on authenticated surfaces.
+     * Auth pages (Login/Register) restyling is deferred to a future change.
+     */
+    --background: 30 20% 98%;
+    --foreground: 20 10% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 11.5%;
+    --card-foreground: 20 10% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 11.5%;
+    --popover-foreground: 20 10% 15%;
 
-    --primary: 211 100% 50%;
+    --primary: 12 90% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 93%;
-    --secondary-foreground: 0 0% 11.5%;
+    --secondary: 35 100% 95%;
+    --secondary-foreground: 20 10% 20%;
 
-    --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 43%;
+    --muted: 30 20% 94%;
+    --muted-foreground: 25 10% 45%;
 
-    --accent: 0 0% 93%;
-    --accent-foreground: 0 0% 11.5%;
+    --accent: 35 100% 95%;
+    --accent-foreground: 20 10% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 211 100% 50%;
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 12 90% 58%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Apple-style design tokens */
-    --radius-card: 1rem;
-    --radius-modal: 1.5rem;
+    /* Playful rounded design tokens */
+    --radius-card: 1.5rem;
+    --radius-modal: 2rem;
 
     /* Shared app-shell contract */
     --app-shell-max-width: 28rem;
@@ -88,9 +92,20 @@
   }
 
   .app-shell-floating-action {
-    @apply fixed inset-x-0 z-40 mx-auto w-full px-4 pointer-events-none;
+    @apply fixed inset-x-0 z-40 mx-auto w-full px-6 pointer-events-none;
     max-width: var(--app-shell-max-width);
     bottom: var(--app-shell-floating-offset);
+    & > * {
+      @apply pointer-events-auto shadow-xl ring-1 ring-black/5;
+    }
+  }
+
+  .section-header {
+    @apply flex items-center justify-between pb-4 pt-6;
+  }
+  
+  .section-header-title {
+    @apply text-xl font-bold tracking-tight text-foreground;
   }
 }
 

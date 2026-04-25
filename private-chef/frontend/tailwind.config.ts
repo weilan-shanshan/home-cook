@@ -49,13 +49,13 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-        card: '1rem',
-        modal: '1.5rem',
+        card: 'var(--radius-card)',
+        modal: 'var(--radius-modal)',
       },
       boxShadow: {
-        card: '0 2px 8px rgba(0,0,0,0.04)',
-        elevated: '0 8px 24px rgba(0,0,0,0.08)',
-        button: '0 1px 3px rgba(0,0,0,0.06)',
+        card: '0 4px 16px rgba(20, 10, 5, 0.04), 0 1px 4px rgba(20, 10, 5, 0.02)',
+        elevated: '0 12px 32px rgba(20, 10, 5, 0.08), 0 4px 12px rgba(20, 10, 5, 0.04)',
+        button: '0 2px 8px rgba(20, 10, 5, 0.06), 0 1px 2px rgba(20, 10, 5, 0.04)',
       },
       keyframes: {
         'accordion-down': {
