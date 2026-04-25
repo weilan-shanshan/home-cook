@@ -179,7 +179,7 @@ export default function Profile() {
               </button>
             )) : (
               <div className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-                <div className="bg-secondary/30 p-4 rounded-full mb-3 border border-white/50 dark:border-white/5 shadow-sm">
+                <div className="bg-secondary/50 p-4 rounded-full mb-3 border border-border/40 dark:border-white/5 shadow-sm">
                   <FileText className="h-6 w-6 text-muted-foreground/50" />
                 </div>
                 <p className="text-sm font-bold text-foreground">暂无点餐记录</p>
@@ -217,7 +217,7 @@ export default function Profile() {
               </button>
             )) : (
               <div className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
-                <div className="bg-secondary/30 p-4 rounded-full mb-3 border border-white/50 dark:border-white/5 shadow-sm">
+                <div className="bg-secondary/50 p-4 rounded-full mb-3 border border-border/40 dark:border-white/5 shadow-sm">
                   <ChefHat className="h-6 w-6 text-muted-foreground/50" />
                 </div>
                 <p className="text-sm font-bold text-foreground">暂无做饭记录</p>

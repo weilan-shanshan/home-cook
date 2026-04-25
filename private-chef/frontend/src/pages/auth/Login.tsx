@@ -51,8 +51,8 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md shadow-elevated rounded-modal">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.85),_transparent_42%),linear-gradient(180deg,_hsl(var(--background)),_#ECECEF)] px-4">
+      <Card className="w-full max-w-md shadow-elevated rounded-modal glass-card border-border/60">
         <CardHeader className="space-y-2 text-center pb-6">
           <CardTitle className="text-3xl font-semibold tracking-tight">
             欢迎回来
