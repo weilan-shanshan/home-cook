@@ -1,10 +1,9 @@
 import { useOrders, useUpdateOrderStatus, Order } from '@/hooks/useOrders'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { Link } from 'react-router'
-import { Plus, Check, CheckCircle2, Utensils, Calendar as CalendarIcon, FileText } from 'lucide-react'
+import { Plus, Check, CheckCircle2, Utensils, Calendar as CalendarIcon, FileText, ClipboardList, AlertCircle } from 'lucide-react'
 
 function statusColor(status: Order['status']) {
   switch (status) {
@@ -39,11 +38,32 @@ export default function OrderList() {
   const { toast } = useToast()
 
   if (isLoading) {
-    return <div className="text-center py-12">正在加载订单...</div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] text-muted-foreground gap-5 animate-in fade-in zoom-in-95 duration-500">
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+          <div className="bg-white/80 dark:bg-black/50 p-4 rounded-3xl shadow-elevated relative">
+            <ClipboardList className="h-8 w-8 animate-bounce text-primary/80" />
+          </div>
+        </div>
+        <p className="text-sm font-medium tracking-wide">正在拉取订单...</p>
+      </div>
+    )
   }
 
   if (isError) {
-    return <div className="text-center py-12 text-destructive">加载订单失败。</div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4 animate-in fade-in zoom-in-95 duration-500 px-6 text-center">
+        <div className="bg-destructive/10 p-4 rounded-3xl text-destructive mb-2">
+          <AlertCircle className="h-8 w-8" />
+        </div>
+        <p className="text-base font-semibold text-foreground">哎呀，订单加载失败了</p>
+        <p className="text-sm text-muted-foreground mb-4">可能是网络开小差了，请重试</p>
+        <Button variant="outline" className="rounded-full shadow-button px-8" onClick={() => window.location.reload()}>
+          重新加载
+        </Button>
+      </div>
+    )
   }
 
   const handleUpdateStatus = (id: number, status: 'confirmed' | 'completed') => {
@@ -76,100 +96,112 @@ export default function OrderList() {
   const sortedDates = Object.keys(groupedOrders).sort((a, b) => b.localeCompare(a))
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">订单</h1>
-          <p className="text-muted-foreground mt-1">管理您的用餐计划和订单请求。</p>
+    <div className="space-y-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex items-center justify-between pt-2">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            订单
+          </h1>
+          <p className="text-muted-foreground text-sm font-medium">管理您的用餐计划和订单请求。</p>
         </div>
-        <Button asChild>
+        <Button asChild className="rounded-full shadow-button bg-primary/10 text-primary hover:bg-primary/20 border-0">
           <Link to="/order/create">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-1.5" />
             新建订单
           </Link>
         </Button>
       </div>
 
       {sortedDates.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground border-dashed">
-          <Utensils className="h-12 w-12 mb-4 opacity-20" />
-          <p className="text-lg font-medium">暂无订单</p>
-          <p className="text-sm">创建一个订单以开始安排您的用餐计划。</p>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
+            <Utensils className="h-10 w-10 text-muted-foreground/50" />
+          </div>
+          <p className="text-lg font-bold text-foreground mb-2">暂无订单</p>
+          <p className="text-sm text-muted-foreground max-w-[250px] mx-auto mb-8 leading-relaxed">
+            创建一个订单以开始安排您的用餐计划，或是等待家人点单。
+          </p>
+          <Button asChild className="rounded-full shadow-button px-8">
+            <Link to="/order/create">
+              <Plus className="h-4 w-4 mr-2" />
+              去点单
+            </Link>
+          </Button>
+        </div>
       ) : (
         <div className="space-y-10">
           {sortedDates.map((date) => (
             <div key={date} className="space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b">
-                <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-                <h2 className="text-xl font-semibold">{formatMealDate(date)}</h2>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="bg-orange-100/50 dark:bg-orange-500/10 p-1.5 rounded-lg">
+                  <CalendarIcon className="h-5 w-5 text-orange-500" />
+                </div>
+                <h2 className="text-xl font-bold tracking-tight">{formatMealDate(date)}</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groupedOrders[date].map((order) => (
-                  <Card key={order.id} className="flex flex-col">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            {mealTypeLabel(order.mealType)}
-                          </CardTitle>
-                          <CardDescription>订单 #{order.id}</CardDescription>
+                  <div key={order.id} className="glass-card rounded-2xl p-5 shadow-card border border-white/40 dark:border-white/5 flex flex-col gap-4 relative overflow-hidden group transition-all duration-300 hover:shadow-elevated hover:border-primary/20">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-black text-foreground/90 tracking-tight">{mealTypeLabel(order.mealType)}</span>
+                          <span className="text-[11px] font-bold text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">#{order.id}</span>
                         </div>
-                        <Badge variant={statusColor(order.status)}>
-                          {order.status === 'pending' ? '待确认' : order.status === 'confirmed' ? '已确认' : '已完成'}
-                        </Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-4">
+                      <Badge variant={statusColor(order.status)} className="rounded-full px-2.5 py-0.5 font-semibold text-[10px] shadow-sm">
+                        {order.status === 'pending' ? '待确认' : order.status === 'confirmed' ? '已确认' : '已完成'}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-3 flex-1">
                       {order.note && (
-                        <div className="text-sm text-muted-foreground bg-muted p-2 rounded-md flex items-start gap-2">
-                          <FileText className="h-4 w-4 shrink-0 mt-0.5" />
-                          <p>{order.note}</p>
+                        <div className="text-[13px] text-foreground/80 bg-orange-50/50 dark:bg-orange-900/10 p-3 rounded-xl flex items-start gap-2.5 border border-orange-100/50 dark:border-orange-800/30">
+                          <FileText className="h-4 w-4 shrink-0 mt-0.5 text-orange-500/70" />
+                          <p className="leading-relaxed">{order.note}</p>
                         </div>
                       )}
                       
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium border-b pb-1">菜品</h4>
-                        <ul className="space-y-2">
+                        <ul className="space-y-2.5 mt-2">
                           {order.items.map((item) => (
-                            <li key={item.id} className="flex items-start justify-between text-sm gap-2">
-                              <span className="truncate flex-1">{item.recipeTitle}</span>
-                              <span className="font-medium text-muted-foreground shrink-0">x{item.quantity}</span>
+                            <li key={item.id} className="flex items-start justify-between text-[14px] gap-3">
+                              <span className="font-semibold text-foreground/90 truncate flex-1">{item.recipeTitle}</span>
+                              <span className="font-bold text-primary/80 shrink-0 bg-primary/5 px-2 py-0.5 rounded-md text-[13px]">x{item.quantity}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
-                    </CardContent>
+                    </div>
                     
                     {(order.status === 'pending' || order.status === 'confirmed') && (
-                      <CardFooter className="pt-2">
+                      <div className="pt-3 border-t border-border/50 mt-1 flex gap-2">
                         {order.status === 'pending' && (
                           <Button 
                             variant="outline" 
-                            className="w-full" 
+                            className="flex-1 rounded-xl shadow-sm border-primary/20 text-primary hover:bg-primary/5" 
                             size="sm"
                             disabled={isUpdating}
                             onClick={() => handleUpdateStatus(order.id, 'confirmed')}
                           >
-                            <Check className="h-4 w-4 mr-2" />
+                            <Check className="h-4 w-4 mr-1.5" />
                             确认订单
                           </Button>
                         )}
                         {order.status === 'confirmed' && (
                           <Button 
                             variant="default" 
-                            className="w-full" 
+                            className="flex-1 rounded-xl shadow-button font-bold" 
                             size="sm"
                             disabled={isUpdating}
                             onClick={() => handleUpdateStatus(order.id, 'completed')}
                           >
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            <CheckCircle2 className="h-4 w-4 mr-1.5" />
                             标记为已完成
                           </Button>
                         )}
-                      </CardFooter>
+                      </div>
                     )}
-                  </Card>
+                  </div>
                 ))}
               </div>
             </div>
