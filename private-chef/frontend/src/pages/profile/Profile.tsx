@@ -33,8 +33,14 @@ export default function Profile() {
 
   if (isLoadingUser || isLoadingSummary) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
+      <div className="flex flex-col items-center justify-center min-h-[70vh] text-muted-foreground gap-5 animate-in fade-in zoom-in-95 duration-500">
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+          <div className="bg-white/80 dark:bg-black/50 p-4 rounded-3xl shadow-elevated relative">
+            <Loader2 className="h-8 w-8 animate-spin text-primary/80" />
+          </div>
+        </div>
+        <p className="text-sm font-medium tracking-wide">正在加载资料...</p>
       </div>
     )
   }
@@ -44,7 +50,7 @@ export default function Profile() {
   const userInitials = (user.display_name || user.username).substring(0, 2).toUpperCase()
 
   return (
-    <div className="space-y-6 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <section className="glass-card rounded-[28px] border border-border/70 p-5 shadow-sm">
         <div className="flex items-start gap-4">
           <Avatar className="h-20 w-20 border-2 border-background shadow-md">
@@ -161,18 +167,24 @@ export default function Profile() {
                 type="button"
                 key={order.id}
                 onClick={() => navigate(`/orders/${order.id}`)}
-                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-secondary/50"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-all hover:bg-secondary/50 group"
               >
                 <div className="min-w-0 pr-3">
-                  <div className="truncate text-sm font-medium">{order.recipeTitles.join('、') || '无菜品'}</div>
+                  <div className="truncate text-sm font-medium group-hover:text-primary transition-colors">{order.recipeTitles.join('、') || '无菜品'}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">{order.mealDate} {order.mealType === 'lunch' ? '午餐' : '晚餐'}</div>
                 </div>
-                <Badge variant={order.status === 'completed' ? 'secondary' : 'default'} className="shrink-0 text-[10px] font-normal">
+                <Badge variant={order.status === 'completed' ? 'secondary' : 'default'} className="shrink-0 text-[10px] font-semibold px-2">
                   {order.status === 'completed' ? '已完成' : order.status === 'submitted' ? '待接单' : '处理中'}
                 </Badge>
               </button>
             )) : (
-              <div className="py-4 text-center text-sm text-muted-foreground">暂无点餐记录</div>
+              <div className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
+                <div className="bg-secondary/30 p-4 rounded-full mb-3 border border-white/50 dark:border-white/5 shadow-sm">
+                  <FileText className="h-6 w-6 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm font-bold text-foreground">暂无点餐记录</p>
+                <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">最近还没有提交过订单，去首页看看吧</p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -193,18 +205,24 @@ export default function Profile() {
                 type="button"
                 key={order.id}
                 onClick={() => navigate(`/orders/${order.id}`)}
-                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-colors hover:bg-secondary/50"
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-all hover:bg-secondary/50 group"
               >
                 <div className="min-w-0 pr-3">
-                  <div className="truncate text-sm font-medium">{order.recipeTitles.join('、') || '无菜品'}</div>
+                  <div className="truncate text-sm font-medium group-hover:text-primary transition-colors">{order.recipeTitles.join('、') || '无菜品'}</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">{order.mealDate} {order.mealType === 'lunch' ? '午餐' : '晚餐'}</div>
                 </div>
-                <Badge variant={order.status === 'completed' ? 'secondary' : 'default'} className="shrink-0 text-[10px] font-normal">
+                <Badge variant={order.status === 'completed' ? 'secondary' : 'default'} className="shrink-0 text-[10px] font-semibold px-2">
                   {order.status === 'completed' ? '已完成' : order.status === 'submitted' ? '待接单' : '处理中'}
                 </Badge>
               </button>
             )) : (
-              <div className="py-4 text-center text-sm text-muted-foreground">暂无做饭记录</div>
+              <div className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
+                <div className="bg-secondary/30 p-4 rounded-full mb-3 border border-white/50 dark:border-white/5 shadow-sm">
+                  <ChefHat className="h-6 w-6 text-muted-foreground/50" />
+                </div>
+                <p className="text-sm font-bold text-foreground">暂无做饭记录</p>
+                <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">家人还没点过你做的菜呢</p>
+              </div>
             )}
           </CardContent>
         </Card>

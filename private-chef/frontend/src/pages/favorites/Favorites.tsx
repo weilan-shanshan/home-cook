@@ -2,7 +2,6 @@ import { Link } from 'react-router'
 import { Heart, HeartOff } from 'lucide-react'
 import { useFavorites, useToggleFavorite } from '@/hooks/useFavorites'
 import { RecipeCard } from '@/components/recipe/RecipeCard'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 export default function Favorites() {
@@ -10,27 +9,37 @@ export default function Favorites() {
   const { mutate: toggleFavorite } = useToggleFavorite()
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">收藏</h1>
-        <p className="text-muted-foreground mt-1">您最喜欢的菜谱都在这里。</p>
+    <div className="space-y-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="pt-2 space-y-1.5">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">收藏</h1>
+        <p className="text-muted-foreground text-sm font-medium">您最喜欢的菜谱都在这里。</p>
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-12 text-muted-foreground">正在加载...</div>
-      ) : !favorites?.length ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Heart className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-            <h3 className="text-lg font-medium">暂无收藏</h3>
-            <p className="text-muted-foreground mt-1 max-w-sm">
-              您还没有收藏任何菜谱。去首页探索您的下一顿美食吧！
-            </p>
-            <div className="mt-6">
-              <Link to="/" className="text-primary hover:underline font-medium">浏览菜谱 →</Link>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground gap-5 animate-in fade-in zoom-in-95 duration-500">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+            <div className="bg-white/80 dark:bg-black/50 p-4 rounded-3xl shadow-elevated relative">
+              <Heart className="h-8 w-8 animate-pulse text-rose-500/80" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-sm font-medium tracking-wide">正在加载收藏...</p>
+        </div>
+      ) : !favorites?.length ? (
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-secondary/30 p-6 rounded-full mb-6 border border-white/50 dark:border-white/5 shadow-sm">
+            <HeartOff className="h-10 w-10 text-muted-foreground/50" />
+          </div>
+          <p className="text-lg font-bold text-foreground mb-2">暂无收藏</p>
+          <p className="text-sm text-muted-foreground max-w-[250px] mx-auto mb-8 leading-relaxed">
+            您还没有收藏任何菜谱。去首页探索您的下一顿美食吧！
+          </p>
+          <Button asChild className="rounded-full shadow-button px-8">
+            <Link to="/">
+              浏览菜谱
+            </Link>
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {favorites.map((fav) => (
