@@ -42,11 +42,42 @@ type RecentCommentSummary = {
   createdAt: string
 }
 
+type ActiveOrderItemSummary = {
+  recipeId: number
+  recipeTitle: string
+  quantity: number
+  image: {
+    url: string
+    thumbUrl: string | null
+  } | null
+}
+
+export type ActiveOrderSummary = {
+  id: number
+  mealType: string
+  mealDate: string
+  status: string
+  note: string | null
+  createdAt: string
+  requester: {
+    userId: number
+    displayName: string
+  }
+  cook: {
+    userId: number
+    displayName: string
+  } | null
+  items: ActiveOrderItemSummary[]
+  isMine: boolean
+  canAccept: boolean
+}
+
 export type HomeSummary = {
   recommendedRecipes: RecipeCardSummary[]
   frequentRecipes: RecipeCardSummary[]
   recentOrders: RecentOrderSummary[]
   recentComments: RecentCommentSummary[]
+  activeOrders: ActiveOrderSummary[]
   achievementSummary: {
     totalOrders: number
     totalCooks: number
@@ -164,6 +195,131 @@ function getAchievementSummary(familyId: number) {
   }
 }
 
+type ActiveOrderRow = {
+  id: number
+  userId: number
+  cookUserId: number | null
+  requesterDisplayName: string
+  cookDisplayName: string | null
+  mealType: string
+  mealDate: string
+  note: string | null
+  status: string
+  createdAt: string
+}
+
+type ActiveOrderItemRow = {
+  orderId: number
+  recipeId: number
+  quantity: number
+  recipeTitle: string
+  imageUrl: string | null
+  thumbUrl: string | null
+}
+
+async function getActiveOrders(familyId: number, userId: number): Promise<ActiveOrderSummary[]> {
+  const orderRows = sqlite
+    .prepare(
+      `
+        SELECT
+          o.id AS id,
+          o.user_id AS userId,
+          o.cook_user_id AS cookUserId,
+          requester.display_name AS requesterDisplayName,
+          cook.display_name AS cookDisplayName,
+          o.meal_type AS mealType,
+          o.meal_date AS mealDate,
+          o.note AS note,
+          o.status AS status,
+          o.created_at AS createdAt
+        FROM orders o
+        INNER JOIN users requester ON requester.id = o.user_id
+        LEFT JOIN users cook ON cook.id = o.cook_user_id
+        WHERE o.family_id = ?
+          AND o.status IN ('pending', 'submitted', 'confirmed', 'preparing')
+        ORDER BY o.created_at DESC, o.id DESC
+        LIMIT 8
+      `,
+    )
+    .all(familyId) as ActiveOrderRow[]
+
+  if (orderRows.length === 0) {
+    return []
+  }
+
+  const orderIds = orderRows.map((order) => order.id)
+  const placeholders = orderIds.map(() => '?').join(',')
+  const itemRows = sqlite
+    .prepare(
+      `
+        SELECT
+          oi.order_id AS orderId,
+          oi.recipe_id AS recipeId,
+          oi.quantity AS quantity,
+          r.title AS recipeTitle,
+          ri.url AS imageUrl,
+          ri.thumb_url AS thumbUrl
+        FROM order_items oi
+        INNER JOIN recipes r ON r.id = oi.recipe_id
+        LEFT JOIN recipe_images ri
+          ON ri.recipe_id = r.id
+         AND ri.sort_order = 0
+        WHERE oi.order_id IN (${placeholders})
+      `,
+    )
+    .all(...orderIds) as ActiveOrderItemRow[]
+
+  const itemsByOrderId = new Map<number, ActiveOrderItemRow[]>()
+  for (const item of itemRows) {
+    const list = itemsByOrderId.get(item.orderId) ?? []
+    list.push(item)
+    itemsByOrderId.set(item.orderId, list)
+  }
+
+  return Promise.all(
+    orderRows.map(async (order) => {
+      const itemSummaries = await Promise.all(
+        (itemsByOrderId.get(order.id) ?? []).map(async (item) => {
+          const image = await resolveImageUrls(item.imageUrl, item.thumbUrl)
+          return {
+            recipeId: item.recipeId,
+            recipeTitle: item.recipeTitle,
+            quantity: item.quantity,
+            image: image ? { url: image.url, thumbUrl: image.thumbUrl } : null,
+          }
+        }),
+      )
+
+      const normalizedStatus = normalizeOrderStatus(order.status)
+      const isMine = order.userId === userId
+      const canAccept =
+        !isMine &&
+        order.cookUserId === null &&
+        (normalizedStatus === 'submitted' || normalizedStatus === 'confirmed')
+
+      return {
+        id: order.id,
+        mealType: order.mealType,
+        mealDate: order.mealDate,
+        status: normalizedStatus,
+        note: order.note,
+        createdAt: order.createdAt,
+        requester: {
+          userId: order.userId,
+          displayName: order.requesterDisplayName,
+        },
+        cook:
+          order.cookUserId !== null && order.cookDisplayName
+            ? { userId: order.cookUserId, displayName: order.cookDisplayName }
+            : null,
+        items: itemSummaries,
+        isMine,
+        canAccept,
+      }
+    }),
+  )
+}
+
 export async function getHomeSummary(familyId: number, userId: number): Promise<HomeSummary> {
   const recipeStats = getRecipeStats(familyId)
   const recentlyOrderedRecipeIds = getRecentlyOrderedRecipeIds(familyId, userId)
@@ -261,11 +417,14 @@ export async function getHomeSummary(familyId: number, userId: number): Promise<
     createdAt: comment.createdAt,
   }))
 
+  const activeOrders = await getActiveOrders(familyId, userId)
+
   return {
     recommendedRecipes,
     frequentRecipes,
     recentOrders,
     recentComments,
+    activeOrders,
     achievementSummary: getAchievementSummary(familyId),
   }
 }

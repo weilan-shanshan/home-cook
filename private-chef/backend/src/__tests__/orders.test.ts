@@ -161,9 +161,12 @@ describe.sequential('orders critical path', () => {
       json: { status: 'confirmed' },
     })
     expect(confirmResponse.status).toBe(200)
-    expect(await readJson<{ id: number; status: string }>(confirmResponse)).toEqual({
+    expect(
+      await readJson<{ id: number; status: string; cookUserId: number | null }>(confirmResponse),
+    ).toEqual({
       id: created.id,
       status: 'confirmed',
+      cookUserId: expect.any(Number),
     })
 
     const prepareResponse = await ctx.request(`/api/orders/${created.id}/status`, {
@@ -172,9 +175,12 @@ describe.sequential('orders critical path', () => {
       json: { status: 'preparing' },
     })
     expect(prepareResponse.status).toBe(200)
-    expect(await readJson<{ id: number; status: string }>(prepareResponse)).toEqual({
+    expect(
+      await readJson<{ id: number; status: string; cookUserId: number | null }>(prepareResponse),
+    ).toEqual({
       id: created.id,
       status: 'preparing',
+      cookUserId: expect.any(Number),
     })
 
     const completeResponse = await ctx.request(`/api/orders/${created.id}/status`, {
@@ -183,9 +189,12 @@ describe.sequential('orders critical path', () => {
       json: { status: 'completed' },
     })
     expect(completeResponse.status).toBe(200)
-    expect(await readJson<{ id: number; status: string }>(completeResponse)).toEqual({
+    expect(
+      await readJson<{ id: number; status: string; cookUserId: number | null }>(completeResponse),
+    ).toEqual({
       id: created.id,
       status: 'completed',
+      cookUserId: expect.any(Number),
     })
 
     const stored = ctx.sqlite

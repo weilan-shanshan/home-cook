@@ -79,16 +79,37 @@ function normalizeOrderStatus(status: string) {
   return status === 'pending' ? 'submitted' : status
 }
 
-function getStatusUpdatePatch(targetStatus: 'confirmed' | 'preparing' | 'completed' | 'cancelled') {
+function getStatusUpdatePatch(
+  targetStatus: 'confirmed' | 'preparing' | 'completed' | 'cancelled',
+  options: { operatorId: number; existingCookId: number | null; requesterId: number },
+) {
+  const base: {
+    status: string
+    completedAt: string | null
+    cancelledAt: string | null
+    cookUserId?: number | null
+  } = {
+    status: targetStatus,
+    completedAt: null,
+    cancelledAt: null,
+  }
+
   if (targetStatus === 'completed') {
-    return { status: targetStatus, completedAt: new Date().toISOString(), cancelledAt: null }
+    base.completedAt = new Date().toISOString()
+  } else if (targetStatus === 'cancelled') {
+    base.cancelledAt = new Date().toISOString()
   }
 
-  if (targetStatus === 'cancelled') {
-    return { status: targetStatus, cancelledAt: new Date().toISOString(), completedAt: null }
+  // 接单：当订单进入 confirmed/preparing 且尚无大厨时，将操作者记为大厨。
+  // 自己点的单接受时也会自动设置 cookUserId（即一人完成全部环节）。
+  if (
+    (targetStatus === 'confirmed' || targetStatus === 'preparing') &&
+    options.existingCookId === null
+  ) {
+    base.cookUserId = options.operatorId
   }
 
-  return { status: targetStatus, completedAt: null, cancelledAt: null }
+  return base
 }
 
 ordersRouter.get('/', async (c) => {
@@ -445,7 +466,12 @@ ordersRouter.put('/:id/status', async (c) => {
   const targetStatus = parsed.data.status
 
   const [order] = await db
-    .select({ id: orders.id, status: orders.status, userId: orders.userId })
+    .select({
+      id: orders.id,
+      status: orders.status,
+      userId: orders.userId,
+      cookUserId: orders.cookUserId,
+    })
     .from(orders)
     .where(and(eq(orders.id, orderId), eq(orders.familyId, familyId)))
     .limit(1)
@@ -467,27 +493,51 @@ ordersRouter.put('/:id/status', async (c) => {
     )
   }
 
+  const operator = c.get('user')
   const [updated] = await db
     .update(orders)
-    .set(getStatusUpdatePatch(targetStatus))
+    .set(
+      getStatusUpdatePatch(targetStatus, {
+        operatorId: operator.id,
+        existingCookId: order.cookUserId,
+        requesterId: order.userId,
+      }),
+    )
     .where(and(eq(orders.id, orderId), eq(orders.familyId, familyId)))
     .returning({
       id: orders.id,
       status: orders.status,
       userId: orders.userId,
+      cookUserId: orders.cookUserId,
     })
 
   await db.insert(orderStatusEvents).values({
     orderId,
     fromStatus: currentStatus,
     toStatus: targetStatus,
-    operatorId: c.get('user').id,
+    operatorId: operator.id,
     note: `Order status updated to ${targetStatus}`,
   })
 
+  const statusLabelMap: Record<string, string> = {
+    submitted: '已提交',
+    confirmed: '已接单',
+    preparing: '制作中',
+    completed: '已完成',
+    cancelled: '已取消',
+  }
+  const fromLabel = statusLabelMap[currentStatus] ?? currentStatus
+  const toLabel = statusLabelMap[targetStatus] ?? targetStatus
+  const accepted =
+    order.cookUserId === null &&
+    (targetStatus === 'confirmed' || targetStatus === 'preparing')
+  const message = accepted
+    ? `🧑‍🍳 ${operator.displayName}接单了订单 #${orderId}（${fromLabel} → ${toLabel}）`
+    : `📦 ${operator.displayName}更新订单 #${orderId}：${fromLabel} → ${toLabel}`
+
   await createNotificationEvent({
     familyId,
-    eventType: 'order_status_updated',
+    eventType: accepted ? 'order_accepted' : 'order_status_updated',
     entityType: 'order',
     entityId: orderId,
     payload: {
@@ -495,13 +545,17 @@ ordersRouter.put('/:id/status', async (c) => {
       fromStatus: currentStatus,
       toStatus: targetStatus,
       userId: updated.userId,
-      message: `📦 订单 #${orderId} 状态更新：${currentStatus} → ${targetStatus}`,
+      operatorId: operator.id,
+      operatorName: operator.displayName,
+      cookUserId: updated.cookUserId,
+      message,
     },
   })
 
   return c.json({
     id: updated.id,
     status: normalizeOrderStatus(updated.status),
+    cookUserId: updated.cookUserId,
   })
 })
 

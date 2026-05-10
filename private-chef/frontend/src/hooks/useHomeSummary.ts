@@ -39,11 +39,42 @@ export type AchievementSummary = {
   totalCooks: number
 }
 
+export type ActiveOrderItemSummary = {
+  recipeId: number
+  recipeTitle: string
+  quantity: number
+  image: {
+    url: string
+    thumbUrl: string | null
+  } | null
+}
+
+export type ActiveOrderSummary = {
+  id: number
+  mealType: string
+  mealDate: string
+  status: 'submitted' | 'confirmed' | 'preparing'
+  note: string | null
+  createdAt: string
+  requester: {
+    userId: number
+    displayName: string
+  }
+  cook: {
+    userId: number
+    displayName: string
+  } | null
+  items: ActiveOrderItemSummary[]
+  isMine: boolean
+  canAccept: boolean
+}
+
 export type HomeSummary = {
   recommendedRecipes: RecipeCardSummary[]
   frequentRecipes: RecipeCardSummary[]
   recentOrders: RecentOrderSummary[]
   recentComments: RecentCommentSummary[]
+  activeOrders: ActiveOrderSummary[]
   achievementSummary: AchievementSummary
 }
 
