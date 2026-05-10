@@ -96,7 +96,7 @@ wishesRouter.post('/', async (c) => {
       createdAt: wishes.createdAt,
     })
 
-  notifyNewWish(user.displayName, created.dishName)
+  await notifyNewWish(familyId, created.id, user.displayName, created.dishName)
 
   return c.json(created, 201)
 })

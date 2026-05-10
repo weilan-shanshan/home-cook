@@ -471,7 +471,13 @@ recipesRouter.post('/', async (c) => {
            .all(result) as Array<{ id: number; name: string }>)
       : []
 
-  notifyNewRecipe(user.displayName, created.title, created.cook_minutes ?? undefined)
+  await notifyNewRecipe(
+    familyId,
+    created.id,
+    user.displayName,
+    created.title,
+    created.cook_minutes ?? undefined,
+  )
 
   return c.json(
     {

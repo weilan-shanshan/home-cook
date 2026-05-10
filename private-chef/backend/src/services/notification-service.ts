@@ -1,14 +1,10 @@
-import { and, eq } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { db } from '../db/index.js'
-import {
-  familyMembers,
-  notificationDeliveries,
-  notificationEvents,
-} from '../db/schema.js'
+import { notificationEvents } from '../db/schema.js'
 import { env } from '../lib/env.js'
 
 const DELIVERY_INTERVAL_MS = 3_000
+const RATE_LIMIT_BACKOFF_MS = 60_000
 
 type NotificationPayload = Record<string, unknown>
 
@@ -22,15 +18,19 @@ type CreateNotificationEventInput = {
 
 let deliveryTimer: NodeJS.Timeout | null = null
 let delivering = false
+let rateLimitedUntil = 0
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-function ensureDeliveryLoopStarted() {
+export function ensureDeliveryLoopStarted() {
   if (deliveryTimer) {
     return
   }
+
+  // 立即触发一次，让进程重启后能立即冲刷掉历史 pending 事件。
+  void deliverPendingEvents()
 
   deliveryTimer = setInterval(() => {
     void deliverPendingEvents()
@@ -57,7 +57,11 @@ function getPayloadContent(payload: string): string {
   return '📣 收到一条新的家庭通知'
 }
 
-async function postWechatText(content: string): Promise<{ ok: boolean; error?: string }> {
+async function postWechatText(content: string): Promise<{
+  ok: boolean
+  rateLimited?: boolean
+  error?: string
+}> {
   const url = env.WECHAT_WEBHOOK_URL
   if (!url) {
     return { ok: false, error: 'WECHAT_WEBHOOK_URL not set' }
@@ -75,6 +79,13 @@ async function postWechatText(content: string): Promise<{ ok: boolean; error?: s
     }
 
     const body = (await res.json()) as { errcode?: number; errmsg?: string }
+    if (body.errcode === 45009) {
+      return {
+        ok: false,
+        rateLimited: true,
+        error: `Webhook rate-limited: ${body.errcode}${body.errmsg ? ` ${body.errmsg}` : ''}`,
+      }
+    }
     if (body.errcode && body.errcode !== 0) {
       return {
         ok: false,
@@ -127,6 +138,9 @@ export async function deliverPendingEvents(): Promise<void> {
   if (delivering) {
     return
   }
+  if (Date.now() < rateLimitedUntil) {
+    return
+  }
 
   delivering = true
 
@@ -135,136 +149,73 @@ export async function deliverPendingEvents(): Promise<void> {
       .select({
         id: notificationEvents.id,
         familyId: notificationEvents.familyId,
+        eventType: notificationEvents.eventType,
         payload: notificationEvents.payload,
       })
       .from(notificationEvents)
       .where(eq(notificationEvents.status, 'pending'))
       .orderBy(notificationEvents.id)
+      .limit(20)
 
     if (pendingEvents.length === 0) {
       return
     }
 
-    const webhookUrl = env.WECHAT_WEBHOOK_URL
-    for (const event of pendingEvents) {
-      if (!webhookUrl) {
+    if (!env.WECHAT_WEBHOOK_URL) {
+      console.warn('[notification] WECHAT_WEBHOOK_URL is not set; events stay pending')
+      for (const event of pendingEvents) {
         await db
           .update(notificationEvents)
           .set({ lastError: 'WECHAT_WEBHOOK_URL not set' })
           .where(eq(notificationEvents.id, event.id))
+      }
+      return
+    }
+
+    for (const event of pendingEvents) {
+      const content = getPayloadContent(event.payload)
+      const result = await postWechatText(content)
+
+      if (result.ok) {
+        await db
+          .update(notificationEvents)
+          .set({
+            status: 'sent',
+            sentAt: sql`(datetime('now'))`,
+            lastError: null,
+          })
+          .where(eq(notificationEvents.id, event.id))
+        // 控制群机器人 QPS（企业微信 20 条/分钟），消息间隔 ~3s。
+        await sleep(DELIVERY_INTERVAL_MS)
         continue
       }
 
-      let deliveries = await db
-        .select({
-          id: notificationDeliveries.id,
-          targetUserId: notificationDeliveries.targetUserId,
-          status: notificationDeliveries.status,
-          attemptCount: notificationDeliveries.attemptCount,
-          lastError: notificationDeliveries.lastError,
-        })
-        .from(notificationDeliveries)
-        .where(eq(notificationDeliveries.notificationId, event.id))
-
-      if (deliveries.length === 0) {
-        const targets = await db
-          .select({ userId: familyMembers.userId })
-          .from(familyMembers)
-          .where(eq(familyMembers.familyId, event.familyId))
-
-        if (targets.length === 0) {
-          await db
-            .update(notificationEvents)
-            .set({ lastError: 'No family members to notify' })
-            .where(eq(notificationEvents.id, event.id))
-          continue
-        }
-
-        await db.insert(notificationDeliveries).values(
-          targets.map((target) => ({
-            notificationId: event.id,
-            targetUserId: target.userId,
-            channel: 'wechat',
-            status: 'pending',
-            attemptCount: 0,
-            lastError: null,
-          })),
-        )
-
-        deliveries = await db
-          .select({
-            id: notificationDeliveries.id,
-            targetUserId: notificationDeliveries.targetUserId,
-            status: notificationDeliveries.status,
-            attemptCount: notificationDeliveries.attemptCount,
-            lastError: notificationDeliveries.lastError,
-          })
-          .from(notificationDeliveries)
-          .where(eq(notificationDeliveries.notificationId, event.id))
-      }
-
-      const content = getPayloadContent(event.payload)
-      let lastError: string | null = null
-      let hasPendingOrFailedDelivery = false
-
-      for (const delivery of deliveries) {
-        if (delivery.status === 'sent' || delivery.status === 'failed') {
-          if (delivery.status === 'failed') {
-            hasPendingOrFailedDelivery = true
-            lastError = lastError ?? 'Previous delivery failed'
-          }
-          continue
-        }
-
-        const result = await postWechatText(content)
-        const nextAttemptCount = delivery.attemptCount + 1
-
-        if (result.ok) {
-          await db
-            .update(notificationDeliveries)
-            .set({
-              status: 'sent',
-              attemptCount: nextAttemptCount,
-              lastError: null,
-              updatedAt: sql`(datetime('now'))`,
-            })
-            .where(eq(notificationDeliveries.id, delivery.id))
-          continue
-        }
-
-        lastError = result.error ?? 'Unknown delivery failure'
-        hasPendingOrFailedDelivery = true
+      // 速率受限：暂停整个投递循环，过一分钟再来。事件保持 pending 等待重试。
+      if (result.rateLimited) {
         await db
-          .update(notificationDeliveries)
-          .set({
-            status: 'failed',
-            attemptCount: nextAttemptCount,
-            lastError,
-            updatedAt: sql`(datetime('now'))`,
-          })
-          .where(eq(notificationDeliveries.id, delivery.id))
+          .update(notificationEvents)
+          .set({ lastError: result.error ?? 'rate limited' })
+          .where(eq(notificationEvents.id, event.id))
+        rateLimitedUntil = Date.now() + RATE_LIMIT_BACKOFF_MS
+        console.error(
+          `[notification] webhook rate-limited; backing off ${RATE_LIMIT_BACKOFF_MS}ms`,
+        )
+        return
       }
 
+      // 永久性错误（webhook 拒绝/网络错误等）：标记失败避免无限重试，
+      // 运维可以手工把 status 改回 pending 触发重投。
       await db
         .update(notificationEvents)
-        .set(
-          hasPendingOrFailedDelivery
-            ? {
-                status: 'pending',
-                lastError,
-              }
-            : {
-                status: 'sent',
-                sentAt: sql`(datetime('now'))`,
-                lastError: null,
-              },
-        )
-        .where(
-          and(
-            eq(notificationEvents.id, event.id),
-            eq(notificationEvents.status, 'pending'),
-          ),
-        )
+        .set({
+          status: 'failed',
+          lastError: result.error ?? 'Unknown delivery failure',
+        })
+        .where(eq(notificationEvents.id, event.id))
+
+      console.error(
+        `[notification] delivery failed for event ${event.id} (${event.eventType}): ${result.error}`,
+      )
     }
   } finally {
     delivering = false
