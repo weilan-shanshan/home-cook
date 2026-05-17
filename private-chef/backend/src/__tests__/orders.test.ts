@@ -262,6 +262,56 @@ describe.sequential('orders critical path', () => {
     expect(stored.status).toBe('completed')
   })
 
+  test('GET /api/orders?recipeId=X only returns orders containing that recipe', async () => {
+    const ctx = await createTestContext()
+    cleanups.push(ctx.cleanup)
+
+    const family = await ctx.seedFamily({
+      username: 'filter-admin',
+      displayName: '筛选管理员',
+      inviteCode: 'FILT01',
+    })
+    const targetRecipe = ctx.seedRecipe({
+      familyId: family.familyId,
+      createdBy: family.userId,
+      title: '目标菜',
+    })
+    const otherRecipe = ctx.seedRecipe({
+      familyId: family.familyId,
+      createdBy: family.userId,
+      title: '其它菜',
+    })
+
+    const orderA = ctx.sqlite
+      .prepare(
+        `INSERT INTO orders (family_id, user_id, meal_type, meal_date, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      )
+      .run(family.familyId, family.userId, 'lunch', '2026-05-10', 'completed', '2026-05-10 12:00:00')
+    ctx.sqlite
+      .prepare('INSERT INTO order_items (order_id, recipe_id, quantity) VALUES (?, ?, ?)')
+      .run(Number(orderA.lastInsertRowid), targetRecipe.recipeId, 1)
+
+    const orderB = ctx.sqlite
+      .prepare(
+        `INSERT INTO orders (family_id, user_id, meal_type, meal_date, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      )
+      .run(family.familyId, family.userId, 'dinner', '2026-05-11', 'completed', '2026-05-11 19:00:00')
+    ctx.sqlite
+      .prepare('INSERT INTO order_items (order_id, recipe_id, quantity) VALUES (?, ?, ?)')
+      .run(Number(orderB.lastInsertRowid), otherRecipe.recipeId, 1)
+
+    const response = await ctx.request(`/api/orders?recipeId=${targetRecipe.recipeId}`, {
+      cookie: ctx.createSessionCookie(family.userId),
+    })
+    expect(response.status).toBe(200)
+    const body = await readJson<Array<{ id: number }>>(response)
+    const ids = body.map((o) => o.id)
+    expect(ids).toContain(Number(orderA.lastInsertRowid))
+    expect(ids).not.toContain(Number(orderB.lastInsertRowid))
+  })
+
   test('enforces family isolation with 404 for another family', async () => {
     const ctx = await createTestContext({ stubWechat: true })
     cleanups.push(ctx.cleanup)

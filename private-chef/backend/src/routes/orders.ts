@@ -129,6 +129,23 @@ ordersRouter.get('/', async (c) => {
     conditions.push(eq(orders.mealDate, mealDateFilter))
   }
 
+  const recipeIdFilter = c.req.query('recipeId')
+  if (recipeIdFilter) {
+    const recipeId = Number(recipeIdFilter)
+    if (!Number.isFinite(recipeId) || recipeId <= 0) {
+      return c.json({ error: 'Invalid recipeId filter' }, 400)
+    }
+    const matchedOrderIds = await db
+      .select({ orderId: orderItems.orderId })
+      .from(orderItems)
+      .where(eq(orderItems.recipeId, recipeId))
+    const idSet = new Set(matchedOrderIds.map((r) => r.orderId))
+    if (idSet.size === 0) {
+      return c.json([])
+    }
+    conditions.push(inArray(orders.id, [...idSet]))
+  }
+
   const orderRows = await db
     .select({
       id: orders.id,
