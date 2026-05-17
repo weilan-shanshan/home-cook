@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       strategies: 'generateSW',
       injectRegister: false, // 我们在 src/lib/pwa.ts 里手动注册，绕过国内浏览器对内联脚本的拦截
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'],
       manifest: {
         id: '/',
         name: '私厨 — 家庭烹饪管理',
@@ -36,19 +36,13 @@ export default defineConfig({
             purpose: 'any',
           },
           {
-            src: 'icons/icon-192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-          {
             src: 'icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: 'icons/icon-512.png',
+            src: 'icons/icon-512-maskable.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
