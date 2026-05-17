@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { InstallEntryCard } from '@/components/pwa/InstallEntryCard'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2, LogOut, Users, Heart, MessageCircle, ChevronRight, FileText, ChefHat, Settings, Copy } from 'lucide-react'
 
@@ -51,6 +52,7 @@ export default function Profile() {
 
   return (
     <div className="space-y-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <InstallEntryCard />
       <section className="glass-card rounded-[28px] border border-border/70 p-5 shadow-sm">
         <div className="flex items-start gap-4">
           <Avatar className="h-20 w-20 border-2 border-background shadow-md">
