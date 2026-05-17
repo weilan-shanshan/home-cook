@@ -170,6 +170,27 @@ export function useUpdateRecipe() {
   })
 }
 
+export interface DeleteRecipeErrorBody {
+  error: string
+  message?: string
+  referencingOrders?: Array<{
+    id: number
+    meal_date: string
+    meal_type: string
+    status: string
+  }>
+  referencingOrderCount?: number
+}
+
+export class DeleteRecipeError extends Error {
+  body: DeleteRecipeErrorBody
+  constructor(message: string, body: DeleteRecipeErrorBody) {
+    super(message)
+    this.name = 'DeleteRecipeError'
+    this.body = body
+  }
+}
+
 export function useDeleteRecipe() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -178,7 +199,13 @@ export function useDeleteRecipe() {
         method: 'DELETE',
         credentials: 'include',
       })
-      if (!res.ok) throw new Error('Failed to delete recipe')
+      if (!res.ok) {
+        const body: DeleteRecipeErrorBody = await res.json().catch(() => ({
+          error: 'UNKNOWN',
+          message: '删除菜谱失败',
+        }))
+        throw new DeleteRecipeError(body.message || body.error || '删除菜谱失败', body)
+      }
       return res.json()
     },
     onSuccess: () => {

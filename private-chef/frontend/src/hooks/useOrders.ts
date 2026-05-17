@@ -71,6 +71,7 @@ export interface UpdateOrderStatusParams {
 interface OrdersQueryParams {
   status?: OrderStatus
   meal_date?: string
+  recipeId?: number
 }
 
 export function useOrders(params?: OrdersQueryParams) {
@@ -80,6 +81,7 @@ export function useOrders(params?: OrdersQueryParams) {
       const searchParams = new URLSearchParams()
       if (params?.status) searchParams.set('status', params.status)
       if (params?.meal_date) searchParams.set('meal_date', params.meal_date)
+      if (params?.recipeId) searchParams.set('recipeId', String(params.recipeId))
 
       const queryStr = searchParams.toString()
       const url = `${baseUrl}/api/orders${queryStr ? `?${queryStr}` : ''}`
