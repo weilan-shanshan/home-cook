@@ -1,8 +1,8 @@
 import { useParams, useNavigate, Link } from 'react-router'
-import { useRecipe, useDeleteRecipe } from '@/hooks/useRecipes'
+import { useRecipe, useDeleteRecipe, DeleteRecipeError } from '@/hooks/useRecipes'
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useCookLogs, useCreateCookLog, useCreateRating, CookLogDetail, CookLogRating } from '@/hooks/useCookLogs'
-import { Clock, Star, Users, Heart, Pencil, Trash2, ChevronLeft, ChevronRight, Calendar, Plus, MessageSquare } from 'lucide-react'
+import { Star, Heart, ChevronLeft, Calendar, Plus, MessageSquare } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
@@ -20,6 +20,8 @@ import {
 } from '@/components/ui/dialog'
 import { Share2 } from 'lucide-react'
 import { ShareDialog } from '@/components/share/ShareDialog'
+import { RecipeReferencedDialog } from '@/components/recipe/RecipeReferencedDialog'
+import { IngredientStep } from '@/components/recipe/IngredientStep'
 
 function RatingStars({ score, onChange, readonly = false }: { score: number, onChange?: (s: number) => void, readonly?: boolean }) {
   return (
@@ -212,6 +214,10 @@ export default function RecipeDetail() {
   const favoriteMutation = useToggleFavorite()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [referencedBlock, setReferencedBlock] = useState<{
+    referencingOrders: Array<{ id: number; meal_date: string; meal_type: string; status: string }>
+    referencingOrderCount: number
+  } | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
@@ -237,12 +243,19 @@ export default function RecipeDetail() {
       toast({ title: '菜谱已删除', description: '您的菜谱已被移除。' })
       navigate('/')
     } catch (e: unknown) {
+      if (e instanceof DeleteRecipeError && e.body.error === 'RECIPE_REFERENCED_BY_ORDERS') {
+        setReferencedBlock({
+          referencingOrders: e.body.referencingOrders ?? [],
+          referencingOrderCount: e.body.referencingOrderCount ?? 0,
+        })
+        // keep dialog open so we switch to blocked mode
+        return
+      }
       toast({
         title: '错误',
         description: e instanceof Error ? e.message : '删除菜谱失败。',
         variant: 'destructive',
       })
-    } finally {
       setIsDeleteDialogOpen(false)
     }
   }
@@ -260,165 +273,84 @@ export default function RecipeDetail() {
         </Link>
       </div>
 
-      <div className="glass-card border border-border/60 overflow-hidden">
-        {recipe.images && recipe.images.length > 0 ? (
-          <div className="relative aspect-[21/9] w-full overflow-hidden bg-muted group">
-            <img
-              src={recipe.images[currentImageIndex].url}
-               alt={`${recipe.title} - 第 ${currentImageIndex + 1} 张图片`}
-              className="w-full h-full object-cover transition-opacity duration-300"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
-            
-            {recipe.images.length > 1 && (
-              <>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/80 backdrop-blur hover:bg-background/80 z-10"
-                  onClick={() => setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : recipe.images.length - 1))}
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/80 backdrop-blur hover:bg-background/80 z-10"
-                  onClick={() => setCurrentImageIndex((prev) => (prev < recipe.images.length - 1 ? prev + 1 : 0))}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
-                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                  {recipe.images.map((_, idx) => (
-                    <button
-                      key={idx}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        idx === currentImageIndex ? 'bg-primary w-4' : 'bg-primary/40 hover:bg-primary/60'
-                      }`}
-                      onClick={() => setCurrentImageIndex(idx)}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="h-32 bg-secondary/50 rounded-t-xl" />
+      <div className="relative h-64 bg-gradient-to-br from-brand-300 to-brand-700 rounded-3xl overflow-hidden">
+        {recipe.images && recipe.images.length > 0 && (
+          <img
+            src={recipe.images[currentImageIndex]?.url}
+            alt={`${recipe.title} - 第 ${currentImageIndex + 1} 张图片`}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         )}
-        
-        <div className="p-6 sm:p-8 -mt-16 sm:-mt-24 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 glass-modal border border-border/60 p-6 rounded-2xl shadow-elevated">
-            <div className="space-y-4 flex-1">
-              <div className="flex flex-wrap gap-2">
-                {recipe.tags.map((tag) => (
-                  <Badge key={tag.id} variant="secondary" className="px-2 py-0.5 shadow-sm">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
-                {recipe.title}
-              </h1>
-              {recipe.description && (
-                <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-                  {recipe.description}
+        {recipe.images && recipe.images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {recipe.images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setCurrentImageIndex(i)}
+                className={`rounded-full transition-all ${i === currentImageIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/60'}`}
+                aria-label={`图片 ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-3xl border border-cream-300 -mt-6 relative">
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              {recipe.tags && recipe.tags.length > 0 && (
+                <p className="text-xs text-ink-500 mb-1">
+                  {recipe.tags.map((t) => t.name).join(' · ')}
                 </p>
               )}
-
-              <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-muted-foreground pt-4 border-t border-border/50">
-                {recipe.cook_minutes && (
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-full bg-secondary/50">
-                      <Clock className="h-4 w-4 text-primary" />
-                    </div>
-                    <span>{recipe.cook_minutes} 分钟</span>
-                  </div>
-                )}
-                {recipe.servings && (
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-full bg-secondary/50">
-                      <Users className="h-4 w-4 text-primary" />
-                    </div>
-                    <span>{recipe.servings} 人份</span>
-                  </div>
-                )}
-                {recipe.avg_rating != null && (
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-full bg-secondary/50">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    </div>
-                    <span>{recipe.avg_rating.toFixed(1)} 分</span>
-                  </div>
-                )}
-              </div>
+              <h1 className="text-2xl font-extrabold leading-tight">{recipe.title}</h1>
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 flex-none">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className={`rounded-full transition-colors ${recipe.is_favorited ? 'text-red-500 border-red-200 bg-red-50/50 dark:bg-red-950/20' : 'text-muted-foreground hover:text-red-500'}`}
                 onClick={toggleFavorite}
-                disabled={favoriteMutation.isPending}
+                aria-label={recipe.is_favorited ? '取消收藏' : '收藏'}
               >
-                <Heart className={`h-5 w-5 ${recipe.is_favorited ? 'fill-current' : ''}`} />
+                <Heart className={recipe.is_favorited ? 'w-5 h-5 fill-brand text-brand' : 'w-5 h-5 text-ink-500'} />
               </Button>
-              <Button variant="outline" size="icon" className="rounded-full" onClick={() => setShareDialogOpen(true)}>
+              <Button variant="ghost" size="icon" onClick={() => setShareDialogOpen(true)} aria-label="分享">
                 <Share2 className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="icon" asChild className="rounded-full">
-                <Link to={`/recipe/${recipe.id}/edit`}>
-                  <Pencil className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="rounded-full text-destructive hover:bg-destructive/10 border-destructive/20">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="glass-modal sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>删除菜谱</DialogTitle>
-                    <DialogDescription>
-                      您确定要删除“{recipe.title}”吗？此操作无法撤销。
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)}>
-                      取消
-                    </Button>
-                    <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
-                      {deleteMutation.isPending ? '删除中...' : '删除菜谱'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </div>
+          </div>
+
+          <div className="flex gap-2 flex-wrap mb-4">
+            {recipe.cook_minutes != null && (
+              <Badge variant="sage">{recipe.cook_minutes} 分钟</Badge>
+            )}
+            {recipe.servings != null && (
+              <Badge variant="amber">{recipe.servings} 人份</Badge>
+            )}
+            {recipe.recent_cook_logs && recipe.recent_cook_logs.length > 0 && (
+              <Badge variant="secondary">已做 {recipe.recent_cook_logs.length} 次</Badge>
+            )}
+          </div>
+
+          {recipe.description && (
+            <p className="text-sm text-ink-600 leading-relaxed">{recipe.description}</p>
+          )}
+        </div>
+
+        <div className="border-t border-cream-300 px-5 py-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500 mb-3">步骤</h3>
+          <div className="space-y-3">
+            {recipe.steps.map((step, idx) => (
+              <IngredientStep key={idx} index={idx + 1} text={step} />
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-8">
-          <section className="glass-card border border-border/60 p-6 sm:p-8 space-y-6">
-            <h2 className="text-2xl font-semibold tracking-tight border-b border-border/50 pb-4">步骤</h2>
-            <div className="space-y-6">
-              {recipe.steps.map((step, idx) => (
-                <div key={idx} className="flex gap-4 group">
-                  <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm shadow-sm group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {idx + 1}
-                  </div>
-                  <p className="text-foreground/90 leading-relaxed pt-1 whitespace-pre-wrap">{step}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-8">
-          <CookLogsSection recipeId={recipeId} />
-        </div>
+      <div className="space-y-8">
+        <CookLogsSection recipeId={recipeId} />
       </div>
 
       <ShareDialog
@@ -429,6 +361,45 @@ export default function RecipeDetail() {
         shareActionEndpoint={`/api/recipes/${recipeId}/share`}
         invalidateKeys={[["recipe", recipeId], ["recipes"]]}
       />
+
+      <RecipeReferencedDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(o) => {
+          setIsDeleteDialogOpen(o)
+          if (!o) setReferencedBlock(null)
+        }}
+        blockedBy={
+          referencedBlock
+            ? {
+                recipeTitle: recipe.title,
+                recipeId,
+                referencingOrders: referencedBlock.referencingOrders,
+                referencingOrderCount: referencedBlock.referencingOrderCount,
+              }
+            : null
+        }
+        onConfirmDelete={handleDelete}
+        recipeTitleForConfirm={recipe.title}
+        isDeleting={deleteMutation.isPending}
+      />
+
+      <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pt-3 pb-safe bg-white/95 backdrop-blur border-t border-cream-300 max-w-md mx-auto">
+        <div className="flex gap-2">
+          <Link to={`/recipe/${recipeId}/edit`} className="flex-none">
+            <Button variant="outline">编辑</Button>
+          </Link>
+          <Button
+            variant="outline"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            className="text-rose-500 border-rose-500/30 hover:bg-rose-100"
+          >
+            删除
+          </Button>
+          <Button className="flex-1" disabled title="订单流程将在下一版上线">
+            + 加入点单
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
