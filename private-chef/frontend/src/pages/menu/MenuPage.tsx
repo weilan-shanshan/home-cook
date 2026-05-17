@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { RecipeCard } from '@/components/recipe/RecipeCard'
+import { RecipeSheet } from '@/components/recipe/RecipeSheet'
 
 type SelectedRecipe = {
   recipe_id: number
@@ -20,6 +21,7 @@ export default function MenuPage() {
   const [debouncedQ, setDebouncedQ] = useState('')
   const [activeTag, setActiveTag] = useState<number | undefined>(undefined)
   const [selectedItems, setSelectedItems] = useState<SelectedRecipe[]>([])
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 300)
@@ -77,11 +79,21 @@ export default function MenuPage() {
 
   return (
     <div className={`space-y-6 animate-in fade-in duration-500 ${hasSelectedItems ? 'pb-40' : 'pb-8'}`}>
-      <div className="space-y-2.5 pt-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-          点菜 <ChefHat className="h-6 w-6 text-primary fill-primary/20" />
-        </h1>
-        <p className="text-sm font-medium text-muted-foreground/80">挑选今天想吃的菜，加入清单后统一去下单。</p>
+      <div className="flex items-start justify-between gap-3 pt-2">
+        <div className="space-y-2.5 flex-1 min-w-0">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            点菜 <ChefHat className="h-6 w-6 text-primary" />
+          </h1>
+          <p className="text-sm font-medium text-muted-foreground">挑选今天想吃的菜，加入清单后统一去下单。</p>
+        </div>
+        <Button
+          onClick={() => setSheetOpen(true)}
+          className="flex-none gap-1.5 mt-1"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          新菜
+        </Button>
       </div>
 
       <div className="glass-card rounded-[var(--radius-card)] p-4 sm:p-5 shadow-card border border-border/50 dark:border-white/5">
@@ -189,6 +201,18 @@ export default function MenuPage() {
           </Button>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={() => setSheetOpen(true)}
+        aria-label="新增菜品"
+        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-brand text-white shadow-elevated flex items-center justify-center hover:bg-brand-600 transition-colors"
+        style={{ bottom: 'calc(var(--app-shell-floating-offset) + 4rem)' }}
+      >
+        <Plus className="w-6 h-6" />
+      </button>
+
+      <RecipeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
 
       {hasSelectedItems && (
         <div className="app-shell-floating-action">
