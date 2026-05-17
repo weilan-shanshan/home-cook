@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cook 私厨 — 整体视觉系统 v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        // Brand
+        brand: { 50:'#FFF1EB', 100:'#FFDFCD', 200:'#FFC2A4', 300:'#FB9670', 400:'#F37A4F', DEFAULT:'#EE6E47', 600:'#D6552F', 700:'#B23E1F' },
+        // Surface
+        cream: { 50:'#FDFAF5', 100:'#FAF6EE', 200:'#F4EDDF', 300:'#E8DFD3', 400:'#C9BCA8' },
+        // Ink (warm dark)
+        ink: { 900:'#1F1815', 800:'#2D2420', 700:'#3D332C', 600:'#5C4F46', 500:'#7B6E63', 400:'#9C8E81' },
+        // Accents
+        sage: { 100:'#E8EDD8', 500:'#6B7B3C', 700:'#4A5A28' },
+        amber: { 100:'#FCEFD0', 500:'#D97706' },
+        rose: { 100:'#FCE4E4', 500:'#B91C1C' }
+      },
+      fontFamily: {
+        sans: ['Inter','PingFang SC','Hiragino Sans GB','Heiti SC','Microsoft YaHei','sans-serif'],
+        serif: ['"Noto Serif SC"','"Songti SC"','SimSun','serif']
+      },
+      boxShadow: {
+        card: '0 2px 8px rgba(31, 24, 21, 0.04)',
+        elevated: '0 8px 24px rgba(31, 24, 21, 0.08)',
+        sheet: '0 -8px 32px rgba(31, 24, 21, 0.12)',
+        button: '0 2px 0 rgba(178, 62, 31, 0.2)'
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { background: linear-gradient(135deg, #FAF6EE 0%, #F4EDDF 100%); }
+  .phone {
+    width: 375px;
+    height: 812px;
+    background: #FDFAF5;
+    border-radius: 40px;
+    box-shadow: 0 30px 60px -20px rgba(31, 24, 21, 0.25), 0 0 0 8px #1F1815;
+    overflow: hidden;
+    position: relative;
+  }
+  .phone-notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 140px; height: 28px; background: #1F1815; border-radius: 20px; z-index: 50;
+  }
+  .phone-content {
+    height: 100%; overflow-y: auto; padding-top: 44px;
+  }
+  .phone-content::-webkit-scrollbar { display: none; }
+  .label-cn { font-family: 'Noto Serif SC', serif; }
+  /* status bar */
+  .status-bar {
+    position: absolute; top: 14px; left: 0; right: 0; height: 30px;
+    display: flex; justify-content: space-between; padding: 0 28px; align-items: center;
+    font-size: 14px; font-weight: 600; color: #1F1815; z-index: 40;
+  }
+</style>
+</head>
+<body class="font-sans text-ink-900">
+
+<header class="px-8 py-10 max-w-7xl mx-auto">
+  <p class="text-xs font-semibold tracking-[0.2em] uppercase text-brand">cook · 私厨</p>
+  <h1 class="text-5xl font-extrabold mt-3 mb-2 tracking-tight">整体视觉系统 v1</h1>
+  <p class="text-ink-600 max-w-2xl">温暖陶土暖色 + Bento 模块化卡片。Primary 保留 #EE6E47，加入沙米奶油底色 + 鼠尾草绿点缀，中文标题用思源宋体强调编辑感。六个核心页面同框对比。</p>
+
+  <div class="mt-6 flex flex-wrap gap-3 text-sm">
+    <span class="px-3 py-1.5 rounded-full bg-white shadow-card border border-cream-300">style: Nature Distilled × Bento</span>
+    <span class="px-3 py-1.5 rounded-full bg-white shadow-card border border-cream-300">type: Mobile-first 375</span>
+    <span class="px-3 py-1.5 rounded-full bg-white shadow-card border border-cream-300">font: Inter + Noto Serif SC</span>
+    <span class="px-3 py-1.5 rounded-full bg-white shadow-card border border-cream-300">radius: 16–24px</span>
+  </div>
+</header>
+
+<!-- DESIGN TOKENS -->
+<section class="max-w-7xl mx-auto px-8 mb-12">
+  <h2 class="text-xs font-semibold tracking-[0.2em] uppercase text-ink-500 mb-4">design tokens</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white rounded-3xl p-6 shadow-card">
+    <div>
+      <p class="text-xs text-ink-500 mb-2">brand</p>
+      <div class="flex gap-1">
+        <div class="w-10 h-10 rounded-lg bg-brand-300"></div>
+        <div class="w-10 h-10 rounded-lg bg-brand"></div>
+        <div class="w-10 h-10 rounded-lg bg-brand-700"></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-xs text-ink-500 mb-2">surface</p>
+      <div class="flex gap-1">
+        <div class="w-10 h-10 rounded-lg bg-cream-50 border border-cream-300"></div>
+        <div class="w-10 h-10 rounded-lg bg-cream-100"></div>
+        <div class="w-10 h-10 rounded-lg bg-cream-300"></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-xs text-ink-500 mb-2">ink</p>
+      <div class="flex gap-1">
+        <div class="w-10 h-10 rounded-lg bg-ink-900"></div>
+        <div class="w-10 h-10 rounded-lg bg-ink-600"></div>
+        <div class="w-10 h-10 rounded-lg bg-ink-400"></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-xs text-ink-500 mb-2">accents</p>
+      <div class="flex gap-1">
+        <div class="w-10 h-10 rounded-lg bg-sage-500"></div>
+        <div class="w-10 h-10 rounded-lg bg-amber-500"></div>
+        <div class="w-10 h-10 rounded-lg bg-rose-500"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHONES GRID -->
+<section class="max-w-7xl mx-auto px-8 pb-20">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 justify-items-center">
+
+    <!-- ============ 1. HOME ============ -->
+    <div class="space-y-3">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="phone-content">
+          <!-- Header -->
+          <div class="px-5 pt-3 pb-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs text-ink-500">下午好 ☀</p>
+                <h1 class="text-2xl font-extrabold mt-0.5">王伟蓝</h1>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-brand-100 flex items-center justify-center">
+                <span class="label-cn text-brand-700 font-bold text-lg">厨</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero CTA -->
+          <div class="mx-5 mb-4 bg-gradient-to-br from-brand to-brand-600 rounded-3xl p-5 text-white shadow-elevated relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/10"></div>
+            <div class="absolute -right-12 top-8 w-32 h-32 rounded-full bg-white/5"></div>
+            <p class="text-xs font-medium tracking-widest uppercase opacity-80">今晚吃什么</p>
+            <h2 class="text-2xl font-extrabold mt-2 leading-tight">点单一下，<br>厨房有人接</h2>
+            <button class="mt-4 bg-white text-brand-700 font-bold px-5 py-2.5 rounded-full text-sm shadow-button">立即点单 →</button>
+          </div>
+
+          <!-- Bento: active orders + quick stats -->
+          <div class="px-5 grid grid-cols-2 gap-3 mb-4">
+            <!-- 2x1 hero: active order -->
+            <div class="col-span-2 bg-cream-100 border border-cream-300 rounded-3xl p-4 relative overflow-hidden">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="px-2 py-0.5 bg-brand-100 text-brand-700 text-[10px] font-bold rounded-full">等你接单</span>
+                <span class="text-[10px] text-ink-500">2 分钟前</span>
+              </div>
+              <p class="font-bold text-base mb-1">晚餐 · 红烧肉 · 清蒸鱼</p>
+              <p class="text-xs text-ink-500 mb-3">爸 点单 · 尚无大厨</p>
+              <button class="w-full bg-ink-900 text-white font-bold py-2.5 rounded-2xl text-sm">我来接单</button>
+            </div>
+            <!-- 1x1 -->
+            <div class="bg-sage-100 rounded-2xl p-3.5">
+              <p class="text-xs text-sage-700 font-semibold mb-1">本周</p>
+              <p class="text-2xl font-extrabold text-sage-700">12 单</p>
+              <p class="text-[10px] text-ink-500 mt-1">↑ 比上周 +3</p>
+            </div>
+            <div class="bg-amber-100 rounded-2xl p-3.5">
+              <p class="text-xs text-amber-500 font-semibold mb-1">掌勺</p>
+              <p class="text-2xl font-extrabold" style="color:#A55D04">5 次</p>
+              <p class="text-[10px] text-ink-500 mt-1">本月主厨</p>
+            </div>
+          </div>
+
+          <!-- Frequent recipes -->
+          <div class="px-5 mb-4">
+            <div class="flex justify-between items-baseline mb-3">
+              <h3 class="font-bold text-base">最近常做</h3>
+              <a class="text-xs text-brand font-semibold">全部 →</a>
+            </div>
+            <div class="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5">
+              <div class="flex-none w-24">
+                <div class="aspect-square rounded-2xl bg-gradient-to-br from-brand-200 to-brand-300 mb-1.5"></div>
+                <p class="text-xs font-semibold truncate">红烧肉</p>
+                <p class="text-[10px] text-ink-500">8 次</p>
+              </div>
+              <div class="flex-none w-24">
+                <div class="aspect-square rounded-2xl bg-gradient-to-br from-sage-100 to-sage-500 mb-1.5"></div>
+                <p class="text-xs font-semibold truncate">清蒸鱼</p>
+                <p class="text-[10px] text-ink-500">6 次</p>
+              </div>
+              <div class="flex-none w-24">
+                <div class="aspect-square rounded-2xl bg-gradient-to-br from-amber-100 to-amber-500 mb-1.5"></div>
+                <p class="text-xs font-semibold truncate">番茄炒蛋</p>
+                <p class="text-[10px] text-ink-500">5 次</p>
+              </div>
+              <div class="flex-none w-24">
+                <div class="aspect-square rounded-2xl bg-gradient-to-br from-cream-300 to-ink-400 mb-1.5"></div>
+                <p class="text-xs font-semibold truncate">宫保鸡丁</p>
+                <p class="text-[10px] text-ink-500">4 次</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom tab bar -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-cream-300 px-5 pt-2 pb-7">
+          <div class="grid grid-cols-4 gap-1">
+            <div class="flex flex-col items-center gap-1 text-brand">
+              <div class="w-6 h-6 rounded-md bg-brand"></div>
+              <span class="text-[10px] font-bold">首页</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-ink-400">
+              <div class="w-6 h-6 rounded-md border-2 border-ink-400"></div>
+              <span class="text-[10px] font-semibold">菜单</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-ink-400">
+              <div class="w-6 h-6 rounded-md border-2 border-ink-400"></div>
+              <span class="text-[10px] font-semibold">订单</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-ink-400">
+              <div class="w-6 h-6 rounded-full border-2 border-ink-400"></div>
+              <span class="text-[10px] font-semibold">我</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">1. 首页 Home</p>
+    </div>
+
+    <!-- ============ 2. MENU PAGE ============ -->
+    <div class="space-y-3">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="phone-content">
+          <div class="px-5 pt-3 pb-4">
+            <div class="flex items-center justify-between mb-4">
+              <h1 class="text-2xl font-extrabold">菜单</h1>
+              <button class="flex items-center gap-1.5 bg-ink-900 text-white px-3.5 py-2 rounded-full text-xs font-bold shadow-button">
+                <span class="text-base leading-none">+</span> 新菜
+              </button>
+            </div>
+
+            <!-- Search -->
+            <div class="bg-cream-100 rounded-2xl px-4 py-3 flex items-center gap-2 border border-cream-300">
+              <svg class="w-4 h-4 text-ink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path stroke-width="2" stroke-linecap="round" d="M21 21l-4-4"/></svg>
+              <input class="bg-transparent flex-1 text-sm outline-none" placeholder="搜菜名 / 食材">
+            </div>
+
+            <!-- Tags -->
+            <div class="flex gap-2 mt-3 overflow-x-auto -mx-5 px-5 pb-1">
+              <span class="flex-none px-3 py-1.5 bg-brand text-white rounded-full text-xs font-bold">全部</span>
+              <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">家常</span>
+              <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">早餐</span>
+              <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">午餐</span>
+              <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">晚餐</span>
+              <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">汤</span>
+            </div>
+          </div>
+
+          <!-- Recipe grid -->
+          <div class="px-5 grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-card border border-cream-200">
+              <div class="aspect-square bg-gradient-to-br from-brand-200 to-brand-400"></div>
+              <div class="p-2.5">
+                <p class="text-sm font-bold truncate">红烧肉</p>
+                <div class="flex items-center justify-between mt-1.5">
+                  <span class="text-[10px] text-ink-500">8 次 · 45min</span>
+                  <button class="w-6 h-6 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-card border border-cream-200">
+              <div class="aspect-square bg-gradient-to-br from-sage-100 to-sage-500"></div>
+              <div class="p-2.5">
+                <p class="text-sm font-bold truncate">清蒸鱼</p>
+                <div class="flex items-center justify-between mt-1.5">
+                  <span class="text-[10px] text-ink-500">6 次 · 25min</span>
+                  <button class="w-6 h-6 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-card border border-cream-200">
+              <div class="aspect-square bg-gradient-to-br from-amber-100 to-amber-500"></div>
+              <div class="p-2.5">
+                <p class="text-sm font-bold truncate">番茄炒蛋</p>
+                <div class="flex items-center justify-between mt-1.5">
+                  <span class="text-[10px] text-ink-500">5 次 · 15min</span>
+                  <button class="w-6 h-6 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow-card border border-cream-200">
+              <div class="aspect-square bg-gradient-to-br from-cream-300 to-ink-400"></div>
+              <div class="p-2.5">
+                <p class="text-sm font-bold truncate">宫保鸡丁</p>
+                <div class="flex items-center justify-between mt-1.5">
+                  <span class="text-[10px] text-ink-500">4 次 · 30min</span>
+                  <button class="w-6 h-6 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <button class="absolute bottom-24 right-4 w-14 h-14 rounded-full bg-brand text-white text-2xl font-bold shadow-elevated flex items-center justify-center z-30">+</button>
+
+        <!-- Bottom Cart bar -->
+        <div class="absolute bottom-20 left-4 right-20 bg-ink-900 text-white rounded-2xl px-4 py-3 flex items-center justify-between shadow-elevated z-20">
+          <div>
+            <p class="text-xs opacity-70">已选 3 道</p>
+            <p class="text-sm font-bold">提交点单 →</p>
+          </div>
+          <span class="bg-brand text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-cream-300 px-5 pt-2 pb-7">
+          <div class="grid grid-cols-4 gap-1">
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-md border-2 border-ink-400"></div><span class="text-[10px] font-semibold">首页</span></div>
+            <div class="flex flex-col items-center gap-1 text-brand"><div class="w-6 h-6 rounded-md bg-brand"></div><span class="text-[10px] font-bold">菜单</span></div>
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-md border-2 border-ink-400"></div><span class="text-[10px] font-semibold">订单</span></div>
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-full border-2 border-ink-400"></div><span class="text-[10px] font-semibold">我</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">2. 菜单 MenuPage（顶部「+ 新菜」 + 右下 FAB）</p>
+    </div>
+
+    <!-- ============ 3. NEW RECIPE SHEET ============ -->
+    <div class="space-y-3">
+      <div class="phone relative">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <!-- backdrop dim -->
+        <div class="absolute inset-0 bg-ink-900/40 z-10"></div>
+        <!-- background page (blurred) -->
+        <div class="phone-content opacity-50">
+          <div class="px-5 pt-3 pb-4">
+            <h1 class="text-2xl font-extrabold">菜单</h1>
+          </div>
+        </div>
+
+        <!-- SHEET -->
+        <div class="absolute bottom-0 left-0 right-0 bg-cream-50 rounded-t-[32px] shadow-sheet z-20" style="height: 92%;">
+          <!-- drag handle -->
+          <div class="flex justify-center pt-3 pb-1">
+            <div class="w-10 h-1.5 bg-cream-400 rounded-full"></div>
+          </div>
+          <!-- header -->
+          <div class="px-5 py-2 flex items-center justify-between border-b border-cream-300">
+            <div>
+              <p class="text-xs text-ink-500">连续录入模式</p>
+              <h2 class="text-lg font-extrabold">新增菜品</h2>
+            </div>
+            <button class="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-ink-600 text-lg">×</button>
+          </div>
+
+          <!-- scrollable form -->
+          <div class="overflow-y-auto px-5 py-4 space-y-4" style="height: calc(100% - 160px);">
+            <!-- title -->
+            <div>
+              <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">菜名</label>
+              <input class="mt-1.5 w-full bg-white border-2 border-cream-300 rounded-2xl px-4 py-3 text-base font-semibold focus:border-brand outline-none" value="红烧肉" placeholder="输入菜名…">
+            </div>
+
+            <!-- images -->
+            <div>
+              <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">图片</label>
+              <div class="mt-1.5 grid grid-cols-4 gap-2">
+                <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 overflow-hidden">
+                  <button class="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/90 text-ink-900 text-xs font-bold flex items-center justify-center shadow">×</button>
+                  <div class="absolute bottom-1 right-1 w-4 h-4 bg-sage-500 rounded-full flex items-center justify-center"><svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg></div>
+                </div>
+                <div class="relative aspect-square rounded-2xl bg-cream-200 overflow-hidden flex items-center justify-center">
+                  <div class="text-[10px] text-ink-500 text-center">上传中<br>67%</div>
+                </div>
+                <div class="aspect-square rounded-2xl border-2 border-dashed border-cream-400 flex items-center justify-center text-cream-400 text-2xl">+</div>
+                <div></div>
+              </div>
+            </div>
+
+            <!-- description -->
+            <div>
+              <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">描述</label>
+              <textarea class="mt-1.5 w-full bg-white border-2 border-cream-300 rounded-2xl px-4 py-3 text-sm h-20 focus:border-brand outline-none" placeholder="可选，简单描述…"></textarea>
+            </div>
+
+            <!-- tags + meta -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">时长</label>
+                <input class="mt-1.5 w-full bg-white border-2 border-cream-300 rounded-2xl px-4 py-3 text-sm focus:border-brand outline-none" value="45 分钟">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">份数</label>
+                <input class="mt-1.5 w-full bg-white border-2 border-cream-300 rounded-2xl px-4 py-3 text-sm focus:border-brand outline-none" value="2 人份">
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs font-semibold text-ink-500 uppercase tracking-wider">标签</label>
+              <div class="flex flex-wrap gap-2 mt-1.5">
+                <span class="px-2.5 py-1 bg-brand text-white rounded-full text-xs font-bold">家常 ×</span>
+                <span class="px-2.5 py-1 bg-brand text-white rounded-full text-xs font-bold">晚餐 ×</span>
+                <span class="px-2.5 py-1 bg-cream-100 border border-cream-300 text-ink-600 rounded-full text-xs font-semibold">+ 添加</span>
+              </div>
+              <p class="text-[10px] text-ink-500 mt-1.5">提交后标签会保留，方便连续录同类菜</p>
+            </div>
+          </div>
+
+          <!-- sticky footer -->
+          <div class="absolute bottom-0 left-0 right-0 px-5 pt-3 pb-7 bg-cream-50 border-t border-cream-300">
+            <div class="flex gap-2">
+              <button class="flex-1 bg-brand text-white font-bold py-3.5 rounded-2xl text-sm shadow-button">
+                创建并继续 →
+              </button>
+              <button class="w-12 h-12 bg-cream-100 border border-cream-300 rounded-2xl flex items-center justify-center">
+                <svg class="w-4 h-4 text-ink-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
+            <p class="text-[10px] text-ink-500 text-center mt-2">默认创建后清空表单，标签保留</p>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">3. 新增 Sheet（连续录入）</p>
+    </div>
+
+    <!-- ============ 4. RECIPE DETAIL ============ -->
+    <div class="space-y-3">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="phone-content !pt-0">
+          <!-- Hero image -->
+          <div class="relative h-64 bg-gradient-to-br from-brand-300 to-brand-700">
+            <button class="absolute top-12 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-ink-900 font-bold">‹</button>
+            <button class="absolute top-12 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 8v8M8 12h8" /></svg>
+            </button>
+            <!-- pagination dots -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              <div class="w-2 h-2 bg-white rounded-full"></div>
+              <div class="w-1.5 h-1.5 bg-white/60 rounded-full"></div>
+              <div class="w-1.5 h-1.5 bg-white/60 rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- title block -->
+          <div class="px-5 pt-5 -mt-8 relative">
+            <div class="bg-cream-50 rounded-t-3xl p-5">
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div>
+                  <p class="text-xs text-ink-500 mb-1">家常 · 晚餐</p>
+                  <h1 class="text-2xl font-extrabold leading-tight">红烧肉</h1>
+                </div>
+                <button class="flex-none w-10 h-10 rounded-full bg-brand-100 text-brand flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C0 8 2.5 4 6 4c2 0 3.5 1 4 2.5 1-1.5 2.5-2.5 4.5-2.5C18 4 21 8 18.5 12 16 16.5 12 21 12 21z"/></svg>
+                </button>
+              </div>
+
+              <!-- chips -->
+              <div class="flex gap-2 mb-4">
+                <div class="px-2.5 py-1 bg-sage-100 text-sage-700 rounded-full text-[10px] font-bold flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
+                  45 分钟
+                </div>
+                <div class="px-2.5 py-1 bg-amber-100 text-amber-500 rounded-full text-[10px] font-bold">2 人份</div>
+                <div class="px-2.5 py-1 bg-cream-200 text-ink-600 rounded-full text-[10px] font-bold">已做 8 次</div>
+              </div>
+
+              <p class="text-sm text-ink-600 leading-relaxed">五花肉切大块，先冰糖炒糖色，再小火慢炖出油脂的香气，最后大火收汁。</p>
+            </div>
+
+            <!-- ingredients -->
+            <div class="bg-cream-50 px-5 py-5 border-t border-cream-300">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-3">步骤</h3>
+              <div class="space-y-3">
+                <div class="flex gap-3">
+                  <div class="flex-none w-7 h-7 rounded-full bg-brand text-white font-bold flex items-center justify-center text-xs">1</div>
+                  <p class="text-sm text-ink-700 leading-relaxed flex-1 pt-0.5">五花肉切 2cm 大方块，冷水下锅焯水，撇去浮沫。</p>
+                </div>
+                <div class="flex gap-3">
+                  <div class="flex-none w-7 h-7 rounded-full bg-brand text-white font-bold flex items-center justify-center text-xs">2</div>
+                  <p class="text-sm text-ink-700 leading-relaxed flex-1 pt-0.5">锅中放冰糖，小火炒糖色至焦糖色。</p>
+                </div>
+                <div class="flex gap-3">
+                  <div class="flex-none w-7 h-7 rounded-full bg-brand text-white font-bold flex items-center justify-center text-xs">3</div>
+                  <p class="text-sm text-ink-700 leading-relaxed flex-1 pt-0.5">下肉块翻炒上色，加酱油料酒八角桂皮，加水没过。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky actions -->
+        <div class="absolute bottom-0 left-0 right-0 px-5 pt-3 pb-7 bg-white/95 backdrop-blur border-t border-cream-300 flex gap-2">
+          <button class="px-4 py-3 rounded-2xl border-2 border-cream-300 text-ink-700 text-xs font-bold">编辑</button>
+          <button class="flex-1 bg-brand text-white font-bold py-3 rounded-2xl text-sm">+ 加入点单</button>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">4. 菜品详情 RecipeDetail</p>
+    </div>
+
+    <!-- ============ 5. ORDER LIST ============ -->
+    <div class="space-y-3">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="phone-content">
+          <div class="px-5 pt-3 pb-3">
+            <h1 class="text-2xl font-extrabold">订单</h1>
+          </div>
+
+          <!-- filter chips -->
+          <div class="flex gap-2 px-5 pb-3 overflow-x-auto -mx-5 px-5">
+            <span class="flex-none px-3 py-1.5 bg-ink-900 text-white rounded-full text-xs font-bold">全部 12</span>
+            <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">待接单 1</span>
+            <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">制作中 2</span>
+            <span class="flex-none px-3 py-1.5 bg-white border border-cream-300 text-ink-700 rounded-full text-xs font-semibold">已完成 9</span>
+          </div>
+
+          <!-- orders -->
+          <div class="px-5 space-y-3 pb-32">
+            <!-- active -->
+            <div class="bg-white border-2 border-brand-200 rounded-3xl p-4 relative">
+              <div class="absolute -top-1 -right-1 px-2 py-1 bg-brand text-white rounded-full text-[10px] font-bold shadow-button">进行中</div>
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[10px] font-bold text-brand-700 px-2 py-0.5 bg-brand-100 rounded">等你接单</span>
+                <span class="text-[10px] text-ink-500">2 分钟前</span>
+              </div>
+              <p class="font-extrabold text-base mb-1">晚餐 #128</p>
+              <p class="text-xs text-ink-500 mb-3">爸 点单 · 尚无大厨</p>
+              <div class="flex gap-2 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-200 to-brand-400"></div>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sage-100 to-sage-500"></div>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-500"></div>
+              </div>
+              <button class="w-full bg-ink-900 text-white font-bold py-2.5 rounded-2xl text-sm">我来接单</button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-4 shadow-card">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[10px] font-bold text-amber-500 px-2 py-0.5 bg-amber-100 rounded">制作中</span>
+                <span class="text-[10px] text-ink-500">10 分钟前</span>
+              </div>
+              <p class="font-bold text-base mb-1">午餐 #127</p>
+              <p class="text-xs text-ink-500 mb-3">妈 点单 · 王伟蓝 掌勺</p>
+              <div class="flex gap-2 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-cream-200"></div>
+                <div class="w-12 h-12 rounded-xl bg-cream-200"></div>
+              </div>
+              <button class="w-full bg-cream-100 border-2 border-cream-300 text-ink-700 font-bold py-2.5 rounded-2xl text-sm">出锅完成 ✓</button>
+            </div>
+
+            <div class="bg-white rounded-3xl p-4 shadow-card opacity-80">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[10px] font-bold text-sage-700 px-2 py-0.5 bg-sage-100 rounded">已完成</span>
+                <span class="text-[10px] text-ink-500">昨天 19:30</span>
+              </div>
+              <p class="font-bold text-base mb-1">晚餐 #126</p>
+              <p class="text-xs text-ink-500">爸 点单 · 妈 掌勺</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-cream-300 px-5 pt-2 pb-7">
+          <div class="grid grid-cols-4 gap-1">
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-md border-2 border-ink-400"></div><span class="text-[10px] font-semibold">首页</span></div>
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-md border-2 border-ink-400"></div><span class="text-[10px] font-semibold">菜单</span></div>
+            <div class="flex flex-col items-center gap-1 text-brand"><div class="w-6 h-6 rounded-md bg-brand"></div><span class="text-[10px] font-bold">订单</span></div>
+            <div class="flex flex-col items-center gap-1 text-ink-400"><div class="w-6 h-6 rounded-full border-2 border-ink-400"></div><span class="text-[10px] font-semibold">我</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">5. 订单 OrderList</p>
+    </div>
+
+    <!-- ============ 6. ORDER DETAIL ============ -->
+    <div class="space-y-3">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        <div class="phone-content">
+          <div class="px-5 pt-3 pb-3 flex items-center gap-3">
+            <button class="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-ink-900 font-bold text-lg">‹</button>
+            <div>
+              <h1 class="text-lg font-extrabold">晚餐 #128</h1>
+              <p class="text-[10px] text-ink-500">今天 18:15 · 爸 点单</p>
+            </div>
+          </div>
+
+          <!-- Status timeline -->
+          <div class="mx-5 mb-4 bg-gradient-to-br from-brand-100 to-cream-100 rounded-3xl p-4 border border-cream-300">
+            <p class="text-xs text-ink-500 mb-2">订单状态</p>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-2xl font-extrabold text-brand-700">等你接单</span>
+              <span class="px-2 py-0.5 bg-brand text-white rounded-full text-[10px] font-bold ml-auto">进行中</span>
+            </div>
+            <!-- timeline -->
+            <div class="flex items-center gap-1 my-2">
+              <div class="flex-1 h-1.5 bg-brand rounded-full"></div>
+              <div class="flex-1 h-1.5 bg-cream-300 rounded-full"></div>
+              <div class="flex-1 h-1.5 bg-cream-300 rounded-full"></div>
+              <div class="flex-1 h-1.5 bg-cream-300 rounded-full"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-ink-500 font-semibold">
+              <span class="text-brand-700">已下单</span>
+              <span>已接单</span>
+              <span>制作中</span>
+              <span>已完成</span>
+            </div>
+            <button class="w-full mt-4 bg-ink-900 text-white font-bold py-3 rounded-2xl text-sm">我来接单 →</button>
+          </div>
+
+          <!-- Items -->
+          <div class="px-5 mb-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-2">3 道菜</h3>
+            <div class="bg-white rounded-3xl divide-y divide-cream-300 shadow-card">
+              <div class="p-3.5 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 flex-none"></div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold">红烧肉</p>
+                  <p class="text-[10px] text-ink-500">45 min · 家常</p>
+                </div>
+                <span class="text-sm font-bold text-brand">× 1</span>
+              </div>
+              <div class="p-3.5 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sage-100 to-sage-500 flex-none"></div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold">清蒸鱼</p>
+                  <p class="text-[10px] text-ink-500">25 min · 家常</p>
+                </div>
+                <span class="text-sm font-bold text-brand">× 1</span>
+              </div>
+              <div class="p-3.5 flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-500 flex-none"></div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold">番茄炒蛋</p>
+                  <p class="text-[10px] text-ink-500">15 min · 家常</p>
+                </div>
+                <span class="text-sm font-bold text-brand">× 2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments -->
+          <div class="px-5 pb-32">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-ink-500 mb-2">备注 1 条</h3>
+            <div class="bg-cream-100 rounded-2xl p-3.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[10px] font-bold text-brand-700">爸</div>
+                <span class="text-xs font-bold">爸</span>
+                <span class="text-[10px] text-ink-500">点单人</span>
+              </div>
+              <p class="text-sm text-ink-700">少放盐，今天血压有点高</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment input -->
+        <div class="absolute bottom-0 left-0 right-0 px-4 pt-3 pb-7 bg-white/95 backdrop-blur border-t border-cream-300 flex gap-2 items-center">
+          <input class="flex-1 bg-cream-100 border border-cream-300 rounded-full px-4 py-2.5 text-sm outline-none" placeholder="加条备注…">
+          <button class="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="text-center text-sm font-semibold">6. 订单详情 OrderDetail</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHAT TO SELECT -->
+<section class="max-w-7xl mx-auto px-8 pb-20">
+  <h2 class="text-xs font-semibold tracking-[0.2em] uppercase text-ink-500 mb-4">how do you want to proceed</h2>
+  <div class="options">
+    <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+      <div class="letter">✓</div>
+      <div class="content">
+        <h3>整体方向 OK，进入 spec</h3>
+        <p>这个视觉系统作为最终方案，写入第 1 份 spec（design system + 菜品流程）</p>
+      </div>
+    </div>
+    <div class="option" data-choice="iterate-color" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>调色调</h3>
+        <p>橙色太暖 / 太弱 / 想试别的（深酒红 / 抹茶绿 / 深蓝），我再出一版</p>
+      </div>
+    </div>
+    <div class="option" data-choice="iterate-style" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>换风格</h3>
+        <p>Bento 太硬 / 太软，想看 glassmorphism / claymorphism / 极简日式 等其它范式</p>
+      </div>
+    </div>
+    <div class="option" data-choice="iterate-page" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>某个页面要改</h3>
+        <p>整体可，但某一个页（Home/Menu/Detail）有具体调整意见 — 终端里告诉我</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

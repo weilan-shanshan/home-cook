@@ -9,3 +9,4 @@ requests.txt
 .cursorindexingignore
 out.log
 *.bak
+.superpowers/
