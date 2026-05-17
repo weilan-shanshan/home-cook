@@ -152,16 +152,14 @@ export default {
 
 ### 4.5 全局 Layout 与 Tab Bar
 
-新组件：`src/pages/layout/BottomTabBar.tsx`
+既有 `src/pages/layout/TabBar.tsx` 已有 4 tab 与高亮逻辑，**只 restyle 不重写**：
+- 选中态：brand 色 icon + brand 文字，icon 容器 `bg-brand/10 rounded-full`（既有已是此风格）
+- 加上方 3px 高 brand 色指示条（既有没有）
+- 未选中：`text-ink-400`（替换现 `text-muted-foreground`）
+- icon 用 lucide：Home / Utensils / ClipboardList / User
+- 触控目标 ≥ 44×44（既有 14×14 ok）
 
-替换 `AppLayout.tsx` 现有底部导航。规范：
-- 固定底部，`fixed bottom-0`，高度 `pb-7` 适配 iOS safe area
-- 4 个 tab：首页 / 菜单 / 订单 / 我
-- 选中态：brand 色 icon + brand 文字 + 上方 4px 高指示条
-- 未选中：ink-400 icon
-- 触控目标 ≥ 44×44
-
-`AppLayout.tsx` 主内容区底部 padding 留 `pb-24` 避开 tab bar。
+`AppLayout.tsx` 当前已用 `app-shell-main` 留底 padding（`globals.css` 中 `--app-shell-main-padding-bottom`），无需改动。
 
 ## 5. 菜品流程详细设计
 
@@ -418,24 +416,22 @@ export function useDeleteRecipe() {
 **后端**：`/api/orders` 加可选 query param `recipeId`，join order_items 过滤。
 **UI**：OrderList 顶部显示「筛选：包含『红烧肉』 [×]」chip，点 × 清除（清掉 query string 后重新加载）。
 
-### 5.9 后端新接口：删除单张菜品图片
+### 5.9 复用既有后端接口：删除单张菜品图片
+
+后端**已实现** `DELETE /api/images/:id`（[backend/src/routes/images.ts:101-123](../../../private-chef/backend/src/routes/images.ts)），通过 `family_id` join 防跨家庭。本 spec 不动后端，只在前端加 hook + 在 UI 调用。
 
 ```
-DELETE /api/recipes/:recipeId/images/:imageId
+DELETE /api/images/:imageId
 
 成功：
   200 { success: true }
 
 错误：
-  404 { error: 'Image not found' } — 图片不存在或不属于该菜谱
-  403 { error: 'Forbidden' } — 跨家庭访问
+  400 { error: 'Invalid image id' }
+  404 { error: 'Image not found' } — 图片不存在或跨家庭
 ```
 
-**实现要点**：
-- 校验 `recipe.familyId === user.familyId`
-- 校验 `image.recipeId === recipeId`
-- DELETE FROM `recipe_images` WHERE `id = ? AND recipe_id = ?`
-- 不实际删 OSS 对象（懒删，避免外部依赖失败影响 DB 一致性）
+**前端调用**：`useDeleteRecipeImage` hook（§5.1 已列），mutation 携带 `imageId` + `recipeId`（recipeId 只用于 `onSuccess` 时 invalidate `['recipe', recipeId]`）。
 
 ## 6. 数据流
 
@@ -511,10 +507,6 @@ cook 后端用 vitest + 集成测试；前端用 vitest + @testing-library/react
   - DELETE recipe 无引用 → 200，关联 tags/images/favorites/ratings/cookLogs 全部清理
   - DELETE recipe 不存在 → 404
   - DELETE recipe 跨家庭 → 404（owner check）
-- `recipe-images.test.ts` 新建：
-  - DELETE 自家菜谱的图 → 200 + DB 行消失
-  - DELETE 跨家庭图 → 403
-  - DELETE 不存在图 → 404
 - `orders.test.ts` 增补：
   - GET `/api/orders?recipeId=42` 只返回包含该 recipe 的订单
 
@@ -573,9 +565,7 @@ cook 后端用 vitest + 集成测试；前端用 vitest + @testing-library/react
 - `private-chef/frontend/src/components/recipe/RecipeImageGrid.tsx`
 - `private-chef/frontend/src/components/recipe/IngredientStep.tsx`
 - `private-chef/frontend/src/components/recipe/RecipeReferencedDialog.tsx`
-- `private-chef/frontend/src/pages/layout/BottomTabBar.tsx`
 - `private-chef/frontend/src/hooks/useDeleteRecipeImage.ts`
-- `private-chef/backend/src/__tests__/recipe-images.test.ts`
 - 测试文件若干（见 §8）
 
 ### 修改
@@ -587,7 +577,7 @@ cook 后端用 vitest + 集成测试；前端用 vitest + @testing-library/react
 - `private-chef/frontend/src/pages/menu/MenuPage.tsx`（入口 + 视觉重做）
 - `private-chef/frontend/src/pages/recipe/RecipeForm.tsx`（薄壳，仅编辑路径用）
 - `private-chef/frontend/src/pages/recipe/RecipeDetail.tsx`（视觉重做 + 删除 Dialog 升级）
-- `private-chef/frontend/src/pages/layout/AppLayout.tsx`（接 BottomTabBar，主区 pb-24）
+- `private-chef/frontend/src/pages/layout/TabBar.tsx`（按新 token restyle，加上方指示条）
 - `private-chef/frontend/src/pages/order/OrderList.tsx`（加 ?recipeId 支持）
 - `private-chef/frontend/src/hooks/useRecipes.ts`（useDeleteRecipe 解析 error body）
 - `private-chef/frontend/src/hooks/useOrders.ts`（加 recipeId 参数）
