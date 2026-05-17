@@ -326,4 +326,75 @@ describe.sequential('home summary api', () => {
       }),
     )
   })
+
+  test('canAccept is only true for submitted orders without a cook', async () => {
+    const ctx = await createTestContext()
+    cleanups.push(ctx.cleanup)
+
+    const family = await ctx.seedFamily({
+      username: 'accept-admin',
+      displayName: '接单管理员',
+      inviteCode: 'ACC001',
+    })
+    const requester = await ctx.seedFamilyMember({
+      familyId: family.familyId,
+      username: 'accept-requester',
+      displayName: '接单点餐人',
+    })
+
+    const recipe = ctx.seedRecipe({
+      familyId: family.familyId,
+      createdBy: family.userId,
+      title: '可接单红烧肉',
+    })
+
+    // Case A: submitted + no cook → should be acceptable by other family members
+    const submittedNoCook = seedOrder(ctx, {
+      familyId: family.familyId,
+      userId: requester.userId,
+      cookUserId: null,
+      mealType: 'lunch',
+      mealDate: '2026-04-20',
+      status: 'submitted',
+      createdAt: '2026-04-20 11:00:00',
+      items: [{ recipeId: recipe.recipeId, quantity: 1 }],
+    })
+    // Case B: confirmed + no cook (dirty data) → must NOT be acceptable (would
+    // cause `Cannot transition from confirmed to confirmed` on click)
+    const confirmedNoCook = seedOrder(ctx, {
+      familyId: family.familyId,
+      userId: requester.userId,
+      cookUserId: null,
+      mealType: 'dinner',
+      mealDate: '2026-04-20',
+      status: 'confirmed',
+      createdAt: '2026-04-20 18:00:00',
+      items: [{ recipeId: recipe.recipeId, quantity: 1 }],
+    })
+    // Case C: submitted + has cook → already taken, not acceptable
+    const submittedWithCook = seedOrder(ctx, {
+      familyId: family.familyId,
+      userId: requester.userId,
+      cookUserId: family.userId,
+      mealType: 'breakfast',
+      mealDate: '2026-04-21',
+      status: 'submitted',
+      createdAt: '2026-04-21 08:00:00',
+      items: [{ recipeId: recipe.recipeId, quantity: 1 }],
+    })
+
+    const response = await ctx.request('/api/home/summary', {
+      cookie: ctx.createSessionCookie(family.userId),
+    })
+    expect(response.status).toBe(200)
+
+    const body = await readJson<{
+      activeOrders: Array<{ id: number; canAccept: boolean }>
+    }>(response)
+
+    const byId = new Map(body.activeOrders.map((o) => [o.id, o.canAccept]))
+    expect(byId.get(submittedNoCook.orderId)).toBe(true)
+    expect(byId.get(confirmedNoCook.orderId)).toBe(false)
+    expect(byId.get(submittedWithCook.orderId)).toBe(false)
+  })
 })

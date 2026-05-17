@@ -100,17 +100,19 @@ function ActiveOrderCard({
   onUpdateStatus: (orderId: number, next: 'confirmed' | 'preparing' | 'completed') => void
   isUpdating: boolean
 }) {
-  const isCook = order.cook !== null && order.cook.userId === currentUserId
   const previewItems = order.items.slice(0, 4)
   const remainingCount = Math.max(order.items.length - previewItems.length, 0)
 
+  // Once an order leaves the "submitted" stage, advancing it is a family-wide
+  // affordance — any member can push it forward, not only the cook. The
+  // backend's status-update endpoint already accepts any family member.
   let primaryAction: { label: string; icon: React.ReactNode; next: 'confirmed' | 'preparing' | 'completed' } | null =
     null
   if (order.canAccept) {
     primaryAction = { label: '我来接单', icon: <Hand className="h-4 w-4" />, next: 'confirmed' }
-  } else if (isCook && order.status === 'confirmed') {
-    primaryAction = { label: '开始烹饪', icon: <CookingPot className="h-4 w-4" />, next: 'preparing' }
-  } else if (isCook && order.status === 'preparing') {
+  } else if (order.status === 'confirmed') {
+    primaryAction = { label: '去制作', icon: <CookingPot className="h-4 w-4" />, next: 'preparing' }
+  } else if (order.status === 'preparing') {
     primaryAction = { label: '出锅完成', icon: <CheckCircle2 className="h-4 w-4" />, next: 'completed' }
   }
 

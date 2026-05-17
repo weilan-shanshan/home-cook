@@ -292,10 +292,12 @@ async function getActiveOrders(familyId: number, userId: number): Promise<Active
 
       const normalizedStatus = normalizeOrderStatus(order.status)
       const isMine = order.userId === userId
+      // Only submitted orders can be "accepted" (becoming confirmed). Once an
+      // order is confirmed, the next step is "start cooking" (preparing), not
+      // another accept — clicking accept again would cause a confirmed→confirmed
+      // status transition error on the server.
       const canAccept =
-        !isMine &&
-        order.cookUserId === null &&
-        (normalizedStatus === 'submitted' || normalizedStatus === 'confirmed')
+        !isMine && order.cookUserId === null && normalizedStatus === 'submitted'
 
       return {
         id: order.id,
