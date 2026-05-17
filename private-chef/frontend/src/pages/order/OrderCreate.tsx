@@ -88,15 +88,15 @@ export default function OrderCreate() {
   }
 
   const handleUpdateQuantity = (recipeId: number, delta: number) => {
-    setSelectedItems((prev) => {
-      return prev.map((item) => {
-        if (item.recipe_id === recipeId) {
-          const newQ = item.quantity + delta
-          return newQ > 0 ? { ...item, quantity: newQ } : item
-        }
-        return item
-      })
-    })
+    setSelectedItems((prev) =>
+      prev
+        .map((item) =>
+          item.recipe_id === recipeId
+            ? { ...item, quantity: item.quantity + delta }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
