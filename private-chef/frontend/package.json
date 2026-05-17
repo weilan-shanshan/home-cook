@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "icons:build": "node scripts/build-maskable-icon.mjs",
-    "prebuild": "node scripts/build-maskable-icon.mjs",
+    "icons:build": "node scripts/build-app-icon.mjs",
+    "prebuild": "node scripts/build-app-icon.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
