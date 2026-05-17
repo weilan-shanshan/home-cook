@@ -14,37 +14,42 @@ export function TabBar() {
   ]
 
   return (
-    <nav className="app-shell-tabbar pb-safe">
+    <nav className="app-shell-tabbar pb-safe bg-white/95 backdrop-blur border-t border-cream-300">
       <div className="mx-auto flex h-16 max-w-md items-center justify-around px-4">
         {tabs.map((tab) => {
-          const isActive = tab.path === '/' 
-            ? currentPath === '/' 
+          const isActive = tab.path === '/'
+            ? currentPath === '/'
             : currentPath.startsWith(tab.path)
-            
+
           const Icon = tab.icon
-          
+
           return (
             <Link
               key={tab.path}
               to={tab.path}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'relative flex h-14 w-14 flex-col items-center justify-center gap-1 transition-all duration-300 ease-out',
-                isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                'relative flex h-14 w-14 flex-col items-center justify-center gap-1 transition-colors duration-200',
+                isActive ? 'text-brand' : 'text-ink-400 hover:text-ink-700',
               )}
             >
-              <div className={cn(
-                "flex items-center justify-center transition-all duration-300",
-                isActive ? "bg-primary/10 rounded-full w-10 h-8" : "w-8 h-8 rounded-full hover:bg-secondary/50"
-              )}>
-                 <Icon className={cn("transition-transform duration-300", isActive ? "w-[22px] h-[22px] scale-110" : "w-5 h-5")} />
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-8 rounded-b-full bg-brand" />
+              )}
+              <div
+                className={cn(
+                  'flex items-center justify-center rounded-full transition-all duration-200',
+                  isActive ? 'bg-brand/10 w-10 h-8' : 'w-8 h-8 hover:bg-cream-100',
+                )}
+              >
+                <Icon className={cn('transition-transform duration-200', isActive ? 'w-5 h-5' : 'w-5 h-5')} />
               </div>
-              <span className={cn(
-                "text-[10px] leading-none transition-all duration-300",
-                isActive ? "font-semibold" : "font-medium"
-              )}>
+              <span
+                className={cn(
+                  'text-[10px] leading-none transition-all duration-200',
+                  isActive ? 'font-bold' : 'font-medium',
+                )}
+              >
                 {tab.name}
               </span>
             </Link>
