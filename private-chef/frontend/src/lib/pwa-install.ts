@@ -37,7 +37,7 @@ export interface PwaInstallApi {
   browserKind: BrowserKind
   hasNativePrompt: () => boolean
   onReady: (cb: () => void) => void
-  onInstalled: (cb: () => void) => void
+  onInstalled: (cb: () => void) => () => void
   tryInstall: () => Promise<InstallResult>
 }
 
@@ -140,6 +140,10 @@ export const pwaInstall: PwaInstallApi = {
 
   onInstalled(cb) {
     installedCallbacks.push(cb)
+    return () => {
+      const idx = installedCallbacks.indexOf(cb)
+      if (idx !== -1) installedCallbacks.splice(idx, 1)
+    }
   },
 
   async tryInstall() {

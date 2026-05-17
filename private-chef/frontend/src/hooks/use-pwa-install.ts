@@ -7,7 +7,8 @@ export function usePwaInstall() {
 
   useEffect(() => {
     pwaInstall.onReady(() => setPromptReady(true))
-    pwaInstall.onInstalled(() => setInstalled(true))
+    const unsubscribe = pwaInstall.onInstalled(() => setInstalled(true))
+    return unsubscribe
   }, [])
 
   return {

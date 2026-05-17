@@ -168,4 +168,14 @@ describe('pwa-install.onReady / onInstalled', () => {
     window.dispatchEvent(new Event('appinstalled'))
     expect(cb).toHaveBeenCalledTimes(1)
   })
+
+  test('onInstalled returns unsubscribe that prevents future fires', async () => {
+    setUA(UA_DESKTOP_CHROME)
+    const { pwaInstall } = await loadModule()
+    const cb = vi.fn()
+    const unsubscribe = pwaInstall.onInstalled(cb)
+    unsubscribe()
+    window.dispatchEvent(new Event('appinstalled'))
+    expect(cb).not.toHaveBeenCalled()
+  })
 })

@@ -18,6 +18,8 @@ export function InstallEntryCard() {
   const [iosGuideOpen, setIosGuideOpen] = useState(false)
   const { toast } = useToast()
 
+  const [dismissedThisSession, setDismissedThisSession] = useState(false)
+
   const handleClick = useCallback(async () => {
     if (isIOS) {
       setIosGuideOpen(true)
@@ -26,6 +28,9 @@ export function InstallEntryCard() {
     const result = await tryInstall()
     if (result === 'ACCEPTED') {
       toast({ description: '已开始安装' })
+    } else if (result === 'DISMISSED') {
+      setDismissedThisSession(true)
+      toast({ description: '已取消，下次可以再试' })
     } else if (result === 'NO_PROMPT') {
       toast({ description: '当前浏览器不支持自动安装，推荐用 Chrome/Edge 打开' })
     }
@@ -66,6 +71,12 @@ export function InstallEntryCard() {
     description = '推荐用 Chrome 或 Edge 打开以装到桌面'
     buttonLabel = '复制链接'
     onButtonClick = copyLink
+  }
+
+  if (dismissedThisSession && isChromium) {
+    description = '本次会话已取消，下次再试可以重新安装'
+    buttonLabel = '已取消'
+    buttonDisabled = true
   }
 
   return (
