@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/vitest'
+import { configure } from '@testing-library/react'
+
+// Treat aria-hidden elements the same as script/style: excluded from getByText queries
+configure({ defaultIgnore: 'script, style, [aria-hidden="true"]' })
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
