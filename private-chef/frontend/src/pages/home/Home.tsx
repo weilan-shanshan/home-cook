@@ -2,6 +2,8 @@ import { Link } from 'react-router'
 import { useHomeSummary, type ActiveOrderSummary } from '@/hooks/useHomeSummary'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useUpdateOrderStatus } from '@/hooks/useOrders'
+import type { OrderStatus } from '@/hooks/useOrders'
+import { OrderCard, type OrderCardData } from '@/components/order/OrderCard'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -17,9 +19,6 @@ import {
   Sparkles,
   AlertCircle,
   HandPlatter,
-  Hand,
-  CookingPot,
-  CheckCircle2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ShareDialog } from '@/components/share/ShareDialog'
@@ -61,149 +60,23 @@ function mealTypeLabel(mealType: string) {
   }
 }
 
-function statusLabel(status: string) {
-  switch (status) {
-    case 'submitted':
-    case 'pending':
-      return '待接单'
-    case 'confirmed':
-      return '已接单'
-    case 'preparing':
-      return '制作中'
-    default:
-      return status
+function activeToCardData(order: ActiveOrderSummary): OrderCardData {
+  return {
+    id: order.id,
+    status: order.status as OrderStatus,
+    mealType: order.mealType,
+    mealDate: order.mealDate,
+    createdAt: order.createdAt,
+    isMine: order.isMine,
+    hasCook: order.cook != null,
+    cookDisplayName: order.cook?.displayName ?? null,
+    requesterDisplayName: order.requester.displayName,
+    items: order.items.map((it) => ({
+      recipeId: it.recipeId,
+      recipeTitle: it.recipeTitle,
+      image: it.image,
+    })),
   }
-}
-
-function statusTone(status: string) {
-  switch (status) {
-    case 'submitted':
-    case 'pending':
-      return 'bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'
-    case 'confirmed':
-      return 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
-    case 'preparing':
-      return 'bg-purple-100 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300'
-    default:
-      return 'bg-muted text-foreground/70'
-  }
-}
-
-function ActiveOrderCard({
-  order,
-  currentUserId,
-  onUpdateStatus,
-  isUpdating,
-}: {
-  order: ActiveOrderSummary
-  currentUserId: number | null
-  onUpdateStatus: (orderId: number, next: 'confirmed' | 'preparing' | 'completed') => void
-  isUpdating: boolean
-}) {
-  const previewItems = order.items.slice(0, 4)
-  const remainingCount = Math.max(order.items.length - previewItems.length, 0)
-
-  // Once an order leaves the "submitted" stage, advancing it is a family-wide
-  // affordance — any member can push it forward, not only the cook. The
-  // backend's status-update endpoint already accepts any family member.
-  let primaryAction: { label: string; icon: React.ReactNode; next: 'confirmed' | 'preparing' | 'completed' } | null =
-    null
-  if (order.canAccept) {
-    primaryAction = { label: '我来接单', icon: <Hand className="h-4 w-4" />, next: 'confirmed' }
-  } else if (order.status === 'confirmed') {
-    primaryAction = { label: '去制作', icon: <CookingPot className="h-4 w-4" />, next: 'preparing' }
-  } else if (order.status === 'preparing') {
-    primaryAction = { label: '出锅完成', icon: <CheckCircle2 className="h-4 w-4" />, next: 'completed' }
-  }
-
-  return (
-    <div className="glass-card rounded-2xl p-4 shadow-card border border-border/50 dark:border-white/5 group transition-all duration-300 hover:border-primary/20">
-      <div className="flex items-center gap-2 flex-wrap mb-3">
-        {order.isMine && (
-          <Badge className="rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-primary/15 text-primary border-0">
-            我的点单
-          </Badge>
-        )}
-        {!order.isMine && order.canAccept && (
-          <Badge className="rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-orange-500/15 text-orange-600 border-0">
-            等你接单
-          </Badge>
-        )}
-        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${statusTone(order.status)}`}>
-          {statusLabel(order.status)}
-        </span>
-        <span className="text-[11px] font-medium text-muted-foreground ml-auto">
-          {formatRelativeTime(order.createdAt)}
-        </span>
-      </div>
-
-      <Link to={`/orders/${order.id}`} className="block group">
-        <div className="flex items-center gap-2 mb-2.5">
-          <span className="text-base font-extrabold text-foreground tracking-tight">
-            {mealTypeLabel(order.mealType)}
-          </span>
-          <span className="text-[11px] font-semibold text-muted-foreground bg-secondary/60 px-2 py-0.5 rounded-full">
-            #{order.id}
-          </span>
-          <span className="text-[11px] font-medium text-muted-foreground">{order.mealDate}</span>
-        </div>
-
-        {previewItems.length > 0 && (
-          <div className="flex gap-2 overflow-hidden mb-3">
-            {previewItems.map((item) => (
-              <div key={item.recipeId} className="flex-none w-16">
-                <div className="aspect-square rounded-xl bg-secondary/60 overflow-hidden border border-black/5 dark:border-white/5">
-                  {item.image ? (
-                    <img
-                      src={item.image.thumbUrl || item.image.url}
-                      alt={item.recipeTitle}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
-                      <Utensils className="h-5 w-5" />
-                    </div>
-                  )}
-                </div>
-                <p className="mt-1 text-[10px] font-semibold text-foreground/80 line-clamp-1">{item.recipeTitle}</p>
-              </div>
-            ))}
-            {remainingCount > 0 && (
-              <div className="flex-none w-16 aspect-square rounded-xl bg-secondary/40 flex items-center justify-center text-[11px] font-bold text-muted-foreground border border-dashed border-border">
-                +{remainingCount}
-              </div>
-            )}
-          </div>
-        )}
-
-        <p className="text-[12px] font-medium text-muted-foreground line-clamp-1">
-          <span className="text-foreground/80 font-semibold">{order.requester.displayName}</span> 点单
-          {order.cook ? (
-            <>
-              <span className="mx-1.5 text-muted-foreground/50">·</span>
-              <span className="text-foreground/80 font-semibold">{order.cook.displayName}</span> 掌勺
-            </>
-          ) : (
-            <span className="ml-1.5 text-orange-600 font-semibold">尚无大厨</span>
-          )}
-        </p>
-      </Link>
-
-      {primaryAction && currentUserId !== null && (
-        <div className="mt-3 pt-3 border-t border-border/50 flex">
-          <Button
-            size="sm"
-            disabled={isUpdating}
-            onClick={() => onUpdateStatus(order.id, primaryAction!.next)}
-            className="flex-1 rounded-xl shadow-button font-bold gap-1.5"
-          >
-            {primaryAction.icon}
-            {primaryAction.label}
-          </Button>
-        </div>
-      )}
-    </div>
-  )
 }
 
 export default function Home() {
@@ -273,7 +146,6 @@ export default function Home() {
     )
   }
 
-  const currentUserId = currentUser?.id ?? null
   const myActiveOrders = data.activeOrders.filter((order) => order.isMine)
   const acceptableOrders = data.activeOrders.filter((order) => order.canAccept)
   const otherActiveOrders = data.activeOrders.filter(
@@ -331,12 +203,13 @@ export default function Home() {
             <div className="space-y-3">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">我的点单</p>
               {myActiveOrders.map((order) => (
-                <ActiveOrderCard
+                <OrderCard
                   key={order.id}
-                  order={order}
-                  currentUserId={currentUserId}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
+                  order={activeToCardData(order)}
+                  currentUserId={currentUser?.id ?? null}
+                  mode="compact"
+                  onAction={(orderId, next) => handleUpdateStatus(orderId, next as 'confirmed' | 'preparing' | 'completed')}
+                  isPending={isUpdating}
                 />
               ))}
             </div>
@@ -346,12 +219,13 @@ export default function Home() {
             <div className="space-y-3">
               <p className="text-xs font-bold uppercase tracking-wider text-orange-600">等你接单</p>
               {acceptableOrders.map((order) => (
-                <ActiveOrderCard
+                <OrderCard
                   key={order.id}
-                  order={order}
-                  currentUserId={currentUserId}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
+                  order={activeToCardData(order)}
+                  currentUserId={currentUser?.id ?? null}
+                  mode="compact"
+                  onAction={(orderId, next) => handleUpdateStatus(orderId, next as 'confirmed' | 'preparing' | 'completed')}
+                  isPending={isUpdating}
                 />
               ))}
             </div>
@@ -361,12 +235,13 @@ export default function Home() {
             <div className="space-y-3">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">家人的点单</p>
               {otherActiveOrders.map((order) => (
-                <ActiveOrderCard
+                <OrderCard
                   key={order.id}
-                  order={order}
-                  currentUserId={currentUserId}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
+                  order={activeToCardData(order)}
+                  currentUserId={currentUser?.id ?? null}
+                  mode="compact"
+                  onAction={(orderId, next) => handleUpdateStatus(orderId, next as 'confirmed' | 'preparing' | 'completed')}
+                  isPending={isUpdating}
                 />
               ))}
             </div>
