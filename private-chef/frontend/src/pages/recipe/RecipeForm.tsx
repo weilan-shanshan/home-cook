@@ -91,7 +91,7 @@ export default function RecipeForm() {
     }
   }
 
-  const handleRetry = (_localId: string) => {
+  const handleRetry = () => {
     /* retry happens on next submit */
   }
 

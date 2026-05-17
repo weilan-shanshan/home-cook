@@ -94,11 +94,11 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
     setImages((prev) => prev.filter((i) => i.localId !== localId))
   }
 
-  const handleRemoveUploaded = (_serverId: number) => {
+  const handleRemoveUploaded = () => {
     toast({ description: '已上传图片只能在菜品详情页删除' })
   }
 
-  const handleRetry = (_localId: string) => {
+  const handleRetry = () => {
     /* retry on next submit cycle */
   }
 
