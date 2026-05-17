@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import { Toaster } from '@/components/ui/toaster'
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
 import { AppLayout } from '@/pages/layout/AppLayout'
@@ -38,7 +38,7 @@ function App() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/achievements" element={<Achievements />} />
-          <Route path="/recipe/new" element={<RecipeForm />} />
+          <Route path="/recipe/new" element={<Navigate to="/menu" replace />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/recipe/:id/edit" element={<RecipeForm />} />
         </Route>
