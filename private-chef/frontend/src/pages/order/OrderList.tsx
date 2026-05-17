@@ -2,7 +2,7 @@ import { useOrders, useUpdateOrderStatus, Order } from '@/hooks/useOrders'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { Plus, Check, CheckCircle2, Utensils, Calendar as CalendarIcon, FileText, ClipboardList, AlertCircle } from 'lucide-react'
 
 function statusColor(status: Order['status']) {
@@ -33,7 +33,11 @@ function formatMealDate(date: string) {
 }
 
 export default function OrderList() {
-  const { data: orders, isLoading, isError } = useOrders()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const recipeIdParam = searchParams.get('recipeId')
+  const recipeIdFilter = recipeIdParam ? Number(recipeIdParam) : undefined
+
+  const { data: orders, isLoading, isError } = useOrders({ recipeId: recipeIdFilter })
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
   const { toast } = useToast()
 
@@ -111,6 +115,26 @@ export default function OrderList() {
           </Link>
         </Button>
       </div>
+
+      {recipeIdFilter && (
+        <div className="mb-3">
+          <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 px-3 py-1.5 rounded-full text-xs font-bold">
+            <span>筛选：包含菜品 #{recipeIdFilter}</span>
+            <button
+              type="button"
+              aria-label="清除筛选"
+              onClick={() => {
+                const next = new URLSearchParams(searchParams)
+                next.delete('recipeId')
+                setSearchParams(next)
+              }}
+              className="w-4 h-4 rounded-full bg-brand-700 text-white flex items-center justify-center text-[10px]"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {sortedDates.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500">
