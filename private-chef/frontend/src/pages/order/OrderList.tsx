@@ -26,6 +26,7 @@ function toCardData(order: Order, currentUserId: number | null): OrderCardData {
     createdAt: order.createdAt,
     isMine: !!currentUserId && order.userId === currentUserId,
     hasCook: order.cookUserId != null,
+    cookUserId: order.cookUserId,
     cookDisplayName: null,
     requesterDisplayName: order.userId === currentUserId ? '我' : '家人',
     items: order.items.map((it) => ({

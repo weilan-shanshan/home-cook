@@ -12,6 +12,7 @@ function makeOrder(overrides: Partial<OrderCardData>): OrderCardData {
     createdAt: '2026-05-17 12:00:00',
     isMine: false,
     hasCook: false,
+    cookUserId: null,
     cookDisplayName: null,
     requesterDisplayName: '爸',
     items: [

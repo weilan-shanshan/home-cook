@@ -25,7 +25,14 @@ export function OrderStatusTimeline({ status, className }: Props) {
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-1 mb-2">
+      <div
+        className="flex items-center gap-1 mb-2"
+        role="progressbar"
+        aria-label="订单进度"
+        aria-valuenow={currentIdx + 1}
+        aria-valuemin={1}
+        aria-valuemax={TIMELINE_STAGES.length}
+      >
         {TIMELINE_STAGES.map((_, idx) => (
           <div
             key={idx}

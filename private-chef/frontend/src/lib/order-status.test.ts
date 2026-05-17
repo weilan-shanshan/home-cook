@@ -104,7 +104,8 @@ describe('nextActionFor', () => {
 })
 
 describe('canCancel', () => {
-  test('allows cancel during submitted and confirmed', () => {
+  test('allows cancel during pending/submitted and confirmed', () => {
+    expect(canCancel('pending')).toBe(true)
     expect(canCancel('submitted')).toBe(true)
     expect(canCancel('confirmed')).toBe(true)
   })

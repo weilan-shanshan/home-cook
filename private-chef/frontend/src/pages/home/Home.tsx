@@ -4,6 +4,7 @@ import { useCurrentUser } from '@/hooks/useAuth'
 import { useUpdateOrderStatus } from '@/hooks/useOrders'
 import type { OrderStatus } from '@/hooks/useOrders'
 import { OrderCard, type OrderCardData } from '@/components/order/OrderCard'
+import { mealTypeLabel } from '@/lib/order-status'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -45,21 +46,6 @@ function formatRelativeTime(dateStr: string) {
   return date.toLocaleDateString('zh-CN')
 }
 
-function mealTypeLabel(mealType: string) {
-  switch (mealType) {
-    case 'breakfast':
-      return '早餐'
-    case 'lunch':
-      return '午餐'
-    case 'dinner':
-      return '晚餐'
-    case 'snack':
-      return '加餐'
-    default:
-      return mealType
-  }
-}
-
 function activeToCardData(order: ActiveOrderSummary): OrderCardData {
   return {
     id: order.id,
@@ -69,6 +55,7 @@ function activeToCardData(order: ActiveOrderSummary): OrderCardData {
     createdAt: order.createdAt,
     isMine: order.isMine,
     hasCook: order.cook != null,
+    cookUserId: order.cook?.userId ?? null,
     cookDisplayName: order.cook?.displayName ?? null,
     requesterDisplayName: order.requester.displayName,
     items: order.items.map((it) => ({

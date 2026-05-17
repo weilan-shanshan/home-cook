@@ -14,6 +14,7 @@ export interface OrderCardData {
   createdAt: string
   isMine: boolean
   hasCook: boolean
+  cookUserId: number | null
   cookDisplayName: string | null
   requesterDisplayName: string
   items: Array<{
@@ -51,8 +52,7 @@ export function OrderCard({
   className,
 }: Props) {
   const isActive = ACTIVE_STATUSES.has(order.status)
-  // We don't carry cookUserId in OrderCardData; gate isCook only when name is present.
-  const isCook = !!currentUserId && order.cookDisplayName != null
+  const isCook = currentUserId != null && order.cookUserId === currentUserId
 
   const showThumbnails = mode === 'default' && order.items.length > 0
   const previewItems = order.items.slice(0, 4)
