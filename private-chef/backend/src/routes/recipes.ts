@@ -644,34 +644,46 @@ recipesRouter.delete('/:id', async (c) => {
     return c.json({ error: 'Recipe not found' }, 404)
   }
 
+  const referencingOrders = sqlite
+    .prepare(`
+      SELECT DISTINCT o.id, o.meal_date, o.meal_type, o.status
+      FROM orders o
+      JOIN order_items oi ON oi.order_id = o.id
+      WHERE oi.recipe_id = ? AND o.family_id = ?
+      ORDER BY o.meal_date DESC, o.id DESC
+      LIMIT 100
+    `)
+    .all(recipeId, familyId) as Array<{
+      id: number
+      meal_date: string
+      meal_type: string
+      status: string
+    }>
+
+  if (referencingOrders.length > 0) {
+    return c.json(
+      {
+        error: 'RECIPE_REFERENCED_BY_ORDERS',
+        message: '该菜谱被订单引用，请先从订单移除',
+        referencingOrders: referencingOrders.slice(0, 5),
+        referencingOrderCount: referencingOrders.length,
+      },
+      409,
+    )
+  }
+
   try {
     sqlite.transaction(() => {
-      sqlite
-        .prepare('DELETE FROM recipe_tags WHERE recipe_id = ?')
-        .run(recipeId)
-
-      sqlite
-        .prepare('DELETE FROM recipe_images WHERE recipe_id = ?')
-        .run(recipeId)
-
-      sqlite
-        .prepare('DELETE FROM favorites WHERE recipe_id = ?')
-        .run(recipeId)
-
+      sqlite.prepare('DELETE FROM recipe_tags WHERE recipe_id = ?').run(recipeId)
+      sqlite.prepare('DELETE FROM recipe_images WHERE recipe_id = ?').run(recipeId)
+      sqlite.prepare('DELETE FROM favorites WHERE recipe_id = ?').run(recipeId)
       sqlite
         .prepare(
-          'DELETE FROM ratings WHERE cook_log_id IN (SELECT id FROM cook_logs WHERE recipe_id = ?)'
+          'DELETE FROM ratings WHERE cook_log_id IN (SELECT id FROM cook_logs WHERE recipe_id = ?)',
         )
         .run(recipeId)
-
-      sqlite
-        .prepare('DELETE FROM cook_logs WHERE recipe_id = ?')
-        .run(recipeId)
-
-      sqlite
-        .prepare('UPDATE wishes SET recipe_id = NULL WHERE recipe_id = ?')
-        .run(recipeId)
-
+      sqlite.prepare('DELETE FROM cook_logs WHERE recipe_id = ?').run(recipeId)
+      sqlite.prepare('UPDATE wishes SET recipe_id = NULL WHERE recipe_id = ?').run(recipeId)
       sqlite.prepare('DELETE FROM recipes WHERE id = ?').run(recipeId)
     })()
   } catch (err: unknown) {
@@ -681,10 +693,10 @@ recipesRouter.delete('/:id', async (c) => {
     ) {
       return c.json(
         {
-          error:
-            'Cannot delete this recipe because it is referenced by existing orders. Please remove it from all orders first.',
+          error: 'RECIPE_REFERENCED',
+          message: '该菜谱被其它数据引用，无法删除',
         },
-        409
+        409,
       )
     }
     throw err
