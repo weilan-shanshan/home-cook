@@ -4,6 +4,14 @@ import { ChevronDown } from 'lucide-react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -68,6 +76,7 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
   const [images, setImages] = useState<ImageItem[]>([])
   const [submitMode, setSubmitMode] = useState<SubmitMode>(readMode)
   const [submitting, setSubmitting] = useState(false)
+  const [discardOpen, setDiscardOpen] = useState(false)
   const titleRef = useRef<HTMLInputElement>(null)
   const fileMap = useRef(new Map<string, File>())
 
@@ -102,44 +111,32 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
     /* retry on next submit cycle */
   }
 
-  const queueUploads = async (recipeId: number) => {
-    const pending = images.filter((i) => i.status === 'picked')
-    for (let idx = 0; idx < pending.length; idx++) {
-      const item = pending[idx]
-      const file = fileMap.current.get(item.localId)
+  const queueUploads = async (
+    recipeId: number,
+    pendingSnapshot: ImageItem[],
+    fileMapSnapshot: Map<string, File>,
+  ) => {
+    for (let idx = 0; idx < pendingSnapshot.length; idx++) {
+      const item = pendingSnapshot[idx]
+      const file = fileMapSnapshot.get(item.localId)
       if (!file) continue
-      setImages((prev) =>
-        prev.map((i) =>
-          i.localId === item.localId ? { ...i, status: 'uploading' as const } : i,
-        ),
-      )
+      // status updates only fire toast on error to avoid orphaned state writes
       try {
         const uploaded = await uploadImage(file, {
-          onProgress: (progress) => {
-            setImages((prev) =>
-              prev.map((i) =>
-                i.localId === item.localId ? { ...i, progress } : i,
-              ),
-            )
+          onProgress: () => {
+            /* progress updates dropped on continue-mode reset — user is on next recipe */
           },
         })
         await saveImageMutation.mutateAsync({
           recipeId,
           json: { url: uploaded.url, sort_order: idx },
         })
-        setImages((prev) =>
-          prev.map((i) =>
-            i.localId === item.localId ? { ...i, status: 'uploaded' as const, progress: 100 } : i,
-          ),
-        )
       } catch (err) {
-        setImages((prev) =>
-          prev.map((i) =>
-            i.localId === item.localId
-              ? { ...i, status: 'error' as const, errorMessage: String(err) }
-              : i,
-          ),
-        )
+        toast({
+          title: `图片 ${idx + 1} 上传失败`,
+          description: err instanceof Error ? err.message : '请重试',
+          variant: 'destructive',
+        })
       }
     }
   }
@@ -154,6 +151,33 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
       servings: prev.servings,
     }))
     setTimeout(() => titleRef.current?.focus(), 50)
+  }
+
+  const isDirty =
+    values.title.trim().length > 0 ||
+    values.description.trim().length > 0 ||
+    values.steps.some((s) => s.trim().length > 0) ||
+    images.length > 0
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next && isDirty) {
+      setDiscardOpen(true)
+      return
+    }
+    onOpenChange(next)
+  }
+
+  const confirmDiscard = () => {
+    setDiscardOpen(false)
+    // Clean up local image URLs to avoid memory leak
+    images.forEach((i) => {
+      if (i.status === 'picked' && i.url.startsWith('blob:')) URL.revokeObjectURL(i.url)
+    })
+    // Reset values fully (don't keep tags this time — user is discarding)
+    setValues(EMPTY_VALUES)
+    setImages([])
+    fileMap.current.clear()
+    onOpenChange(false)
   }
 
   const handleSubmit = async (mode: SubmitMode) => {
@@ -180,10 +204,18 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
         tags: values.tagIds,
       })
 
-      void queueUploads(created.id)
+      // Capture snapshots BEFORE reset so background uploads don't lose track
+      const pendingSnapshot = images.filter((i) => i.status === 'picked')
+      const fileMapSnapshot = new Map(fileMap.current)
+      void queueUploads(created.id, pendingSnapshot, fileMapSnapshot)
+
+      const hasPendingImages = pendingSnapshot.length > 0
+      const continueMsg = hasPendingImages
+        ? `✓ 已创建 #${created.id}，继续录入下一道 · 图片在后台上传`
+        : `✓ 已创建 #${created.id}，继续录入下一道`
 
       if (mode === 'continue') {
-        toast({ description: `✓ 已创建 #${created.id}，继续录入下一道` })
+        toast({ description: continueMsg })
         resetForKeepGoing()
       } else if (mode === 'close') {
         toast({ description: `✓ 已创建 #${created.id}` })
@@ -207,7 +239,8 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
   const primaryLabel = MODE_LABEL[submitMode]
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="bottom"
         className="h-[92vh] p-0 flex flex-col"
@@ -268,5 +301,24 @@ export function RecipeSheet({ open, onOpenChange }: RecipeSheetProps) {
         </div>
       </SheetContent>
     </Sheet>
+    <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>放弃当前编辑？</DialogTitle>
+          <DialogDescription>
+            当前填写的内容会被丢弃，无法恢复。
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => setDiscardOpen(false)} className="w-full sm:w-auto">
+            继续编辑
+          </Button>
+          <Button variant="destructive" onClick={confirmDiscard} className="w-full sm:w-auto">
+            放弃
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }

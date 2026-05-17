@@ -265,7 +265,7 @@ export default function RecipeDetail() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12 animate-in fade-in zoom-in-95 duration-500">
+    <div className="max-w-4xl mx-auto space-y-8 pb-32 animate-in fade-in zoom-in-95 duration-500">
       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
         <Link to="/" className="flex items-center hover:text-primary transition-colors">
           <ChevronLeft className="h-4 w-4 mr-1" />
@@ -383,7 +383,10 @@ export default function RecipeDetail() {
         isDeleting={deleteMutation.isPending}
       />
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 px-4 pt-3 pb-safe bg-white/95 backdrop-blur border-t border-cream-300 max-w-md mx-auto">
+      <div
+        className="fixed left-0 right-0 z-30 px-4 pt-3 pb-3 bg-white/95 backdrop-blur border-t border-cream-300 max-w-md mx-auto"
+        style={{ bottom: 'var(--app-tabbar-height, 4rem)' }}
+      >
         <div className="flex gap-2">
           <Link to={`/recipe/${recipeId}/edit`} className="flex-none">
             <Button variant="outline">编辑</Button>
