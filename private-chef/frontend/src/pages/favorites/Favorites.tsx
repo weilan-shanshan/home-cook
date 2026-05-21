@@ -1,78 +1,47 @@
 import { Link } from 'react-router'
-import { Heart, HeartOff } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { useFavorites, useToggleFavorite } from '@/hooks/useFavorites'
-import { RecipeCard } from '@/components/recipe/RecipeCard'
-import { Button } from '@/components/ui/button'
+import { DishThumb } from '@/components/recipe/DishThumb'
 
 export default function Favorites() {
   const { data: favorites, isLoading } = useFavorites()
   const { mutate: toggleFavorite } = useToggleFavorite()
 
   return (
-    <div className="space-y-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="pt-2 space-y-1.5">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">收藏</h1>
-        <p className="text-muted-foreground text-sm font-medium">您最喜欢的菜谱都在这里。</p>
-      </div>
+    <main className="space-y-4 pb-20">
+      <h1 className="font-serif text-3xl text-ink-900">收藏</h1>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground gap-5 animate-in fade-in zoom-in-95 duration-500">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-            <div className="bg-white/80 dark:bg-black/50 p-4 rounded-3xl shadow-elevated relative">
-              <Heart className="h-8 w-8 animate-pulse text-rose-500/80" />
-            </div>
-          </div>
-          <p className="text-sm font-medium tracking-wide">正在加载收藏...</p>
-        </div>
+        <div className="surface-card p-6 text-center text-ink-500 text-sm">正在加载...</div>
       ) : !favorites?.length ? (
-          <div className="glass-card flex flex-col items-center justify-center py-20 px-6 text-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500 rounded-[var(--radius-card)] border border-border/50 shadow-card">
-            <div className="bg-secondary/50 p-6 rounded-full mb-6 border border-border/40 dark:border-white/5 shadow-sm">
-              <HeartOff className="h-10 w-10 text-muted-foreground/50" />
-            </div>
-          <p className="text-lg font-bold text-foreground mb-2">暂无收藏</p>
-          <p className="text-sm text-muted-foreground max-w-[250px] mx-auto mb-8 leading-relaxed">
-            您还没有收藏任何菜谱。去首页探索您的下一顿美食吧！
-          </p>
-          <Button asChild className="rounded-full shadow-button px-8">
-            <Link to="/">
-              浏览菜谱
-            </Link>
-          </Button>
-        </div>
+        <div className="surface-card p-6 text-center text-ink-500 text-sm">暂无收藏</div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3">
           {favorites.map((fav) => (
-            <div key={fav.id} className="relative group">
-              <Button
-                variant="secondary"
-                size="icon"
-               className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-background/90 hover:bg-background shadow-sm text-red-500 hover:text-red-600 border border-border/40"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  toggleFavorite({ recipeId: fav.id, isFavorited: true })
-                }}
-                title="取消收藏"
-              >
-                <HeartOff className="h-4 w-4" />
-              </Button>
-              <RecipeCard 
-                recipe={{
-                  id: fav.id,
-                  title: fav.title,
-                  description: null,
-                  cook_minutes: null,
-                  servings: null,
-                  first_image: fav.first_image,
-                  tags: fav.tags,
-                  avg_rating: null,
-                }} 
-              />
+            <div key={fav.id} className="surface-card overflow-hidden">
+              <Link to={`/recipe/${fav.id}`} className="block aspect-square">
+                <DishThumb id={fav.id} name={fav.title} src={fav.first_image?.thumb_url ?? fav.first_image?.url ?? undefined} className="w-full h-full" rounded="lg" />
+              </Link>
+              <div className="p-3 flex items-end justify-between">
+                <div>
+                  <div className="font-medium text-ink-900 line-clamp-1">{fav.title}</div>
+                </div>
+                <button
+                  className="w-8 h-8 rounded-full bg-cream-100 text-brand flex items-center justify-center cursor-pointer hover:bg-cream-200 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    toggleFavorite({ recipeId: fav.id, isFavorited: true })
+                  }}
+                  aria-label="取消收藏"
+                >
+                  <Heart className="w-4 h-4 fill-current" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </main>
   )
 }
