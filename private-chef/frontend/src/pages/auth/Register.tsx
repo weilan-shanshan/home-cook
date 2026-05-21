@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/use-toast'
 import { useRegister } from '@/hooks/useAuth'
+import { CookLogo } from '@/components/CookLogo'
 
 export default function Register() {
   const [mode, setMode] = useState<'create' | 'join'>('create')
@@ -74,9 +75,8 @@ export default function Register() {
     <div className="min-h-dvh bg-cream-50 flex items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-3">
-          <div className="w-14 h-14 mx-auto rounded-3xl bg-brand text-white flex items-center justify-center font-serif text-2xl">
-            厨
-          </div>
+          <CookLogo size={56} className="mx-auto shadow-card" />
+
           <h1 className="font-serif text-3xl text-ink-900">COOK · 私厨</h1>
           <p className="text-xs text-ink-500">说一声，厨房有人接</p>
         </div>
