@@ -130,19 +130,11 @@ export default function Home() {
       {/* 7. Recent comments */}
       <HomeCommentsCard comments={data.recentComments} />
 
-      {/* 8. Wishes + Achievements 2-col — only render if wishes exist */}
-      <WishAchievementRow summary={data.achievementSummary} />
-    </div>
-  )
-}
-
-// Separate component so HomeWishCard can self-manage its data while
-// we conditionally show the 2-col grid only when there are wishes.
-function WishAchievementRow({ summary }: { summary: import('@/hooks/useHomeSummary').AchievementSummary }) {
-  return (
-    <div className="grid grid-cols-2 gap-3 items-stretch">
+      {/* 8a. 心愿单 (full width) */}
       <HomeWishCard />
-      <HomeAchievementProgressCard summary={summary} />
+
+      {/* 8b. 成就 (full width) */}
+      <HomeAchievementProgressCard summary={data.achievementSummary} />
     </div>
   )
 }
