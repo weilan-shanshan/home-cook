@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { AlertCircle, Loader2 } from 'lucide-react'
@@ -5,6 +6,7 @@ import { useHomeSummary } from '@/hooks/useHomeSummary'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useUpdateOrderStatus } from '@/hooks/useOrders'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useRecipes } from '@/hooks/useRecipes'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { StatTile } from '@/components/home/StatTile'
@@ -15,6 +17,9 @@ import { HomeWishCard } from '@/components/home/HomeWishCard'
 import { HomeAchievementProgressCard } from '@/components/home/HomeAchievementProgressCard'
 import { HomeRecommendedGrid } from '@/components/home/HomeRecommendedGrid'
 import { HomeFrequentList } from '@/components/home/HomeFrequentList'
+import { HomeRecentCooksCard } from '@/components/home/HomeRecentCooksCard'
+import { HomeFamilyTastesCard } from '@/components/home/HomeFamilyTastesCard'
+import { HomeNewRecipesCard } from '@/components/home/HomeNewRecipesCard'
 
 function getGreeting(): string {
   const h = new Date().getHours()
@@ -29,10 +34,16 @@ export default function Home() {
   const { data, isLoading, isError } = useHomeSummary()
   const { data: currentUser } = useCurrentUser()
   const { data: favorites = [] } = useFavorites()
+  const { data: recipesData } = useRecipes({ limit: 50 })
   const { mutate: updateStatus } = useUpdateOrderStatus()
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+
+  const allRecipes = useMemo(
+    () => recipesData?.pages.flatMap((p) => p.data) ?? [],
+    [recipesData],
+  )
 
   const handleAccept = (orderId: number) => {
     updateStatus(
@@ -78,13 +89,12 @@ export default function Home() {
   }
 
   const displayName = currentUser?.display_name ?? currentUser?.username ?? null
+  const familyId = currentUser?.familyId ?? null
 
   // Stats
   const totalOrders = data.achievementSummary.totalOrders
   const totalCooks = data.achievementSummary.totalCooks
   const favCount = favorites.length
-  // 4th stat: pending wishes count (real, from frequentRecipes length as proxy — actual wishes loaded in HomeWishCard)
-  // Use recommendedRecipes length as a real count for "今日推荐" — makes contextual sense
   const recommendedCount = data.recommendedRecipes.length
 
   return (
@@ -126,6 +136,15 @@ export default function Home() {
 
       {/* 6. 家里常点 vertical list */}
       <HomeFrequentList dishes={data.frequentRecipes} />
+
+      {/* 6b. 最近烹饪 — completed orders only */}
+      <HomeRecentCooksCard orders={data.recentOrders} />
+
+      {/* 6c. 家里的味道 — family member portraits */}
+      <HomeFamilyTastesCard familyId={familyId} />
+
+      {/* 6d. 新菜来啦 — newest recipes */}
+      <HomeNewRecipesCard recipes={allRecipes} />
 
       {/* 7. Recent comments */}
       <HomeCommentsCard comments={data.recentComments} />
