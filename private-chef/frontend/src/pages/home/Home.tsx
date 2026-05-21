@@ -18,7 +18,6 @@ import { HomeAchievementProgressCard } from '@/components/home/HomeAchievementPr
 import { HomeRecommendedGrid } from '@/components/home/HomeRecommendedGrid'
 import { HomeFrequentList } from '@/components/home/HomeFrequentList'
 import { HomeRecentCooksCard } from '@/components/home/HomeRecentCooksCard'
-import { HomeFamilyTastesCard } from '@/components/home/HomeFamilyTastesCard'
 import { HomeNewRecipesCard } from '@/components/home/HomeNewRecipesCard'
 
 function getGreeting(): string {
@@ -98,7 +97,6 @@ export default function Home() {
   }
 
   const displayName = currentUser?.display_name ?? currentUser?.username ?? null
-  const familyId = currentUser?.familyId ?? null
 
   // Stats
   const totalOrders = data.achievementSummary.totalOrders
@@ -149,10 +147,7 @@ export default function Home() {
       {/* 6b. 最近烹饪 — completed orders only */}
       <HomeRecentCooksCard orders={data.recentOrders} />
 
-      {/* 6c. 家里的味道 — family member portraits */}
-      <HomeFamilyTastesCard familyId={familyId} />
-
-      {/* 6d. 新菜来啦 — newest recipes */}
+      {/* 6c. 新菜来啦 — newest recipes */}
       <HomeNewRecipesCard recipes={allRecipes} />
 
       {/* 7. Recent comments */}

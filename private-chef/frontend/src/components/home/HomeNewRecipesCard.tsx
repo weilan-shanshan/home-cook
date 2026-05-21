@@ -6,13 +6,21 @@ type Props = {
   recipes: RecipeListRow[]
 }
 
+function relativeTime(iso: string): string {
+  const d = Math.round((Date.now() - new Date(iso).getTime()) / 86_400_000)
+  if (d === 0) return '今天'
+  if (d === 1) return '昨天'
+  if (d < 7) return `${d} 天前`
+  return `${Math.floor(d / 7)} 周前`
+}
+
 export function HomeNewRecipesCard({ recipes }: Props) {
   if (recipes.length === 0) return null
 
-  // Sort by created_at descending, take top 3
+  // Sort by created_at descending, cap at 4
   const newest = [...recipes]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 3)
+    .slice(0, 4)
 
   return (
     <section>
@@ -20,37 +28,38 @@ export function HomeNewRecipesCard({ recipes }: Props) {
         <h2 className="font-serif text-lg text-ink-900">新菜来啦</h2>
         <Link to="/menu" className="text-xs text-brand">查看全部 →</Link>
       </div>
-      <div className="surface-card divide-y divide-cream-100">
+      <div className="grid grid-cols-2 gap-3">
         {newest.map((r) => {
           const src = r.first_image?.thumb_url ?? r.first_image?.url ?? undefined
-          const daysAgo = Math.round((Date.now() - new Date(r.created_at).getTime()) / 86_400_000)
-          const timeLabel = daysAgo === 0 ? '今天' : daysAgo === 1 ? '昨天' : `${daysAgo} 天前`
+          const timeLabel = relativeTime(r.created_at)
+          const firstTag = r.tags.length > 0 ? r.tags[0].name : null
+
           return (
             <Link
               key={r.id}
               to={`/recipe/${r.id}`}
-              className="flex items-center gap-3 p-4 hover:bg-cream-50 transition-colors"
+              className="surface-card overflow-hidden flex flex-col"
             >
-              <DishThumb
-                id={r.id}
-                name={r.title}
-                src={src ?? null}
-                size="sm"
-                rounded="lg"
-                className="shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-ink-900 font-medium truncate">{r.title}</div>
-                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                  {r.cook_minutes && (
-                    <span className="text-[11px] text-ink-400">⏱ {r.cook_minutes}min</span>
-                  )}
-                  {r.tags.length > 0 && (
-                    <span className="text-[11px] text-ink-400">· {r.tags[0].name}</span>
-                  )}
-                </div>
+              {/* Top half: dish image with tag chip overlay */}
+              <div className="relative aspect-square w-full overflow-hidden">
+                <DishThumb
+                  id={r.id}
+                  name={r.title}
+                  src={src ?? null}
+                  rounded="lg"
+                  className="w-full h-full object-cover !rounded-none"
+                />
+                {firstTag && (
+                  <span className="absolute top-2 left-2 text-[9px] rounded-full bg-cream-50/90 text-brand-700 px-1.5 py-0.5 backdrop-blur-sm">
+                    {firstTag}
+                  </span>
+                )}
               </div>
-              <span className="text-[10px] text-ink-400 shrink-0">{timeLabel}</span>
+              {/* Bottom: name + creator + time */}
+              <div className="p-2.5 flex flex-col gap-0.5">
+                <div className="text-sm font-medium text-ink-900 line-clamp-1">{r.title}</div>
+                <div className="text-[10px] text-ink-400">{timeLabel}</div>
+              </div>
             </Link>
           )
         })}

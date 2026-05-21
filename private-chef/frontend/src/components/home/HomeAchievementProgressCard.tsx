@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router'
+import { useState } from 'react'
+import { Link } from 'react-router'
 import type { AchievementSummary } from '@/hooks/useHomeSummary'
 
 type Props = { summary: AchievementSummary }
@@ -11,72 +12,128 @@ function nextMilestone(n: number): number {
   return Math.ceil((n + 1) / 100) * 100
 }
 
-function ProgressBar({
-  value,
-  max,
-  label,
-  hint,
-}: {
+interface AchievementRow {
+  id: string
+  icon: string
+  name: string
   value: number
   max: number
-  label: string
-  hint?: string
-}) {
+  hint: string
+}
+
+function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = Math.min(100, Math.round((value / max) * 100))
   return (
-    <div>
-      <div className="flex items-center justify-between text-[12px] mb-1.5">
-        <span className="text-ink-700 font-medium">{label}</span>
-        <div className="flex items-center gap-2">
-          {hint && <span className="text-ink-400 text-[11px]">{hint}</span>}
-          <span className="text-ink-500 font-medium">
-            {value}
-            <span className="text-ink-400 font-normal"> / {max}</span>
-          </span>
-        </div>
-      </div>
-      <div className="h-2 rounded-full bg-cream-200 overflow-hidden">
-        <div
-          className="h-full rounded-full bg-brand transition-all duration-500"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+    <div className="h-2 rounded-full bg-cream-200 overflow-hidden flex-1">
+      <div
+        className="h-full rounded-full bg-brand transition-all duration-500"
+        style={{ width: `${pct}%` }}
+      />
     </div>
   )
 }
 
 export function HomeAchievementProgressCard({ summary }: Props) {
-  const navigate = useNavigate()
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+
   const orderMilestone = nextMilestone(summary.totalOrders)
   const cookMilestone = nextMilestone(summary.totalCooks)
 
+  const achievements: AchievementRow[] = [
+    {
+      id: 'orders',
+      icon: '🍳',
+      name: '点单达人',
+      value: summary.totalOrders,
+      max: orderMilestone,
+      hint: '累计点单',
+    },
+    {
+      id: 'cooks',
+      icon: '👨‍🍳',
+      name: '家庭掌勺',
+      value: summary.totalCooks,
+      max: cookMilestone,
+      hint: '累计掌勺',
+    },
+  ]
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   return (
-    <button
-      type="button"
-      className="surface-card p-5 w-full text-left cursor-pointer hover:shadow-sm transition-shadow"
-      onClick={() => navigate('/achievements')}
-    >
+    <section className="surface-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-serif text-lg text-ink-900">成就进度</h2>
-        <span className="text-xs text-brand">全部 →</span>
+      <div className="flex items-center justify-between p-5 pb-4">
+        <h2 className="font-serif text-lg text-ink-900">成就</h2>
+        <Link to="/achievements" className="text-xs text-brand">全部 →</Link>
       </div>
 
-      {/* Progress bars — 2-col on wider space */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <ProgressBar
-          value={summary.totalOrders}
-          max={orderMilestone}
-          label="累计点单"
-          hint={`下一里程碑: ${orderMilestone} 单`}
-        />
-        <ProgressBar
-          value={summary.totalCooks}
-          max={cookMilestone}
-          label="累计掌勺"
-          hint={`下一里程碑: ${cookMilestone} 次`}
-        />
+      {/* Achievement rows */}
+      <div className="divide-y divide-cream-100">
+        {achievements.map((ach) => {
+          const isExpanded = expandedIds.has(ach.id)
+          return (
+            <div key={ach.id}>
+              {/* Row */}
+              <button
+                type="button"
+                className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-cream-50 transition-colors cursor-pointer"
+                onClick={() => toggleExpand(ach.id)}
+              >
+                <div className="w-8 h-8 rounded-full bg-honey-100 flex items-center justify-center text-base shrink-0">
+                  {ach.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-sm font-medium text-ink-900">{ach.name}</span>
+                    <span className="text-[11px] text-ink-500 shrink-0">
+                      {ach.value}
+                      <span className="text-ink-300"> / {ach.max}</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ProgressBar value={ach.value} max={ach.max} />
+                  </div>
+                  <div className="mt-1 text-[10px] text-ink-400">
+                    {ach.hint} · 解锁奖励 🎁
+                  </div>
+                </div>
+                <span className="text-ink-300 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
+              </button>
+
+              {/* Expanded panel */}
+              {isExpanded && (
+                <div className="px-5 pb-4 bg-cream-50">
+                  <p className="text-[11px] text-ink-400 mb-3">相关菜品</p>
+                  {/* TODO(data): per-achievement dish list not yet available from /api/achievements/summary.
+                      Need a dedicated endpoint or extend the summary to return recipe references. */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <div className="w-full aspect-square rounded-xl bg-cream-200 animate-pulse" />
+                        <div className="h-2 w-10 rounded bg-cream-200 animate-pulse" />
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    to={`/achievements`}
+                    className="mt-3 inline-block text-[11px] text-brand"
+                  >
+                    查看全部 →
+                  </Link>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
-    </button>
+    </section>
   )
 }

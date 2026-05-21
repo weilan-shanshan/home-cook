@@ -11,6 +11,7 @@ import { HomeRecentComments } from '@/components/home/HomeRecentComments'
 import { InstallEntryCard } from '@/components/pwa/InstallEntryCard'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star, Users } from 'lucide-react'
+import { HomeFamilyTastesCard } from '@/components/home/HomeFamilyTastesCard'
 import type { CookLogsListRes } from '@/hooks/useCookLogs'
 
 const BASE_LINKS = [
@@ -199,6 +200,9 @@ export default function Profile() {
           </div>
         )}
       </section>
+
+      {/* 6.15 — 家里的味道 */}
+      <HomeFamilyTastesCard familyId={user.familyId ?? null} />
 
       {/* 6.2 — 收藏精选 */}
       {favPreview.length > 0 && (
