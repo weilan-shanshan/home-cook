@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router'
 import { Loader2, ChevronLeft, UserRound, ChefHat, Trophy, Utensils } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DishThumb } from '@/components/recipe/DishThumb'
 import { usePublicShare } from '@/hooks/useSharing'
 
 function accentClasses(accent: 'amber' | 'tomato' | 'champagne' | 'sage') {
@@ -42,24 +42,22 @@ export default function PublicSharePage() {
 
   if (shareQuery.isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
+      <div className="min-h-dvh bg-cream-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand/70" />
       </div>
     )
   }
 
   if (shareQuery.error || !shareQuery.data) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/20">
-        <Card className="max-w-md w-full rounded-3xl">
-          <CardContent className="p-8 text-center space-y-4">
-            <div className="text-xl font-semibold">分享页不存在或已失效</div>
-            <p className="text-sm text-muted-foreground">请让分享者重新生成链接后再试。</p>
-            <Button asChild variant="outline" className="rounded-2xl">
-              <Link to="/login">返回应用</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-dvh bg-cream-50 flex items-center justify-center p-6">
+        <div className="surface-card p-6 text-center max-w-sm w-full space-y-3">
+          <div className="text-ink-900 font-serif text-xl">分享页不存在或已失效</div>
+          <p className="text-sm text-ink-500">请让分享者重新生成链接后再试。</p>
+          <Button asChild variant="outline" size="pill" className="mt-2">
+            <Link to="/login">返回应用</Link>
+          </Button>
+        </div>
       </div>
     )
   }
@@ -67,164 +65,192 @@ export default function PublicSharePage() {
   const payload = shareQuery.data
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${backgroundClass}`}>
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10 space-y-6">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+    <div className={`min-h-dvh bg-gradient-to-br ${backgroundClass}`}>
+      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10 space-y-5">
+
+        {/* Nav bar */}
+        <div className="flex items-center justify-between text-sm text-ink-500">
           <Button asChild variant="ghost" className="rounded-full px-2">
             <Link to="/login">
               <ChevronLeft className="mr-1 h-4 w-4" />
               返回应用
             </Link>
           </Button>
-          <div className="flex items-center gap-2 font-medium text-foreground/70">
+          <div className="flex items-center gap-2 font-medium text-ink-700">
             {heroIcon(payload.target_type)}
             <span>{payload.public_context.family_name || 'Private Chef 分享'}</span>
           </div>
         </div>
 
-        <Card className="overflow-hidden rounded-[2rem] border-border/60 bg-white/95 shadow-elevated">
-          <CardContent className="p-0">
-            {payload.cover_image_url ? (
-              <div className="relative h-72 overflow-hidden sm:h-96">
-                <img src={payload.cover_image_url} alt={payload.title} className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white sm:p-8">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {payload.visual.chips.slice(0, 4).map((chip) => (
-                      <Badge key={chip} variant="secondary" className="bg-white/20 text-white border-white/10">
-                        {chip}
-                      </Badge>
-                    ))}
-                  </div>
-                  <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{payload.title}</h1>
-                  <p className="mt-3 max-w-2xl text-sm text-white/90 sm:text-base">{payload.summary}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="p-6 sm:p-8 border-b bg-gradient-to-br from-white to-muted/30">
-                <div className="flex flex-wrap gap-2 mb-4">
+        {/* Hero / title card */}
+        <div className="surface-card overflow-hidden">
+          {payload.cover_image_url ? (
+            <div className="relative h-64 overflow-hidden sm:h-80">
+              <img src={payload.cover_image_url} alt={payload.title} className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-white sm:p-7">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {payload.visual.chips.slice(0, 4).map((chip) => (
-                    <Badge key={chip} variant="secondary">{chip}</Badge>
+                    <Badge key={chip} variant="secondary" className="bg-white/20 text-white border-white/10">
+                      {chip}
+                    </Badge>
                   ))}
                 </div>
-                <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{payload.title}</h1>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">{payload.summary}</p>
+                <h1 className="font-serif text-3xl text-white sm:text-4xl">{payload.title}</h1>
+                <p className="mt-2 text-sm text-white/85 sm:text-base">{payload.summary}</p>
               </div>
-            )}
-
-            <div className="p-6 sm:p-8 space-y-6">
-              <div className="grid gap-3 sm:grid-cols-3">
-                {payload.public_context.family_name ? (
-                  <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                    <div className="text-xs text-muted-foreground">家庭</div>
-                    <div className="mt-1 font-medium">{payload.public_context.family_name}</div>
-                  </div>
-                ) : null}
-                {payload.public_context.requester_display_name ? (
-                  <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                    <div className="text-xs text-muted-foreground flex items-center gap-1"><UserRound className="h-3.5 w-3.5" /> 点单人</div>
-                    <div className="mt-1 font-medium">{payload.public_context.requester_display_name}</div>
-                  </div>
-                ) : null}
-                {payload.public_context.cook_display_name ? (
-                  <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                    <div className="text-xs text-muted-foreground flex items-center gap-1"><ChefHat className="h-3.5 w-3.5" /> 掌勺</div>
-                    <div className="mt-1 font-medium">{payload.public_context.cook_display_name}</div>
-                  </div>
-                ) : null}
-                {payload.public_context.featured_display_name ? (
-                  <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                    <div className="text-xs text-muted-foreground">主角</div>
-                    <div className="mt-1 font-medium">{payload.public_context.featured_display_name}</div>
-                  </div>
-                ) : null}
-                {payload.public_context.date_label ? (
-                  <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                    <div className="text-xs text-muted-foreground">日期</div>
-                    <div className="mt-1 font-medium">{payload.public_context.date_label}</div>
-                  </div>
-                ) : null}
-              </div>
-
-              {payload.items && payload.items.length > 0 ? (
-                <section className="space-y-3">
-                  <h2 className="text-lg font-semibold">这份分享里有什么</h2>
-                  <div className="grid gap-3">
-                    {payload.items.map((item) => (
-                      <div key={item.id} className="flex items-center gap-3 rounded-2xl border border-border/40 bg-background/70 p-3 shadow-sm">
-                        {item.image?.thumbUrl || item.image?.url ? (
-                          <img src={item.image.thumbUrl || item.image.url} alt={item.recipe_title} className="h-14 w-14 rounded-xl object-cover" />
-                        ) : (
-                          <div className="h-14 w-14 rounded-xl bg-muted" />
-                        )}
-                        <div className="flex-1">
-                          <div className="font-medium">{item.recipe_title}</div>
-                          <div className="text-sm text-muted-foreground">x{item.quantity}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {payload.daily_menu?.menu_items ? (
-                <section className="space-y-3">
-                  <h2 className="text-lg font-semibold">今日推荐组合</h2>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {payload.daily_menu.menu_items.map((item) => (
-                      <div key={`${item.recipe_id}-${item.title}`} className="rounded-2xl border border-border/40 bg-background/70 p-3 space-y-3 shadow-sm">
-                        {item.image?.thumbUrl || item.image?.url ? (
-                          <img src={item.image.thumbUrl || item.image.url} alt={item.title} className="h-40 w-full rounded-xl object-cover" />
-                        ) : null}
-                        <div className="font-medium">{item.title}</div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {payload.achievements ? (
-                <section className="rounded-[1.75rem] border border-border/50 bg-background/75 p-6 space-y-4 shadow-card">
-                  <div className="flex items-end justify-between gap-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground">本期成绩</div>
-                      <div className="text-5xl font-semibold tracking-tight">#{payload.achievements.rank}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">成就分</div>
-                      <div className="text-4xl font-semibold">{payload.achievements.score}</div>
-                    </div>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                      <div className="text-xs text-muted-foreground">成员数</div>
-                      <div className="mt-1 font-medium">{payload.achievements.member_count}</div>
-                    </div>
-                    <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                      <div className="text-xs text-muted-foreground">订单数</div>
-                      <div className="mt-1 font-medium">{payload.achievements.total_orders}</div>
-                    </div>
-                    <div className="rounded-2xl border border-border/40 bg-background/70 p-4 shadow-sm">
-                      <div className="text-xs text-muted-foreground">分享数</div>
-                      <div className="mt-1 font-medium">{payload.achievements.total_shares}</div>
-                    </div>
-                  </div>
-                </section>
-              ) : null}
-
-              {payload.facts.length > 0 ? (
-                <section className="space-y-3">
-                  <h2 className="text-lg font-semibold">分享亮点</h2>
-                  <div className="rounded-[1.75rem] border border-border/40 bg-background/70 p-5 text-sm text-muted-foreground space-y-2 shadow-sm">
-                    {payload.facts.map((fact) => (
-                      <div key={fact}>• {fact}</div>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="p-5 sm:p-7 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {payload.visual.chips.slice(0, 4).map((chip) => (
+                  <Badge key={chip} variant="secondary">{chip}</Badge>
+                ))}
+              </div>
+              <h1 className="font-serif text-3xl text-ink-900 sm:text-4xl">{payload.title}</h1>
+              <p className="text-sm text-ink-500 leading-6 sm:text-base">{payload.summary}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Context grid */}
+        {(payload.public_context.family_name ||
+          payload.public_context.requester_display_name ||
+          payload.public_context.cook_display_name ||
+          payload.public_context.featured_display_name ||
+          payload.public_context.date_label) ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            {payload.public_context.family_name ? (
+              <div className="surface-card p-4">
+                <div className="text-xs text-ink-400">家庭</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.public_context.family_name}</div>
+              </div>
+            ) : null}
+            {payload.public_context.requester_display_name ? (
+              <div className="surface-card p-4">
+                <div className="text-xs text-ink-400 flex items-center gap-1">
+                  <UserRound className="h-3.5 w-3.5" /> 点单人
+                </div>
+                <div className="mt-1 font-medium text-ink-900">{payload.public_context.requester_display_name}</div>
+              </div>
+            ) : null}
+            {payload.public_context.cook_display_name ? (
+              <div className="surface-card p-4">
+                <div className="text-xs text-ink-400 flex items-center gap-1">
+                  <ChefHat className="h-3.5 w-3.5" /> 掌勺
+                </div>
+                <div className="mt-1 font-medium text-ink-900">{payload.public_context.cook_display_name}</div>
+              </div>
+            ) : null}
+            {payload.public_context.featured_display_name ? (
+              <div className="surface-card p-4">
+                <div className="text-xs text-ink-400">主角</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.public_context.featured_display_name}</div>
+              </div>
+            ) : null}
+            {payload.public_context.date_label ? (
+              <div className="surface-card p-4">
+                <div className="text-xs text-ink-400">日期</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.public_context.date_label}</div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Order items */}
+        {payload.items && payload.items.length > 0 ? (
+          <section className="surface-card p-4 space-y-3">
+            <h2 className="font-serif text-lg text-ink-900">这份分享里有什么</h2>
+            <ul className="space-y-3">
+              {payload.items.map((item) => (
+                <li key={item.id} className="flex items-center gap-3">
+                  <DishThumb
+                    id={item.recipe_id}
+                    name={item.recipe_title}
+                    src={item.image?.thumbUrl ?? item.image?.url ?? undefined}
+                    size="md"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-ink-900 truncate">{item.recipe_title}</div>
+                    <div className="text-sm text-ink-400">×{item.quantity}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {/* Daily menu */}
+        {payload.daily_menu?.menu_items ? (
+          <section className="space-y-3">
+            <h2 className="font-serif text-lg text-ink-900 px-1">今日推荐组合</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {payload.daily_menu.menu_items.map((item) => (
+                <div key={`${item.recipe_id}-${item.title}`} className="surface-card p-3 space-y-3">
+                  {item.image?.thumbUrl || item.image?.url ? (
+                    <img
+                      src={item.image.thumbUrl || item.image.url}
+                      alt={item.title}
+                      className="h-40 w-full rounded-2xl object-cover"
+                    />
+                  ) : (
+                    <DishThumb
+                      id={item.recipe_id}
+                      name={item.title}
+                      size="lg"
+                      rounded="2xl"
+                      className="w-full h-40"
+                    />
+                  )}
+                  <div className="font-medium text-ink-900">{item.title}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* Achievements */}
+        {payload.achievements ? (
+          <section className="surface-card p-5 space-y-4">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <div className="text-sm text-ink-400">本期成绩</div>
+                <div className="font-serif text-5xl text-ink-900 tracking-tight">#{payload.achievements.rank}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-ink-400">成就分</div>
+                <div className="font-serif text-4xl text-ink-900">{payload.achievements.score}</div>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="bg-cream-100 rounded-2xl p-4">
+                <div className="text-xs text-ink-400">成员数</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.achievements.member_count}</div>
+              </div>
+              <div className="bg-cream-100 rounded-2xl p-4">
+                <div className="text-xs text-ink-400">订单数</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.achievements.total_orders}</div>
+              </div>
+              <div className="bg-cream-100 rounded-2xl p-4">
+                <div className="text-xs text-ink-400">分享数</div>
+                <div className="mt-1 font-medium text-ink-900">{payload.achievements.total_shares}</div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* Facts */}
+        {payload.facts.length > 0 ? (
+          <section className="space-y-2">
+            <h2 className="font-serif text-lg text-ink-900 px-1">分享亮点</h2>
+            <div className="surface-card p-5 text-sm text-ink-500 space-y-2">
+              {payload.facts.map((fact) => (
+                <div key={fact}>• {fact}</div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
       </div>
     </div>
   )
