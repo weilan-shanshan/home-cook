@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    /* 
+    /*
      * Brighter, softer, playful mobile palette.
      * Note: First-pass implementation focuses on authenticated surfaces.
      * Auth pages (Login/Register) restyling is deferred to a future change.
      */
-    --background: 30 30% 98%;
+    --background: 36 30% 95%;
     --foreground: 16 18% 11%;
 
     --card: 0 0% 100%;
@@ -21,10 +21,10 @@
     --primary: 12 90% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 30% 95%;
+    --secondary: 34 33% 92%;
     --secondary-foreground: 16 18% 11%;
 
-    --muted: 36 30% 95%;
+    --muted: 34 33% 92%;
     --muted-foreground: 24 13% 44%;
 
     --accent: 12 90% 95%;
@@ -33,8 +33,8 @@
     --destructive: 0 72% 41%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 25% 87%;
-    --input: 36 25% 87%;
+    --border: 34 25% 84%;
+    --input: 34 25% 84%;
     --ring: 12 90% 58%;
 
     --radius: 1rem;
@@ -62,7 +62,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', -apple-system, sans-serif;
-    background-color: #FDFAF5;  /* cream-50 */
+    background-color: #FAF6EE;  /* cream-100 */
     color: #1F1815;             /* ink-900 */
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
@@ -101,9 +101,17 @@
   .section-header {
     @apply flex items-center justify-between pb-4 pt-6;
   }
-  
+
   .section-header-title {
     @apply text-xl font-bold tracking-tight text-foreground;
+  }
+
+  .surface-card {
+    @apply rounded-3xl border border-cream-200 bg-white;
+  }
+
+  .surface-cream {
+    @apply rounded-3xl border border-cream-200 bg-cream-100;
   }
 }
 
