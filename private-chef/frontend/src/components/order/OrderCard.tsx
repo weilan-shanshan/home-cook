@@ -55,7 +55,7 @@ export function OrderCard(props: OrderCardData) {
 
   return (
     <article
-      className="surface-card p-4 cursor-pointer"
+      className="surface-card hover-lift p-4 cursor-pointer"
       onClick={() => navigate(`/orders/${props.id}`)}
     >
       {/* Top row: status chip + avatar + meta + time */}

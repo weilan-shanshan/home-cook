@@ -12,7 +12,7 @@ const TABS = [
 export function TabBar() {
   const { pathname } = useLocation()
   return (
-    <nav className="app-shell-tabbar pb-safe bg-cream-50/95 backdrop-blur border-t border-cream-200">
+    <nav className="app-shell-tabbar glass-nav pb-safe border-t border-cream-200/50">
       <ul className="mx-auto flex h-16 max-w-md items-stretch justify-around px-2">
         {TABS.map((t) => {
           const active = t.match(pathname)

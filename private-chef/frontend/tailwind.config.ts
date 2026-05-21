@@ -88,10 +88,13 @@ export default {
         '4xl': '32px',
       },
       boxShadow: {
-        card: '0 2px 8px rgba(31, 24, 21, 0.04)',
-        elevated: '0 8px 24px rgba(31, 24, 21, 0.08)',
-        sheet: '0 -8px 32px rgba(31, 24, 21, 0.12)',
-        button: '0 2px 0 rgba(178, 62, 31, 0.2)',
+        card: 'var(--elev-2)',
+        elevated: 'var(--elev-3)',
+        sheet: 'var(--elev-4)',
+        button: 'inset 0 -2px 0 rgba(178,62,31,0.18), 0 1px 2px rgba(31,24,21,0.10)',
+        'button-inverse': 'inset 0 -2px 0 rgba(0,0,0,0.25), 0 1px 2px rgba(31,24,21,0.18)',
+        glass: 'var(--elev-2)',
+        'glass-lg': 'var(--elev-3)',
       },
       keyframes: {
         'accordion-down': {

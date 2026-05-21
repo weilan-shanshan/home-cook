@@ -7,11 +7,12 @@ export function HomeHeroCTA() {
     <button
       type="button"
       onClick={() => navigate('/menu')}
-      className="relative w-full overflow-hidden rounded-3xl bg-brand text-white p-5 text-left cursor-pointer shadow-elevated"
+      className="relative w-full overflow-hidden rounded-3xl bg-brand text-white p-5 text-left cursor-pointer shadow-elevated hover:shadow-sheet transition-shadow duration-300"
     >
       <div className="absolute -top-8 -right-6 w-32 h-32 rounded-full bg-white/15" />
       <div className="absolute top-10 -right-2 w-16 h-16 rounded-full bg-white/10" />
       <div className="absolute bottom-2 left-2 w-10 h-10 rounded-full bg-white/10" />
+      <div className="absolute inset-0 iridescent-overlay" aria-hidden />
       <div className="relative">
         <div className="text-xs text-white/80 mb-2">今晚吃什么</div>
         <div className="font-serif text-3xl leading-tight">

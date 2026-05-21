@@ -17,7 +17,7 @@ export function FloatingBar({ className, visible = true, children, ...rest }: Pr
       style={{ bottom: 'var(--app-shell-floating-offset)' }}
       {...rest}
     >
-      <div className="rounded-full bg-ink-900 text-white shadow-elevated px-5 py-3 flex items-center justify-between gap-3">
+      <div className="rounded-full bg-ink-900/92 backdrop-blur-xl text-white shadow-sheet px-5 py-3 flex items-center justify-between gap-3 border border-white/10">
         {children}
       </div>
     </div>

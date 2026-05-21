@@ -11,16 +11,16 @@ type Props = {
 }
 
 const toneClass: Record<Tone, string> = {
-  cream: 'bg-cream-100 border-cream-200 text-ink-900',
-  sage: 'bg-sage-200 border-sage-200 text-sage-700',
-  mustard: 'bg-mustard-300/70 border-mustard-300 text-ink-900',
+  cream: 'bg-white/55 border-white/55 text-ink-900',
+  sage: 'bg-sage-200/55 border-sage-200/60 text-sage-700',
+  mustard: 'bg-mustard-300/45 border-mustard-300/60 text-ink-900',
 }
 
 export function StatTile({ label, value, hint, tone = 'cream', className }: Props) {
   return (
     <div
       className={cn(
-        'rounded-3xl border p-4 flex flex-col justify-between min-h-[112px]',
+        'rounded-3xl border p-4 flex flex-col justify-between min-h-[112px] backdrop-blur-xl shadow-card transition-shadow hover:shadow-elevated',
         toneClass[tone],
         className,
       )}

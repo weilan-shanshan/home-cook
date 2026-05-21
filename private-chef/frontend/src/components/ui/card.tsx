@@ -10,18 +10,15 @@ const Card = React.forwardRef<
 >(({ className, variant = 'default', ...props }, ref) => {
   const variantClass =
     variant === 'cream'
-      ? 'bg-cream-100 border-cream-200'
+      ? 'surface-cream'
       : variant === 'brand'
-      ? 'bg-brand text-white border-transparent'
-      : 'bg-white border-cream-200'
+      ? 'rounded-3xl bg-brand text-white border border-transparent shadow-card transition-all duration-200'
+      : 'surface-card'
+
   return (
     <div
       ref={ref}
-      className={cn(
-        'rounded-3xl border text-card-foreground shadow-card transition-shadow duration-200',
-        variantClass,
-        className,
-      )}
+      className={cn(variantClass, className)}
       {...props}
     />
   )

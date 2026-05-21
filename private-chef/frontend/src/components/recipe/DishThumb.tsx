@@ -27,7 +27,7 @@ export function DishThumb({ id, name, src, size = 'md', rounded = '2xl', classNa
   return (
     <div
       className={cn(
-        'flex items-center justify-center font-medium',
+        'relative overflow-hidden flex items-center justify-center font-medium',
         c.bg,
         c.text,
         sizeClass[size],
@@ -36,6 +36,7 @@ export function DishThumb({ id, name, src, size = 'md', rounded = '2xl', classNa
       )}
       aria-label={name}
     >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/8" aria-hidden />
       {name?.[0] ?? ''}
     </div>
   )

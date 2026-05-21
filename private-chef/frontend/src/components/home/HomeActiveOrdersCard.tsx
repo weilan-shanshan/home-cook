@@ -56,7 +56,7 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
           return (
             <li
               key={o.id}
-              className="surface-card p-4 cursor-pointer"
+              className="surface-card hover-lift p-4 cursor-pointer"
               onClick={() => navigate(`/orders/${o.id}`)}
             >
               {/* Top row: status + avatar + name + meal + time */}
