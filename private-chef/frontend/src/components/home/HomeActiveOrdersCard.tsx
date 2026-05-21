@@ -1,9 +1,15 @@
 import { useNavigate } from 'react-router'
-import type { ActiveOrderSummary } from '@/hooks/useHomeSummary'
+import { MessageCircle } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { DishThumb } from '@/components/recipe/DishThumb'
+import type { ActiveOrderSummary } from '@/hooks/useHomeSummary'
 import { mealTypeLabel } from '@/lib/order-status'
 
-type Props = { orders: ActiveOrderSummary[] }
+type Props = {
+  orders: ActiveOrderSummary[]
+  onAccept?: (id: number) => void
+}
 
 const STATUS_CHIP: Record<ActiveOrderSummary['status'], { label: string; cls: string }> = {
   submitted: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
@@ -21,57 +27,112 @@ function relativeTime(iso: string): string {
   return `${Math.floor(h / 24)} 天前`
 }
 
-export function HomeActiveOrdersCard({ orders }: Props) {
+export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
   const navigate = useNavigate()
   if (orders.length === 0) return null
 
+  const preview = orders.slice(0, 3)
+  const hasMore = orders.length > 3
+
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-serif text-lg text-ink-900">进行中的订单</h2>
-        <button
-          type="button"
-          onClick={() => navigate('/orders')}
-          className="text-xs text-brand"
-        >
-          全部 →
-        </button>
+      <div className="flex items-end justify-between mb-3">
+        <h2 className="font-serif text-lg text-ink-900">进行中</h2>
+        {hasMore && (
+          <button
+            type="button"
+            onClick={() => navigate('/orders')}
+            className="text-xs text-brand"
+          >
+            查看全部 {orders.length} →
+          </button>
+        )}
       </div>
-      <ul className="space-y-2">
-        {orders.map((o) => {
+      <ul className="space-y-3">
+        {preview.map((o) => {
           const chip = STATUS_CHIP[o.status]
+          const thumbs = o.items.slice(0, 4)
+          const extraThumbs = o.items.length - thumbs.length
           return (
             <li
               key={o.id}
-              className="surface-card p-3 flex items-center gap-3 cursor-pointer"
+              className="surface-card p-4 cursor-pointer"
               onClick={() => navigate(`/orders/${o.id}`)}
             >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`rounded-full text-[11px] px-2 py-0.5 ${chip.cls}`}>
+              {/* Top row: status + avatar + name + meal + time */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`rounded-full text-[11px] px-2 py-0.5 font-medium ${chip.cls}`}>
                     {chip.label}
                   </span>
-                  <span className="text-xs text-ink-500">{relativeTime(o.createdAt)}</span>
+                  <Avatar className="w-5 h-5 shrink-0">
+                    <AvatarFallback className="bg-brand-100 text-brand-700 text-[10px]">
+                      {(o.requester.displayName ?? '?').slice(0, 1)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-ink-700 font-medium">
+                    {o.requester.displayName}
+                  </span>
+                  <span className="text-[11px] text-ink-400">
+                    · {mealTypeLabel(o.mealType)} #{o.id}
+                  </span>
                 </div>
-                <div className="text-sm font-medium text-ink-900 mb-1.5">
-                  {mealTypeLabel(o.mealType)} #{o.id}
+                <span className="text-[11px] text-ink-400 shrink-0">
+                  {relativeTime(o.createdAt)}
+                </span>
+              </div>
+
+              {/* Dish thumb strip — max 4, overflow clipped (no scroll) */}
+              <div className="mt-3 flex items-center gap-1.5 overflow-hidden">
+                {thumbs.map((it) => (
+                  <DishThumb
+                    key={it.recipeId}
+                    id={it.recipeId}
+                    name={it.recipeTitle}
+                    src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
+                    size="sm"
+                    rounded="lg"
+                  />
+                ))}
+                {extraThumbs > 0 && (
+                  <span className="text-[11px] text-ink-400">+{extraThumbs}</span>
+                )}
+              </div>
+
+              {/* Note preview */}
+              {o.note && (
+                <div className="mt-2 text-xs text-ink-500 truncate flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3 shrink-0" />
+                  {o.note}
                 </div>
-                {/* Dish thumb strip — max 4 */}
-                <div className="flex items-center gap-1.5">
-                  {o.items.slice(0, 4).map((it) => (
-                    <DishThumb
-                      key={it.recipeId}
-                      id={it.recipeId}
-                      name={it.recipeTitle}
-                      src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
-                      size="sm"
-                      rounded="lg"
-                    />
-                  ))}
-                  {o.items.length > 4 && (
-                    <span className="text-[11px] text-ink-400">+{o.items.length - 4}</span>
-                  )}
-                </div>
+              )}
+
+              {/* Bottom action */}
+              <div className="mt-3 flex justify-end">
+                {o.canAccept ? (
+                  <Button
+                    variant="inverse"
+                    size="sm"
+                    className="rounded-full"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onAccept?.(o.id)
+                    }}
+                  >
+                    我来接单 →
+                  </Button>
+                ) : (
+                  <button
+                    type="button"
+                    className="text-xs text-brand"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/orders/${o.id}`)
+                    }}
+                  >
+                    进入查看 →
+                  </button>
+                )}
               </div>
             </li>
           )

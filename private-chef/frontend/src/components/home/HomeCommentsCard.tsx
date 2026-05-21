@@ -22,41 +22,63 @@ export function HomeCommentsCard({ comments }: Props) {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-serif text-lg text-ink-900">最近评论 · {comments.length}</h2>
-      </div>
-      <div className="surface-card divide-y divide-cream-100">
-        {preview.map((c) => (
+      <div className="surface-card p-4">
+        {/* Card header */}
+        <div className="flex items-end justify-between mb-3">
+          <h2 className="font-serif text-lg text-ink-900">最近评论 · {comments.length}</h2>
           <button
-            key={c.id}
             type="button"
-            className="w-full text-left p-4 flex items-start gap-3 cursor-pointer hover:bg-cream-50 transition-colors first:rounded-t-3xl last:rounded-b-3xl"
-            onClick={() => navigate(`/orders/${c.orderId}`)}
+            onClick={() => navigate('/profile')}
+            className="text-xs text-brand"
           >
-            <Avatar className="w-8 h-8 shrink-0">
-              <AvatarFallback className="bg-brand-100 text-brand-700 text-sm">
-                {(c.displayName ?? '?').slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                <span className="text-sm font-medium text-ink-900 truncate">{c.displayName}</span>
-                <span
-                  className={`text-[11px] rounded-full px-2 py-0.5 ${
-                    c.roleType === 'cook'
-                      ? 'bg-mustard-100 text-mustard-700'
-                      : 'bg-cream-100 text-ink-500'
-                  }`}
-                >
-                  {c.roleType === 'cook' ? '大厨' : '点单人'}
-                </span>
-                <span className="text-[11px] text-ink-400 ml-auto shrink-0">
-                  {relativeTime(c.createdAt)}
-                </span>
-              </div>
-              <p className="text-sm text-ink-700 line-clamp-1">{c.contentPreview}</p>
-            </div>
+            全部 →
           </button>
+        </div>
+
+        {/* Comment rows */}
+        {preview.map((c, idx) => (
+          <div
+            key={c.id}
+            className={idx > 0 ? 'border-t border-cream-100 pt-3 mt-3' : ''}
+          >
+            <button
+              type="button"
+              className="w-full text-left flex items-start gap-3 cursor-pointer"
+              onClick={() => navigate(`/orders/${c.orderId}`)}
+            >
+              <Avatar className="w-8 h-8 shrink-0">
+                <AvatarFallback className="bg-brand-100 text-brand-700 text-sm">
+                  {(c.displayName ?? '?').slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                {/* Name + role chip + time */}
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span className="text-sm font-medium text-ink-900 truncate">
+                    {c.displayName}
+                  </span>
+                  <span
+                    className={`text-[11px] rounded-full px-2 py-0.5 ${
+                      c.roleType === 'cook'
+                        ? 'bg-brand-100 text-brand-700'
+                        : 'bg-cream-100 text-ink-500'
+                    }`}
+                  >
+                    {c.roleType === 'cook' ? '大厨' : '点单人'}
+                  </span>
+                  <span className="text-[11px] text-ink-400 ml-auto shrink-0">
+                    {relativeTime(c.createdAt)}
+                  </span>
+                </div>
+                {/* Comment body */}
+                <p className="text-sm text-ink-700 line-clamp-2">{c.contentPreview}</p>
+                {/* Order link */}
+                <div className="mt-1 text-[11px] text-ink-500">
+                  → 订单 #{c.orderId}
+                </div>
+              </div>
+            </button>
+          </div>
         ))}
       </div>
     </section>

@@ -4,6 +4,7 @@ import { AlertCircle, Loader2 } from 'lucide-react'
 import { useHomeSummary } from '@/hooks/useHomeSummary'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useUpdateOrderStatus } from '@/hooks/useOrders'
+import { useFavorites } from '@/hooks/useFavorites'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { StatTile } from '@/components/home/StatTile'
@@ -12,7 +13,8 @@ import { HomeActiveOrdersCard } from '@/components/home/HomeActiveOrdersCard'
 import { HomeCommentsCard } from '@/components/home/HomeCommentsCard'
 import { HomeWishCard } from '@/components/home/HomeWishCard'
 import { HomeAchievementProgressCard } from '@/components/home/HomeAchievementProgressCard'
-import { RecentDishRail, type RailDish } from '@/components/home/RecentDishRail'
+import { HomeRecommendedGrid } from '@/components/home/HomeRecommendedGrid'
+import { HomeFrequentList } from '@/components/home/HomeFrequentList'
 
 function getGreeting(): string {
   const h = new Date().getHours()
@@ -26,15 +28,15 @@ function getGreeting(): string {
 export default function Home() {
   const { data, isLoading, isError } = useHomeSummary()
   const { data: currentUser } = useCurrentUser()
+  const { data: favorites = [] } = useFavorites()
   const { mutate: updateStatus } = useUpdateOrderStatus()
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  // Keep accept logic for active orders that canAccept
-  const handleAccept = (orderId: string | number) => {
+  const handleAccept = (orderId: number) => {
     updateStatus(
-      { id: orderId as number, status: 'confirmed' },
+      { id: orderId, status: 'confirmed' },
       {
         onSuccess: () => {
           toast({ title: '已接单', description: '订单状态已更新为已接单。' })
@@ -50,8 +52,6 @@ export default function Home() {
       },
     )
   }
-  // handleAccept is kept for potential future CTA; suppress unused warning
-  void handleAccept
 
   if (isLoading) {
     return (
@@ -82,22 +82,10 @@ export default function Home() {
   // Stats
   const totalOrders = data.achievementSummary.totalOrders
   const totalCooks = data.achievementSummary.totalCooks
-
-  // "今日推荐" rail — recommendedRecipes
-  const recommendedDishes: RailDish[] = data.recommendedRecipes.map((r) => ({
-    id: r.recipeId,
-    name: r.title,
-    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
-    // avg_rating not in RecipeCardSummary — leave undefined; RatingBadge hides gracefully
-  }))
-
-  // "家里常点" rail — frequentRecipes with orderCount as subtitle
-  const frequentDishes: RailDish[] = data.frequentRecipes.map((r) => ({
-    id: r.recipeId,
-    name: r.title,
-    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
-    subtitle: `${r.orderCount} 次`,
-  }))
+  const favCount = favorites.length
+  // 4th stat: pending wishes count (real, from frequentRecipes length as proxy — actual wishes loaded in HomeWishCard)
+  // Use recommendedRecipes length as a real count for "今日推荐" — makes contextual sense
+  const recommendedCount = data.recommendedRecipes.length
 
   return (
     <div className="space-y-5 pb-12 animate-in fade-in duration-500">
@@ -123,32 +111,38 @@ export default function Home() {
       <HomeHeroCTA />
 
       {/* 3. Active orders — hidden when empty */}
-      <HomeActiveOrdersCard orders={data.activeOrders} />
+      <HomeActiveOrdersCard orders={data.activeOrders} onAccept={handleAccept} />
 
-      {/* 4. Stats 2-col */}
+      {/* 4. Stats 2×2 */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile tone="mustard" label="全部点单" value={`${totalOrders} 单`} hint="累计点单数" />
-        <StatTile tone="sage" label="掌勺" value={`${totalCooks} 次`} hint="累计主厨次数" />
+        <StatTile tone="mustard" label="累计点单" value={`${totalOrders}`} hint="单" />
+        <StatTile tone="sage"    label="累计掌勺" value={`${totalCooks}`}  hint="次" />
+        <StatTile tone="cream"   label="收藏菜"   value={`${favCount}`}    hint="道" />
+        <StatTile tone="cream"   label="今日推荐" value={`${recommendedCount}`} hint="道菜" />
       </div>
 
-      {/* 5. 今日推荐 */}
-      {recommendedDishes.length > 0 && (
-        <RecentDishRail title="今日推荐" dishes={recommendedDishes} viewAllPath="/menu" />
-      )}
+      {/* 5. 今日推荐 2×2 grid */}
+      <HomeRecommendedGrid dishes={data.recommendedRecipes} />
 
-      {/* 6. 家里常点 */}
-      {frequentDishes.length > 0 && (
-        <RecentDishRail title="家里常点" dishes={frequentDishes} viewAllPath="/menu" />
-      )}
+      {/* 6. 家里常点 vertical list */}
+      <HomeFrequentList dishes={data.frequentRecipes} />
 
       {/* 7. Recent comments */}
       <HomeCommentsCard comments={data.recentComments} />
 
-      {/* 8. Wish card — hides itself when empty */}
-      <HomeWishCard />
+      {/* 8. Wishes + Achievements 2-col — only render if wishes exist */}
+      <WishAchievementRow summary={data.achievementSummary} />
+    </div>
+  )
+}
 
-      {/* 9. Achievement progress */}
-      <HomeAchievementProgressCard summary={data.achievementSummary} />
+// Separate component so HomeWishCard can self-manage its data while
+// we conditionally show the 2-col grid only when there are wishes.
+function WishAchievementRow({ summary }: { summary: import('@/hooks/useHomeSummary').AchievementSummary }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 items-stretch">
+      <HomeWishCard />
+      <HomeAchievementProgressCard summary={summary} />
     </div>
   )
 }
