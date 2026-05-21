@@ -45,10 +45,10 @@ describe('OrderCard', () => {
 
   test('done status shows 已完成 chip and no action button', () => {
     renderCard({ status: 'done' })
-    // both the status chip and the CTA div say 已完成 - check at least one exists
     const allDone = screen.getAllByText('已完成')
     expect(allDone.length).toBeGreaterThanOrEqual(1)
-    expect(screen.queryByRole('button')).toBeNull()
+    // No <button> for the CTA when done (it's a div), but the chip is a span not a button
+    expect(screen.queryByRole('button', { name: '已完成' })).toBeNull()
   })
 
   test('clicking action button calls onPrimary and stops navigation', () => {
@@ -63,7 +63,7 @@ describe('OrderCard', () => {
     expect(screen.getByText('5 分钟前')).toBeInTheDocument()
   })
 
-  test('dish names are rendered as text in dish rows', () => {
+  test('dish names are rendered in dish grid cells', () => {
     renderCard({
       items: [
         { id: 1, recipeId: 1, name: '红烧肉', quantity: 1 },
@@ -96,15 +96,26 @@ describe('OrderCard', () => {
     expect(onToggleFavorite.mock.calls[0][0]).toMatchObject({ id: 1, name: '红烧肉' })
   })
 
-  test('extra dishes beyond 3 show overflow message', () => {
+  test('extra dishes beyond 4 show overflow cell', () => {
     renderCard({
       items: [
         { id: 1, recipeId: 1, name: '菜1', quantity: 1 },
         { id: 2, recipeId: 2, name: '菜2', quantity: 1 },
         { id: 3, recipeId: 3, name: '菜3', quantity: 1 },
         { id: 4, recipeId: 4, name: '菜4', quantity: 1 },
+        { id: 5, recipeId: 5, name: '菜5', quantity: 1 },
       ],
     })
-    expect(screen.getByText(/还有 1 道菜/)).toBeInTheDocument()
+    expect(screen.getByText(/还有 2 道/)).toBeInTheDocument()
+  })
+
+  test('note callout is rendered when note is provided', () => {
+    renderCard({ note: '少放盐，今天血压有点高' })
+    expect(screen.getByText('少放盐，今天血压有点高')).toBeInTheDocument()
+  })
+
+  test('note callout is not rendered when note is absent', () => {
+    renderCard({ note: undefined })
+    expect(screen.queryByText(/少放盐/)).toBeNull()
   })
 })
