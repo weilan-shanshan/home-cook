@@ -65,6 +65,7 @@ export default function OrderList() {
       meta,
       agoLabel: formatRelativeTime(o.createdAt),
       status: uiStatus,
+      note: o.note ?? null,
       items: o.items.map((it) => ({
         id: it.id,
         recipeId: it.recipeId,
