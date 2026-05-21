@@ -8,7 +8,10 @@ import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { StatTile } from '@/components/home/StatTile'
 import { HomeHeroCTA } from '@/components/home/HomeHeroCTA'
-import { HomePendingOrderCard, type PendingOrder } from '@/components/home/HomePendingOrderCard'
+import { HomeActiveOrdersCard } from '@/components/home/HomeActiveOrdersCard'
+import { HomeCommentsCard } from '@/components/home/HomeCommentsCard'
+import { HomeWishCard } from '@/components/home/HomeWishCard'
+import { HomeAchievementProgressCard } from '@/components/home/HomeAchievementProgressCard'
 import { RecentDishRail, type RailDish } from '@/components/home/RecentDishRail'
 
 function getGreeting(): string {
@@ -20,24 +23,15 @@ function getGreeting(): string {
   return '晚上好'
 }
 
-function elapsedLabel(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime()
-  const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return '刚刚'
-  if (mins < 60) return `${mins} 分钟前`
-  const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs} 小时前`
-  return `${Math.floor(hrs / 24)} 天前`
-}
-
 export default function Home() {
   const { data, isLoading, isError } = useHomeSummary()
   const { data: currentUser } = useCurrentUser()
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
+  const { mutate: updateStatus } = useUpdateOrderStatus()
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
+  // Keep accept logic for active orders that canAccept
   const handleAccept = (orderId: string | number) => {
     updateStatus(
       { id: orderId as number, status: 'confirmed' },
@@ -56,6 +50,8 @@ export default function Home() {
       },
     )
   }
+  // handleAccept is kept for potential future CTA; suppress unused warning
+  void handleAccept
 
   if (isLoading) {
     return (
@@ -81,41 +77,31 @@ export default function Home() {
     )
   }
 
-  // Derive pending order (first canAccept order)
-  const acceptableOrder = data.activeOrders.find((o) => o.canAccept) ?? null
-  const pendingOrder: PendingOrder | null = acceptableOrder
-    ? {
-        id: acceptableOrder.id,
-        title: [
-          acceptableOrder.mealType,
-          ...acceptableOrder.items.map((it) => it.recipeTitle),
-        ].join(' · '),
-        meta: `${acceptableOrder.requester.displayName} 点单 · ${acceptableOrder.cook ? acceptableOrder.cook.displayName + ' 接单' : '尚无大厨'}`,
-        waitedLabel: elapsedLabel(acceptableOrder.createdAt),
-        items: acceptableOrder.items.map((it) => ({
-          id: it.recipeId,
-          name: it.recipeTitle,
-        })),
-      }
-    : null
+  const displayName = currentUser?.display_name ?? currentUser?.username ?? null
 
-  // Recent dishes from frequent recipes
-  const recentDishes: RailDish[] = data.frequentRecipes.map((r) => ({
-    id: r.recipeId,
-    name: r.title,
-    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
-  }))
-
-  // Stats: totalOrders as all-time total, totalCooks as cooked count
-  // TODO(home-stats): no per-week order delta in current API; using all-time totals as placeholders
+  // Stats
   const totalOrders = data.achievementSummary.totalOrders
   const totalCooks = data.achievementSummary.totalCooks
 
-  const displayName = currentUser?.display_name ?? currentUser?.username ?? null
+  // "今日推荐" rail — recommendedRecipes
+  const recommendedDishes: RailDish[] = data.recommendedRecipes.map((r) => ({
+    id: r.recipeId,
+    name: r.title,
+    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
+    // avg_rating not in RecipeCardSummary — leave undefined; RatingBadge hides gracefully
+  }))
+
+  // "家里常点" rail — frequentRecipes with orderCount as subtitle
+  const frequentDishes: RailDish[] = data.frequentRecipes.map((r) => ({
+    id: r.recipeId,
+    name: r.title,
+    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
+    subtitle: `${r.orderCount} 次`,
+  }))
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-500">
-      {/* Header row */}
+    <div className="space-y-5 pb-12 animate-in fade-in duration-500">
+      {/* 1. Header row */}
       <div className="flex items-start justify-between pt-2">
         <div>
           <div className="text-xs text-ink-500">{getGreeting()}</div>
@@ -133,36 +119,36 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Hero CTA */}
+      {/* 2. Hero CTA */}
       <HomeHeroCTA />
 
-      {/* Pending order card (renders null if none) */}
-      <HomePendingOrderCard
-        order={pendingOrder}
-        onAccept={handleAccept}
-        accepting={isUpdating}
-      />
+      {/* 3. Active orders — hidden when empty */}
+      <HomeActiveOrdersCard orders={data.activeOrders} />
 
-      {/* Stats grid */}
+      {/* 4. Stats 2-col */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile
-          tone="mustard"
-          label="全部点单"
-          value={`${totalOrders} 单`}
-          hint="累计点单数"
-        />
-        <StatTile
-          tone="sage"
-          label="掌勺"
-          value={`${totalCooks} 次`}
-          hint="累计主厨次数"
-        />
+        <StatTile tone="mustard" label="全部点单" value={`${totalOrders} 单`} hint="累计点单数" />
+        <StatTile tone="sage" label="掌勺" value={`${totalCooks} 次`} hint="累计主厨次数" />
       </div>
 
-      {/* Recent dish rail */}
-      {recentDishes.length > 0 && (
-        <RecentDishRail dishes={recentDishes} />
+      {/* 5. 今日推荐 */}
+      {recommendedDishes.length > 0 && (
+        <RecentDishRail title="今日推荐" dishes={recommendedDishes} viewAllPath="/menu" />
       )}
+
+      {/* 6. 家里常点 */}
+      {frequentDishes.length > 0 && (
+        <RecentDishRail title="家里常点" dishes={frequentDishes} viewAllPath="/menu" />
+      )}
+
+      {/* 7. Recent comments */}
+      <HomeCommentsCard comments={data.recentComments} />
+
+      {/* 8. Wish card — hides itself when empty */}
+      <HomeWishCard />
+
+      {/* 9. Achievement progress */}
+      <HomeAchievementProgressCard summary={data.achievementSummary} />
     </div>
   )
 }
