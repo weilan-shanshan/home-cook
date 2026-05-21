@@ -23,9 +23,9 @@ export default {
         },
         cream: {
           50: '#FAF6EE',
-          100: '#FAF6EE',
-          200: '#F4EDDF',
-          300: '#E8DFD3',
+          100: '#F4EDDF',
+          200: '#E8DFD3',
+          300: '#D9CCB8',
           400: '#C9BCA8',
         },
         ink: {
