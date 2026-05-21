@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import { Toaster } from '@/components/ui/toaster'
-import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt'
 import { AppLayout } from '@/pages/layout/AppLayout'
 
 import Login from '@/pages/auth/Login'
@@ -44,7 +43,6 @@ function App() {
         </Route>
       </Routes>
       <Toaster />
-      <PWAInstallPrompt />
     </BrowserRouter>
   )
 }

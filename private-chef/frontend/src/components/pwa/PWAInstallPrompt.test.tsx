@@ -31,10 +31,10 @@ function setStandalone(value: boolean) {
   })
 }
 
-async function loadPrompt() {
+async function loadBanner() {
   vi.resetModules()
-  const mod = await import('./PWAInstallPrompt')
-  return mod.PWAInstallPrompt
+  const mod = await import('./PWAInstallBanner')
+  return mod.PWAInstallBanner
 }
 
 beforeEach(() => {
@@ -47,50 +47,43 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('PWAInstallPrompt', () => {
+describe('PWAInstallBanner', () => {
   test('renders nothing when already standalone', async () => {
     setUA(UA_DESKTOP_CHROME)
     setStandalone(true)
-    const Prompt = await loadPrompt()
-    const { container } = render(<Prompt />)
+    const Banner = await loadBanner()
+    const { container } = render(<Banner />)
     expect(container.firstChild).toBeNull()
   })
 
   test('renders nothing in WeChat in-app webview', async () => {
     setUA(UA_WECHAT)
-    const Prompt = await loadPrompt()
-    const { container } = render(<Prompt />)
+    const Banner = await loadBanner()
+    const { container } = render(<Banner />)
     expect(container.firstChild).toBeNull()
   })
 
-  test('renders nothing when permanent dismiss flag is set', async () => {
+  test('renders nothing when banner dismissed flag is set', async () => {
     setUA(UA_DESKTOP_CHROME)
-    localStorage.setItem('cook.pwa.dismissed.permanent', '1')
-    const Prompt = await loadPrompt()
-    const { container } = render(<Prompt />)
+    localStorage.setItem('cook.pwa.banner.dismissed', '1')
+    const Banner = await loadBanner()
+    const { container } = render(<Banner />)
     expect(container.firstChild).toBeNull()
   })
 
-  test('renders nothing when session dismiss flag is set', async () => {
+  test('renders install banner on desktop Chrome', async () => {
     setUA(UA_DESKTOP_CHROME)
-    sessionStorage.setItem('cook.pwa.dismissed.session', '1')
-    const Prompt = await loadPrompt()
-    const { container } = render(<Prompt />)
-    expect(container.firstChild).toBeNull()
+    const Banner = await loadBanner()
+    render(<Banner />)
+    expect(await screen.findByText(/装到桌面，秒开私厨/)).toBeInTheDocument()
+    expect(screen.getByText('立即安装')).toBeInTheDocument()
   })
 
-  test('renders install dialog on desktop Chrome', async () => {
-    setUA(UA_DESKTOP_CHROME)
-    const Prompt = await loadPrompt()
-    render(<Prompt />)
-    expect(await screen.findByText(/装到桌面/)).toBeInTheDocument()
-  })
-
-  test('renders iOS step guide on iOS Safari', async () => {
+  test('renders install banner on iOS Safari', async () => {
     setUA(UA_IOS_SAFARI)
-    const Prompt = await loadPrompt()
-    render(<Prompt />)
-    expect(await screen.findByText(/iPhone 用户看这里/)).toBeInTheDocument()
-    expect(screen.getByText(/点底部「分享」按钮/)).toBeInTheDocument()
+    const Banner = await loadBanner()
+    render(<Banner />)
+    expect(await screen.findByText(/装到桌面，秒开私厨/)).toBeInTheDocument()
+    expect(screen.getByText('立即安装')).toBeInTheDocument()
   })
 })
