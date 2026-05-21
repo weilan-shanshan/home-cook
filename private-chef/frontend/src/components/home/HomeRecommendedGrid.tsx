@@ -2,12 +2,15 @@ import { Link } from 'react-router'
 import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
+import type { RecipeTag } from '@/hooks/useRecipes'
 
 type Props = {
   dishes: RecipeCardSummary[]
+  /** Optional map of recipeId → tags, cross-referenced from useRecipes */
+  tagsMap?: Map<number, RecipeTag[]>
 }
 
-export function HomeRecommendedGrid({ dishes }: Props) {
+export function HomeRecommendedGrid({ dishes, tagsMap }: Props) {
   if (dishes.length === 0) return null
 
   const capped = dishes.slice(0, 4)
@@ -22,32 +25,47 @@ export function HomeRecommendedGrid({ dishes }: Props) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {capped.map((dish) => (
-          <Link
-            key={dish.recipeId}
-            to={`/recipe/${dish.recipeId}`}
-            className="surface-card overflow-hidden flex flex-col"
-          >
-            <div className="aspect-square w-full">
-              <DishThumb
-                id={dish.recipeId}
-                name={dish.title}
-                src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
-                size="lg"
-                rounded="lg"
-                className="w-full h-full object-cover rounded-none"
-              />
-            </div>
-            <div className="p-2.5">
-              <div className="text-sm font-medium line-clamp-1 text-ink-900">{dish.title}</div>
-              <div className="mt-1 flex items-center gap-1.5">
-                {dish.orderCount > 0 && (
-                  <span className="text-[11px] text-ink-500">{dish.orderCount} 次点单</span>
-                )}
+        {capped.map((dish) => {
+          const tags = tagsMap?.get(dish.recipeId) ?? []
+          return (
+            <Link
+              key={dish.recipeId}
+              to={`/recipe/${dish.recipeId}`}
+              className="surface-card overflow-hidden flex flex-col"
+            >
+              <div className="aspect-square w-full">
+                <DishThumb
+                  id={dish.recipeId}
+                  name={dish.title}
+                  src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
+                  size="lg"
+                  rounded="lg"
+                  className="w-full h-full object-cover rounded-none"
+                />
               </div>
-            </div>
-          </Link>
-        ))}
+              <div className="p-2.5">
+                <div className="text-sm font-medium line-clamp-1 text-ink-900">{dish.title}</div>
+                {tags.length > 0 && (
+                  <div className="flex gap-1 mt-0.5 flex-wrap">
+                    {tags.slice(0, 2).map((t) => (
+                      <span
+                        key={t.id}
+                        className="text-[9px] rounded-full bg-cream-200 text-ink-700 px-1.5 py-0.5"
+                      >
+                        {t.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-1 flex items-center gap-1.5">
+                  {dish.orderCount > 0 && (
+                    <span className="text-[11px] text-ink-500">{dish.orderCount} 次点单</span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          )
+        })}
         {/* Placeholder when only 1 dish — fills the second cell */}
         {capped.length === 1 && (
           <Link

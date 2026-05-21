@@ -150,6 +150,18 @@ export default function MenuPage() {
                 <div className="p-3 flex items-end justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-ink-900 text-sm line-clamp-1">{r.title}</p>
+                    {r.tags && r.tags.length > 0 && (
+                      <div className="flex gap-1 mt-0.5 flex-wrap">
+                        {r.tags.slice(0, 2).map((t) => (
+                          <span
+                            key={t.id}
+                            className="text-[9px] rounded-full bg-brand-50 text-brand-700 px-1.5 py-0.5"
+                          >
+                            {t.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <RatingBadge avg={(r as unknown as { avg_rating?: number | null }).avg_rating ?? null} count={(r as unknown as { rating_count?: number | null }).rating_count ?? null} />
                       {timesInfo && (

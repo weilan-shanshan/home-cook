@@ -324,12 +324,11 @@ export default function RecipeDetail() {
       {/* Content card overlapping hero */}
       <div className="relative -mt-8 mx-4 surface-card p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-ink-500">
+          <div className="flex items-center gap-1.5 flex-wrap text-xs text-ink-500">
             {recipe.tags && recipe.tags.length > 0 ? (
-              recipe.tags.map((t, i) => (
-                <span key={t.id}>
-                  {i > 0 && <span className="mr-2">·</span>}
-                  <span className="rounded-full bg-cream-100 px-2.5 py-1">{t.name}</span>
+              recipe.tags.map((t) => (
+                <span key={t.id} className="rounded-full bg-cream-100 px-2.5 py-1 text-ink-700">
+                  {t.name}
                 </span>
               ))
             ) : (

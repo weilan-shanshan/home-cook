@@ -45,6 +45,15 @@ export default function Home() {
     [recipesData],
   )
 
+  // Build recipeId → tags map for cross-reference enrichment
+  const recipeTagsMap = useMemo(() => {
+    const m = new Map<number, import('@/hooks/useRecipes').RecipeTag[]>()
+    for (const r of allRecipes) {
+      if (r.tags.length > 0) m.set(r.id, r.tags)
+    }
+    return m
+  }, [allRecipes])
+
   const handleAccept = (orderId: number) => {
     updateStatus(
       { id: orderId, status: 'confirmed' },
@@ -132,10 +141,10 @@ export default function Home() {
       </div>
 
       {/* 5. 今日推荐 2×2 grid */}
-      <HomeRecommendedGrid dishes={data.recommendedRecipes} />
+      <HomeRecommendedGrid dishes={data.recommendedRecipes} tagsMap={recipeTagsMap} />
 
       {/* 6. 家里常点 vertical list */}
-      <HomeFrequentList dishes={data.frequentRecipes} />
+      <HomeFrequentList dishes={data.frequentRecipes} tagsMap={recipeTagsMap} />
 
       {/* 6b. 最近烹饪 — completed orders only */}
       <HomeRecentCooksCard orders={data.recentOrders} />

@@ -1,12 +1,15 @@
 import { Link } from 'react-router'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
+import type { RecipeTag } from '@/hooks/useRecipes'
 
 type Props = {
   dishes: RecipeCardSummary[]
+  /** Optional map of recipeId → tags, cross-referenced from useRecipes */
+  tagsMap?: Map<number, RecipeTag[]>
 }
 
-export function HomeFrequentList({ dishes }: Props) {
+export function HomeFrequentList({ dishes, tagsMap }: Props) {
   if (dishes.length === 0) return null
 
   const capped = dishes.slice(0, 4)
@@ -21,27 +24,42 @@ export function HomeFrequentList({ dishes }: Props) {
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {capped.map((dish) => (
-          <Link
-            key={dish.recipeId}
-            to={`/recipe/${dish.recipeId}`}
-            className="surface-card p-3 flex flex-col gap-2"
-          >
-            <div className="aspect-square w-full">
-              <DishThumb
-                id={dish.recipeId}
-                name={dish.title}
-                src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
-                className="w-full h-full"
-                rounded="lg"
-              />
-            </div>
-            <div>
-              <div className="text-sm font-medium text-ink-900 line-clamp-1">{dish.title}</div>
-              <div className="text-[10px] text-ink-500">{dish.orderCount} 次点单</div>
-            </div>
-          </Link>
-        ))}
+        {capped.map((dish) => {
+          const tags = tagsMap?.get(dish.recipeId) ?? []
+          return (
+            <Link
+              key={dish.recipeId}
+              to={`/recipe/${dish.recipeId}`}
+              className="surface-card p-3 flex flex-col gap-2"
+            >
+              <div className="aspect-square w-full">
+                <DishThumb
+                  id={dish.recipeId}
+                  name={dish.title}
+                  src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
+                  className="w-full h-full"
+                  rounded="lg"
+                />
+              </div>
+              <div>
+                <div className="text-sm font-medium text-ink-900 line-clamp-1">{dish.title}</div>
+                {tags.length > 0 && (
+                  <div className="flex gap-1 mt-0.5 flex-wrap">
+                    {tags.slice(0, 2).map((t) => (
+                      <span
+                        key={t.id}
+                        className="text-[9px] rounded-full bg-cream-200 text-ink-700 px-1.5 py-0.5"
+                      >
+                        {t.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="text-[10px] text-ink-500 mt-0.5">{dish.orderCount} 次点单</div>
+              </div>
+            </Link>
+          )
+        })}
       </div>
     </section>
   )
