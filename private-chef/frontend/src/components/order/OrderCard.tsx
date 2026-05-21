@@ -55,23 +55,23 @@ export function OrderCard(props: OrderCardData) {
 
   return (
     <article
-      className="surface-card hover-lift p-4 cursor-pointer"
+      className="surface-card hover-lift p-5 cursor-pointer"
       onClick={() => navigate(`/orders/${props.id}`)}
     >
       {/* Top row: status chip + avatar + meta + time */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2 flex-1 min-w-0">
-          <span className={`rounded-full text-[11px] px-2 py-0.5 font-medium shrink-0 ${chip.cls}`}>
+          <span className={`rounded-full text-[11px] px-3 py-1 font-medium shrink-0 ${chip.cls}`}>
             {chip.label}
           </span>
           <div className="flex items-center gap-1.5 min-w-0">
-            <Avatar className="w-5 h-5 shrink-0">
+            <Avatar className="w-8 h-8 shrink-0">
               <AvatarFallback className="bg-brand-100 text-brand-700 text-[10px]">
                 {avatarInitial}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <div className="text-xs font-medium text-ink-900 truncate">{props.no}</div>
+              <div className="text-base font-medium text-ink-900 truncate">{props.no}</div>
               <div className="text-[11px] text-ink-500 truncate">{props.meta}</div>
             </div>
           </div>
@@ -80,24 +80,24 @@ export function OrderCard(props: OrderCardData) {
       </div>
 
       {/* Separator */}
-      <div className="h-px bg-cream-200 my-3" />
+      <div className="h-px bg-cream-200 my-4" />
 
       {/* Dish mini-grid: 2x2 (max 4 cells) */}
       <div className="grid grid-cols-2 gap-2">
         {gridItems.map((it) => (
           <div
             key={it.id}
-            className="bg-cream-100 rounded-2xl p-2 flex items-center gap-2"
+            className="bg-cream-100 rounded-2xl p-2.5 flex items-center gap-2"
           >
             <DishThumb
               id={it.recipeId ?? it.id}
               name={it.name}
               src={it.cover ?? undefined}
-              size="sm"
+              size="md"
               rounded="lg"
             />
             <div className="min-w-0 flex-1">
-              <div className="text-sm text-ink-900 truncate">{it.name ?? `菜品 #${it.id}`}</div>
+              <div className="text-sm font-medium text-ink-900 truncate">{it.name ?? `菜品 #${it.id}`}</div>
               <div className="flex items-center gap-1 mt-0.5">
                 {it.avgRating != null && (
                   <RatingBadge avg={it.avgRating} count={it.ratingCount ?? null} size="xs" />
@@ -111,7 +111,7 @@ export function OrderCard(props: OrderCardData) {
         ))}
         {/* Overflow cell */}
         {showOverflow && (
-          <div className="bg-cream-100 rounded-2xl p-2 flex items-center justify-center text-xs text-ink-500">
+          <div className="bg-cream-100 rounded-2xl p-2.5 flex items-center justify-center text-xs text-ink-500">
             还有 {overflowCount} 道 →
           </div>
         )}
@@ -122,7 +122,7 @@ export function OrderCard(props: OrderCardData) {
 
       {/* Note callout */}
       {props.note && (
-        <div className="mt-3 rounded-2xl bg-honey-100 px-3 py-2 text-xs text-ink-700 flex items-start gap-1.5 line-clamp-2">
+        <div className="mt-3 rounded-2xl bg-honey-100 px-3 py-2.5 text-sm text-ink-700 flex items-start gap-1.5 line-clamp-2">
           <MessageCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-honey-500" />
           <span>{props.note}</span>
         </div>
@@ -133,7 +133,7 @@ export function OrderCard(props: OrderCardData) {
         {props.status !== 'done' ? (
           <Button
             variant={props.status === 'pending' ? 'inverse' : 'default'}
-            size="default"
+            size="pill"
             className="flex-1"
             disabled={props.primaryDisabled}
             onClick={(e) => { e.stopPropagation(); props.onPrimary?.() }}
@@ -141,7 +141,7 @@ export function OrderCard(props: OrderCardData) {
             {label}
           </Button>
         ) : (
-          <div className="flex-1 rounded-full bg-cream-100 text-ink-500 h-10 flex items-center justify-center text-sm">
+          <div className="flex-1 rounded-full bg-cream-100 text-ink-500 h-14 flex items-center justify-center text-sm">
             {label}
           </div>
         )}
