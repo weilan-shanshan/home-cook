@@ -1,26 +1,20 @@
 import { useMemo, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
-import { Search, ShoppingBag, Plus, Minus, ChevronRight, Loader2, Sparkles, ChefHat } from 'lucide-react'
+import { Link, useNavigate } from 'react-router'
+import { Search, Plus, Check } from 'lucide-react'
 import { useRecipes, useTags } from '@/hooks/useRecipes'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { RecipeCard } from '@/components/recipe/RecipeCard'
+import { ChipGroup } from '@/components/ui/chip-group'
+import { FloatingBar } from '@/components/ui/floating-bar'
+import { DishThumb } from '@/components/recipe/DishThumb'
 import { RecipeSheet } from '@/components/recipe/RecipeSheet'
-
-type SelectedRecipe = {
-  recipe_id: number
-  quantity: number
-  title: string
-  thumb_url: string | null
-}
+import { cn } from '@/lib/utils'
 
 export default function MenuPage() {
   const navigate = useNavigate()
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
-  const [activeTag, setActiveTag] = useState<number | undefined>(undefined)
-  const [selectedItems, setSelectedItems] = useState<SelectedRecipe[]>([])
+  const [activeTag, setActiveTag] = useState<string>('all')
+  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
 
   useEffect(() => {
@@ -29,223 +23,179 @@ export default function MenuPage() {
   }, [q])
 
   const { data: tags = [] } = useTags()
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useRecipes({ limit: 20, q: debouncedQ, tag: activeTag })
+
+  // Map chip value -> tag id for the API
+  const tagMap = useMemo(() => {
+    const m = new Map<string, number>()
+    tags.forEach((t) => m.set(String(t.id), t.id))
+    return m
+  }, [tags])
+
+  const activeTagId = activeTag === 'all' ? undefined : tagMap.get(activeTag)
+
+  const { data, isLoading } = useRecipes({
+    limit: 100,
+    q: debouncedQ,
+    tag: activeTagId,
+  })
 
   const recipes = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
 
-  const totalSelectedCount = useMemo(
-    () => selectedItems.reduce((sum, item) => sum + item.quantity, 0),
-    [selectedItems],
+  // ChipGroup options: "全部" + dynamic tags from API
+  const chipOptions = useMemo(
+    () => [
+      { value: 'all', label: '全部' },
+      ...tags.map((t) => ({ value: String(t.id), label: t.name })),
+    ],
+    [tags],
   )
-  const hasSelectedItems = selectedItems.length > 0
 
-  const addRecipe = (recipe: (typeof recipes)[number]) => {
-    const thumbUrl = recipe.first_image?.thumb_url || recipe.first_image?.url || null
-    setSelectedItems((prev) => {
-      const existing = prev.find((item) => item.recipe_id === recipe.id)
-      if (existing) {
-        return prev.map((item) =>
-          item.recipe_id === recipe.id ? { ...item, quantity: item.quantity + 1 } : item,
-        )
-      }
+  const selectedSize = selected.size
 
-      return [
-        ...prev,
-        {
-          recipe_id: recipe.id,
-          quantity: 1,
-          title: recipe.title,
-          thumb_url: thumbUrl,
-        },
-      ]
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
     })
   }
 
-  const updateQuantity = (recipeId: number, delta: number) => {
-    setSelectedItems((prev) =>
-      prev
-        .map((item) =>
-          item.recipe_id === recipeId ? { ...item, quantity: item.quantity + delta } : item,
-        )
-        .filter((item) => item.quantity > 0),
-    )
-  }
-
-  const handleGoToOrder = () => {
-    const params = new URLSearchParams()
-    params.set('items', JSON.stringify(selectedItems))
-    navigate(`/menu/create-order?${params.toString()}`)
+  const handleSubmitOrder = () => {
+    const csv = Array.from(selected).join(',')
+    navigate(`/order/create?ids=${csv}`)
   }
 
   return (
-    <div className={`space-y-6 animate-in fade-in duration-500 ${hasSelectedItems ? 'pb-40' : 'pb-8'}`}>
-      <div className="flex items-start justify-between gap-3 pt-2">
-        <div className="space-y-2.5 flex-1 min-w-0">
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
-            点菜 <ChefHat className="h-6 w-6 text-primary" />
-          </h1>
-          <p className="text-sm font-medium text-muted-foreground">挑选今天想吃的菜，加入清单后统一去下单。</p>
-        </div>
-        <Button
+    <div className={cn('space-y-5 animate-in fade-in duration-500', selectedSize > 0 ? 'pb-28' : 'pb-8')}>
+      {/* Header row */}
+      <div className="flex items-center justify-between pt-2">
+        <h1 className="font-serif text-3xl font-bold text-ink-900">菜单</h1>
+        <button
+          type="button"
           onClick={() => setSheetOpen(true)}
-          className="flex-none gap-1.5 mt-1"
-          size="sm"
+          className="inline-flex items-center gap-1.5 rounded-full bg-ink-900 px-4 h-9 text-sm font-medium text-cream-50 hover:bg-ink-700 transition-colors"
         >
           <Plus className="h-4 w-4" />
           新菜
-        </Button>
+        </button>
       </div>
 
-      <div className="glass-card rounded-[var(--radius-card)] p-4 sm:p-5 shadow-card border border-border/50 dark:border-white/5">
-        <div className="relative group">
-          <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
-          <Input
-            value={q}
-            onChange={(event) => setQ(event.target.value)}
-            placeholder="搜索你想吃的美味..."
-            className="pl-11 h-12 rounded-full bg-background/80 border-border/50 focus-visible:ring-primary/20 focus-visible:bg-background text-base shadow-inner"
-          />
-        </div>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400 pointer-events-none" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="搜索菜品…"
+          className="pl-10"
+        />
+      </div>
 
-        <div className="mt-4 flex flex-wrap gap-2.5">
-          <Badge
-            variant={activeTag === undefined ? 'default' : 'secondary'}
-            className={`cursor-pointer px-4 py-1.5 rounded-full font-semibold shadow-sm transition-all duration-300 ${activeTag === undefined ? 'bg-primary text-primary-foreground shadow-button' : 'bg-secondary/60 hover:bg-secondary border-none'}`}
-            onClick={() => setActiveTag(undefined)}
-          >
-            全部
-          </Badge>
-          {tags.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant={activeTag === tag.id ? 'default' : 'secondary'}
-              className={`cursor-pointer px-4 py-1.5 rounded-full font-semibold shadow-sm transition-all duration-300 ${activeTag === tag.id ? 'bg-primary text-primary-foreground shadow-button' : 'bg-secondary/60 hover:bg-secondary border-none'}`}
-              onClick={() => setActiveTag((current) => (current === tag.id ? undefined : tag.id))}
-            >
-              {tag.name}
-            </Badge>
+      {/* Chip filter */}
+      <ChipGroup
+        options={chipOptions}
+        value={activeTag}
+        onChange={(v) => setActiveTag(v as string)}
+      />
+
+      {/* 2-col Bento grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="surface-card overflow-hidden animate-pulse">
+              <div className="aspect-square bg-cream-200" />
+              <div className="p-3 space-y-2">
+                <div className="h-3.5 bg-cream-200 rounded w-3/4" />
+                <div className="h-3 bg-cream-100 rounded w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {isLoading ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="glass-card h-72 animate-pulse rounded-[1.5rem] bg-secondary/50 border border-border/50 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
-            </div>
-          ))
-        ) : recipes.length === 0 ? (
-            <div className="glass-card col-span-full rounded-[var(--radius-card)] p-12 text-center text-muted-foreground shadow-card border border-border/50 flex flex-col items-center justify-center gap-4">
-            <div className="bg-primary/5 p-4 rounded-full">
-              <Sparkles className="h-10 w-10 text-primary/40" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-base font-bold text-foreground">没有找到相关的菜品</p>
-              <p className="text-sm font-medium">换个关键词或者选择其他标签试试吧</p>
-            </div>
-            <Button variant="outline" className="rounded-full mt-2" onClick={() => {setQ(''); setActiveTag(undefined)}}>
-              清除搜索条件
-            </Button>
-          </div>
-        ) : (
-          recipes.map((recipe) => {
-            const selected = selectedItems.find((item) => item.recipe_id === recipe.id)
-
-            const actionSlot = selected ? (
-              <div className="flex items-center gap-2 bg-primary/5 p-1 rounded-full border border-primary/10 shadow-sm">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-full bg-white dark:bg-black/20 hover:bg-white dark:hover:bg-black/30 hover:text-primary shadow-sm"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateQuantity(recipe.id, -1); }}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-5 text-center text-sm font-bold text-primary">{selected.quantity}</span>
-                <Button
-                  type="button"
-                  size="icon"
-                  className="h-8 w-8 rounded-full shadow-button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateQuantity(recipe.id, 1); }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <Button type="button" size="sm" className="h-10 rounded-full px-5 text-sm font-bold shadow-button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); addRecipe(recipe); }}>
-                加入清单
-              </Button>
-            )
+      ) : recipes.length === 0 ? (
+        <div className="surface-card p-10 text-center text-ink-400 col-span-2">
+          <p className="text-sm">没有找到相关菜品</p>
+          <button
+            type="button"
+            className="mt-3 text-xs text-brand underline"
+            onClick={() => { setQ(''); setActiveTag('all') }}
+          >
+            清除筛选
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {recipes.map((r) => {
+            const isSelected = selected.has(String(r.id))
+            const timesInfo = r.cook_minutes ? `${r.cook_minutes}min` : ''
+            const src = r.first_image?.thumb_url ?? r.first_image?.url ?? null
 
             return (
-              <div key={recipe.id}>
-                <RecipeCard recipe={recipe} actionSlot={actionSlot} />
+              <div key={r.id} className="surface-card overflow-hidden">
+                {/* Image area */}
+                <Link to={`/recipe/${r.id}`} className="block aspect-square relative">
+                  <DishThumb
+                    id={r.id}
+                    name={r.title}
+                    src={src}
+                    rounded="lg"
+                    className="w-full h-full object-cover"
+                  />
+                </Link>
+
+                {/* Info + toggle */}
+                <div className="p-3 flex items-end justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-ink-900 text-sm line-clamp-1">{r.title}</p>
+                    {timesInfo && (
+                      <p className="text-[11px] text-ink-500 mt-0.5">{timesInfo}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={isSelected ? '移除' : '添加'}
+                    onClick={() => toggleSelect(String(r.id))}
+                    className={cn(
+                      'shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors',
+                      isSelected
+                        ? 'bg-ink-900 text-white'
+                        : 'bg-brand text-white',
+                    )}
+                  >
+                    {isSelected ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
             )
-          })
-        )}
-      </div>
-
-      {hasNextPage && (
-        <div className="flex justify-center pt-6 pb-2">
-          <Button
-            variant="secondary"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className="gap-2 rounded-full px-8 font-bold shadow-sm bg-white/60 hover:bg-white/90 dark:bg-white/5 border border-black/5"
-          >
-            {isFetchingNextPage && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
-            {isFetchingNextPage ? '正在加载美味...' : '加载更多'}
-          </Button>
+          })}
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        aria-label="新增菜品"
-        className="fixed right-4 z-30 w-14 h-14 rounded-full bg-brand text-white shadow-elevated flex items-center justify-center hover:bg-brand-600 transition-colors"
-        style={{ bottom: 'calc(var(--app-shell-floating-offset) + 4rem)' }}
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Floating selection bar */}
+      <FloatingBar visible={selectedSize > 0}>
+        <span className="text-sm text-white/80">
+          已选{' '}
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand text-white text-[11px] font-bold">
+            {selectedSize}
+          </span>{' '}
+          道
+        </span>
+        <button
+          type="button"
+          onClick={handleSubmitOrder}
+          className="h-9 px-4 rounded-full bg-white text-ink-900 text-sm font-medium hover:bg-cream-50 transition-colors"
+        >
+          提交点单 →
+        </button>
+      </FloatingBar>
 
+      {/* RecipeSheet — mode="continuous" will be wired by Task 8 */}
+      {/* TODO(task-8): pass mode="continuous" once RecipeSheet accepts the prop */}
       <RecipeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
-
-      {hasSelectedItems && (
-        <div className="app-shell-floating-action">
-          <div className="rounded-[var(--radius-modal)] border border-border/50 dark:border-white/10 bg-background/80 p-4 shadow-elevated backdrop-blur-xl pointer-events-auto transform transition-all duration-300 animate-in slide-in-from-bottom-8">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="rounded-full bg-primary p-3.5 text-primary-foreground shadow-button">
-                  <ShoppingBag className="h-6 w-6" />
-                </div>
-                <div className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-background min-w-[20px] text-center">
-                  {totalSelectedCount}
-                </div>
-              </div>
-              <div className="min-w-0 flex-1 flex items-center justify-between gap-4">
-                <div className="flex flex-col justify-center">
-                  <p className="text-sm font-extrabold text-foreground tracking-tight">待下单清单</p>
-                  <p className="text-[11px] font-semibold text-muted-foreground mt-0.5 line-clamp-1">
-                    {selectedItems.map(i => i.title).join('、')}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleGoToOrder}
-                  className="rounded-full shadow-button font-bold px-5 whitespace-nowrap shrink-0"
-                >
-                  去下单
-                  <ChevronRight className="ml-1 -mr-1 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
