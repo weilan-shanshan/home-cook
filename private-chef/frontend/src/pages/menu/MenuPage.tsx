@@ -9,6 +9,7 @@ import { FloatingBar } from '@/components/ui/floating-bar'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import { RecipeSheet } from '@/components/recipe/RecipeSheet'
 import { cn } from '@/lib/utils'
+import { RatingBadge } from '@/components/recipe/RatingBadge'
 
 export default function MenuPage() {
   const navigate = useNavigate()
@@ -149,9 +150,12 @@ export default function MenuPage() {
                 <div className="p-3 flex items-end justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-ink-900 text-sm line-clamp-1">{r.title}</p>
-                    {timesInfo && (
-                      <p className="text-[11px] text-ink-500 mt-0.5">{timesInfo}</p>
-                    )}
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <RatingBadge avg={(r as unknown as { avg_rating?: number | null }).avg_rating ?? null} count={(r as unknown as { rating_count?: number | null }).rating_count ?? null} />
+                      {timesInfo && (
+                        <span className="text-[11px] text-ink-500">{timesInfo}</span>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="button"

@@ -210,6 +210,7 @@ export default function OrderDetailV2() {
         <ul className="space-y-3">
           {order.items.map((it) => {
             const src = it.image?.thumbUrl ?? it.image?.url ?? undefined
+            const isCompleted = order.status === 'completed'
             return (
               <li key={it.id} className="flex items-center gap-3">
                 <DishThumb
@@ -220,10 +221,21 @@ export default function OrderDetailV2() {
                   rounded="2xl"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-ink-900 truncate">{it.recipeTitle}</div>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="font-medium text-ink-900 truncate">{it.recipeTitle}</span>
+                    <span className="text-xs text-ink-500 shrink-0">× {it.quantity}</span>
+                  </div>
                   <div className="text-[11px] text-ink-500">家常</div>
                 </div>
-                <div className="text-xs text-ink-500 flex-none">× {it.quantity}</div>
+                {isCompleted && (
+                  <a
+                    href={`/recipe/${it.recipeId}#comments`}
+                    onClick={(e) => { e.stopPropagation() }}
+                    className="text-[11px] text-mustard-700 shrink-0 hover:underline"
+                  >
+                    去评价 →
+                  </a>
+                )}
               </li>
             )
           })}

@@ -3,6 +3,8 @@ import { useRecipe, useDeleteRecipe, DeleteRecipeError } from '@/hooks/useRecipe
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useCookLogs, useCreateCookLog, useCreateRating, CookLogDetail, CookLogRating } from '@/hooks/useCookLogs'
 import { Star, Heart, ArrowLeft, Calendar, Plus, MessageSquare, Pencil, Trash2 } from 'lucide-react'
+import { RatingBadge } from '@/components/recipe/RatingBadge'
+import { RecipeComments } from '@/components/recipe/RecipeComments'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useState } from 'react'
@@ -356,6 +358,14 @@ export default function RecipeDetail() {
           {recipe.recent_cook_logs != null && recipe.recent_cook_logs.length > 0 && (
             <span className="rounded-full bg-cream-100 px-2.5 py-1">已做 {recipe.recent_cook_logs.length} 次</span>
           )}
+          {(recipe as unknown as { avg_rating?: number | null }).avg_rating != null && (
+            <RatingBadge
+              avg={(recipe as unknown as { avg_rating?: number | null }).avg_rating}
+              count={(recipe as unknown as { rating_count?: number | null }).rating_count ?? null}
+              size="sm"
+              variant="solid"
+            />
+          )}
         </div>
 
         {recipe.description && (
@@ -377,6 +387,9 @@ export default function RecipeDetail() {
           ))}
         </ol>
       </div>
+
+      {/* Comments / Reviews */}
+      <RecipeComments recipeId={recipeId} />
 
       {/* Cook logs */}
       <div className="mt-6">
