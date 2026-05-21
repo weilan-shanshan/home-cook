@@ -51,8 +51,6 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
       <ul className="space-y-3">
         {preview.map((o) => {
           const chip = STATUS_CHIP[o.status]
-          const thumbs = o.items.slice(0, 4)
-          const extraThumbs = o.items.length - thumbs.length
           return (
             <li
               key={o.id}
@@ -82,22 +80,32 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
                 </span>
               </div>
 
-              {/* Dish thumb strip — max 4, overflow clipped (no scroll) */}
-              <div className="mt-3 flex items-center gap-1.5 overflow-hidden">
-                {thumbs.map((it) => (
-                  <DishThumb
-                    key={it.recipeId}
-                    id={it.recipeId}
-                    name={it.recipeTitle}
-                    src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
-                    size="sm"
-                    rounded="lg"
-                  />
-                ))}
-                {extraThumbs > 0 && (
-                  <span className="text-[11px] text-ink-400">+{extraThumbs}</span>
-                )}
-              </div>
+              {/* Dish thumb grid — 4-col, fills card width */}
+              {o.items && o.items.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mb-3 mt-3">
+                  {o.items.slice(0, 4).map((it) => (
+                    <div key={it.recipeId} className="flex flex-col gap-1">
+                      <DishThumb
+                        id={it.recipeId}
+                        name={it.recipeTitle}
+                        src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
+                        className="w-full aspect-square"
+                        rounded="lg"
+                      />
+                      <div className="text-[10px] text-ink-700 truncate">
+                        {it.recipeTitle}
+                      </div>
+                    </div>
+                  ))}
+                  {o.items.length > 4 && (
+                    <div className="flex flex-col gap-1">
+                      <div className="w-full aspect-square rounded-lg bg-cream-200 flex items-center justify-center text-[10px] text-ink-500">
+                        +{o.items.length - 4}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Note preview */}
               {o.note && (
