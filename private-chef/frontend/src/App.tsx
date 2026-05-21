@@ -16,6 +16,7 @@ import WishList from '@/pages/wish/WishList'
 import Favorites from '@/pages/favorites/Favorites'
 import Profile from '@/pages/profile/Profile'
 import FamilyManage from '@/pages/profile/FamilyManage'
+import TagsManage from '@/pages/profile/TagsManage'
 import Achievements from '@/pages/achievements/Achievements'
 import PublicSharePage from '@/pages/share/PublicSharePage'
 
@@ -38,6 +39,7 @@ function App() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/family" element={<FamilyManage />} />
+          <Route path="/profile/tags" element={<TagsManage />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/recipe/new" element={<Navigate to="/menu" replace />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />

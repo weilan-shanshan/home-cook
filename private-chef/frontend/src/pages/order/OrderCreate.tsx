@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router'
-import { useRecipes } from '@/hooks/useRecipes'
+import { useRecipes, useTags } from '@/hooks/useRecipes'
 import { useCreateOrder, useOrder, CreateOrderParams, MealType } from '@/hooks/useOrders'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { Badge } from '@/components/ui/badge'
+import { ChipGroup } from '@/components/ui/chip-group'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import { ArrowLeft, Search, Loader2, Utensils } from 'lucide-react'
 
@@ -32,9 +33,27 @@ export default function OrderCreate() {
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
 
   const [q, setQ] = useState('')
+  const [activeTag, setActiveTag] = useState<string>('all')
+  const { data: tags = [] } = useTags()
+
+  const chipOptions = useMemo(
+    () => [
+      { value: 'all', label: '全部' },
+      ...tags.map((t) => ({ value: String(t.id), label: t.name })),
+    ],
+    [tags],
+  )
+  const tagMap = useMemo(() => {
+    const m = new Map<string, number>()
+    tags.forEach((t) => m.set(String(t.id), t.id))
+    return m
+  }, [tags])
+  const activeTagId = activeTag === 'all' ? undefined : tagMap.get(activeTag)
+
   const { data: recipesData, isLoading: isLoadingRecipes } = useRecipes({
     limit: 50,
     q,
+    tag: activeTagId,
   })
 
   const fromOrderId = Number(searchParams.get('from')) || 0
@@ -295,6 +314,14 @@ export default function OrderCreate() {
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
+
+        {tags.length > 0 && (
+          <ChipGroup
+            options={chipOptions}
+            value={activeTag}
+            onChange={(v) => setActiveTag(v as string)}
+          />
+        )}
 
         <div className="space-y-2">
           {isLoadingRecipes ? (

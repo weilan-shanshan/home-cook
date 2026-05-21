@@ -10,7 +10,7 @@ import { StatTile } from '@/components/home/StatTile'
 import { HomeRecentComments } from '@/components/home/HomeRecentComments'
 import { InstallEntryCard } from '@/components/pwa/InstallEntryCard'
 import { DishThumb } from '@/components/recipe/DishThumb'
-import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star, Users } from 'lucide-react'
+import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star, Users, Tag } from 'lucide-react'
 import { HomeFamilyTastesCard } from '@/components/home/HomeFamilyTastesCard'
 import type { CookLogsListRes } from '@/hooks/useCookLogs'
 
@@ -23,6 +23,7 @@ const BASE_LINKS = [
 
 const ADMIN_LINKS = [
   { to: '/profile/family', label: '家庭管理', icon: Users },
+  { to: '/profile/tags',   label: '标签管理', icon: Tag },
 ] as const
 
 function nextMilestone(n: number): number {
