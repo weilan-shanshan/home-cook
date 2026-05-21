@@ -9,33 +9,33 @@
      * Note: First-pass implementation focuses on authenticated surfaces.
      * Auth pages (Login/Register) restyling is deferred to a future change.
      */
-    --background: 36 30% 95%;
-    --foreground: 16 18% 11%;
+    --background: 80 30% 94%;
+    --foreground: 60 4% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 16 18% 11%;
+    --card-foreground: 60 4% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 16 18% 11%;
+    --popover-foreground: 60 4% 10%;
 
-    --primary: 12 90% 58%;
+    --primary: 95 24% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 34 33% 92%;
-    --secondary-foreground: 16 18% 11%;
+    --secondary: 80 38% 91%;
+    --secondary-foreground: 60 4% 10%;
 
-    --muted: 34 33% 92%;
-    --muted-foreground: 24 13% 44%;
+    --muted: 80 38% 91%;
+    --muted-foreground: 60 4% 36%;
 
-    --accent: 12 90% 95%;
-    --accent-foreground: 12 73% 41%;
+    --accent: 36 80% 67%;
+    --accent-foreground: 60 4% 10%;
 
     --destructive: 0 72% 41%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 34 25% 84%;
-    --input: 34 25% 84%;
-    --ring: 12 90% 58%;
+    --border: 80 30% 84%;
+    --input: 80 30% 84%;
+    --ring: 95 24% 53%;
 
     --radius: 1rem;
     --radius-card: 1.5rem;
@@ -48,10 +48,10 @@
     --app-shell-main-padding-bottom: calc(var(--app-tabbar-height) + env(safe-area-inset-bottom) + 1rem);
     --app-shell-floating-offset: calc(var(--app-tabbar-height) + env(safe-area-inset-bottom) + 0.75rem);
 
-    --elev-1: 0 1px 2px rgba(31,24,21,0.04), 0 1px 3px rgba(31,24,21,0.04);
-    --elev-2: 0 4px 8px -2px rgba(31,24,21,0.06), 0 2px 4px -1px rgba(31,24,21,0.04);
-    --elev-3: 0 12px 24px -6px rgba(31,24,21,0.08), 0 4px 10px -2px rgba(31,24,21,0.04);
-    --elev-4: 0 24px 48px -12px rgba(31,24,21,0.12), 0 8px 20px -4px rgba(31,24,21,0.06);
+    --elev-1: 0 1px 2px rgba(26,26,24,0.04), 0 1px 3px rgba(26,26,24,0.04);
+    --elev-2: 0 4px 8px -2px rgba(26,26,24,0.06), 0 2px 4px -1px rgba(26,26,24,0.04);
+    --elev-3: 0 12px 24px -6px rgba(26,26,24,0.08), 0 4px 10px -2px rgba(26,26,24,0.04);
+    --elev-4: 0 24px 48px -12px rgba(26,26,24,0.12), 0 8px 20px -4px rgba(26,26,24,0.06);
     --glass-blur: 20px;
   }
 
@@ -69,12 +69,12 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', -apple-system, sans-serif;
     min-height: 100dvh;
-    color: #1F1815;
-    background-color: #FAF6EE;
+    color: #1A1A18;
+    background-color: #F3F7EB;
     background-image:
-      radial-gradient(at 82% 5%, rgba(238, 110, 71, 0.10) 0px, transparent 50%),
-      radial-gradient(at 12% 92%, rgba(107, 123, 60, 0.07) 0px, transparent 45%),
-      radial-gradient(at 88% 55%, rgba(217, 119, 6, 0.05) 0px, transparent 40%);
+      radial-gradient(at 88% 5%, rgba(122,164,104,.18) 0%, transparent 55%),
+      radial-gradient(at 10% 95%, rgba(240,181,100,.10) 0%, transparent 50%),
+      radial-gradient(at 50% 60%, rgba(213,229,232,.18) 0%, transparent 55%);
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -117,33 +117,32 @@
     @apply text-xl font-bold tracking-tight text-foreground;
   }
 
-  /* v2 glass surfaces */
+  /* v3 spring glass surfaces */
   .surface-card {
     @apply rounded-3xl transition-all duration-200;
-    background-color: rgba(255, 255, 255, 0.62);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(255, 255, 255, 0.55);
+    background-color: rgba(255,255,250,.55);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255,255,255,.55);
     box-shadow: var(--elev-2);
   }
   .surface-card:hover { box-shadow: var(--elev-3); }
 
   .surface-card-tinted {
     @apply rounded-3xl transition-all duration-200;
-    background-color: rgba(255, 242, 232, 0.55);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(238, 110, 71, 0.18);
+    background-color: rgba(224,235,200,.45);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(200,219,168,.30);
     box-shadow: var(--elev-2);
   }
 
   .surface-cream {
     @apply rounded-3xl transition-all duration-200;
-    background-color: rgba(244, 237, 223, 0.75);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: var(--elev-1);
+    background-color: rgba(236,241,224,.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(220,229,200,.55);
   }
 
   .surface-elevated {
@@ -156,17 +155,16 @@
   }
 
   .glass-nav {
-    background-color: rgba(250, 246, 238, 0.72);
+    background-color: rgba(243, 247, 235, 0.80);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
   }
 
-  /* Iridescent hero overlay (for HomeHeroCTA) */
+  /* Iridescent hero overlay (spring: 杏粉 + 冰薄荷) */
   .iridescent-overlay {
     background:
-      radial-gradient(at 18% 12%, rgba(255, 220, 180, 0.55) 0%, transparent 45%),
-      radial-gradient(at 88% 88%, rgba(245, 158, 11, 0.40) 0%, transparent 50%),
-      radial-gradient(at 75% 18%, rgba(255, 255, 255, 0.35) 0%, transparent 40%);
+      radial-gradient(at 85% 8%, rgba(244,213,199,.32) 0%, transparent 45%),
+      radial-gradient(at 15% 92%, rgba(213,229,232,.28) 0%, transparent 50%);
     mix-blend-mode: screen;
     pointer-events: none;
   }
