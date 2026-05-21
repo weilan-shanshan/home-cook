@@ -18,12 +18,15 @@ const buttonVariants = cva(
           "bg-cream-100 text-ink-900 border border-cream-300 hover:bg-cream-200",
         ghost: "text-ink-700 hover:bg-cream-100",
         link: "text-brand underline-offset-4 hover:underline",
+        inverse: "bg-ink-900 text-cream-50 hover:bg-ink-800 active:bg-ink-900",
       },
       size: {
         default: "h-11 px-6 py-2",
         sm: "h-9 px-4 text-xs",
         lg: "h-12 px-8 text-base",
+        pill: "h-14 px-8 text-base font-medium rounded-full",
         icon: "h-11 w-11",
+        iconSm: "h-9 w-9",
       },
     },
     defaultVariants: {

@@ -2,19 +2,30 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+type CardVariant = 'default' | 'cream' | 'brand'
+
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { variant?: CardVariant }
+>(({ className, variant = 'default', ...props }, ref) => {
+  const variantClass =
+    variant === 'cream'
+      ? 'bg-cream-100 border-cream-200'
+      : variant === 'brand'
+      ? 'bg-brand text-white border-transparent'
+      : 'bg-white border-cream-200'
+  return (
     <div
       ref={ref}
       className={cn(
-      "rounded-3xl border border-cream-300 bg-card text-card-foreground shadow-card transition-shadow duration-200",
-      className
-    )}
+        'rounded-3xl border text-card-foreground shadow-card transition-shadow duration-200',
+        variantClass,
+        className,
+      )}
       {...props}
-  />
-))
+    />
+  )
+})
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
