@@ -1,14 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
@@ -51,18 +43,18 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.85),_transparent_42%),linear-gradient(180deg,_hsl(var(--background)),_#ECECEF)] px-4">
-      <Card className="w-full max-w-md shadow-elevated rounded-modal glass-card border-border/60">
-        <CardHeader className="space-y-2 text-center pb-6">
-          <CardTitle className="text-3xl font-semibold tracking-tight">
-            欢迎回来
-          </CardTitle>
-          <CardDescription className="text-base">
-            请输入您的凭据以访问您的家庭菜谱。
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-5">
+    <div className="min-h-dvh bg-cream-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-3xl bg-brand text-white flex items-center justify-center font-serif text-2xl">
+            厨
+          </div>
+          <h1 className="font-serif text-3xl text-ink-900">COOK · 私厨</h1>
+          <p className="text-xs text-ink-500">点单一下，厨房有人接</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="surface-card p-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">用户名</Label>
               <Input
@@ -73,7 +65,6 @@ export default function Login() {
                 disabled={isPending}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="h-11 rounded-lg"
               />
             </div>
             <div className="space-y-2">
@@ -86,30 +77,25 @@ export default function Login() {
                 disabled={isPending}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 rounded-lg"
               />
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-4">
-            <Button
-              type="submit"
-              className="w-full h-12 rounded-lg font-medium text-base shadow-sm"
-              disabled={isPending}
-            >
-              {isPending ? '登录中...' : '登录'}
-            </Button>
-            <div className="text-sm text-center text-muted-foreground">
-              还没有账号？{' '}
-              <Link
-                to="/register"
-                className="text-primary hover:underline font-medium"
-              >
-                  去注册
-              </Link>
-            </div>
-          </CardFooter>
+          </div>
+
+          <Button
+            type="submit"
+            variant="default"
+            size="pill"
+            className="w-full"
+            disabled={isPending}
+          >
+            {isPending ? '登录中…' : '登录'}
+          </Button>
         </form>
-      </Card>
+
+        <p className="text-center text-xs text-ink-500">
+          没有账号？<Link to="/register" className="text-brand">注册</Link>
+        </p>
+      </div>
     </div>
   )
 }

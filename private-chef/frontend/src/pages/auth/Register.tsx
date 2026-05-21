@@ -1,14 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -79,130 +71,116 @@ export default function Register() {
   const submitDisabled = isPending
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.85),_transparent_42%),linear-gradient(180deg,_hsl(var(--background)),_#ECECEF)] px-4 py-8">
-      <Card className="w-full max-w-md shadow-elevated rounded-modal glass-card border-border/60">
-        <CardHeader className="space-y-2 text-center pb-6">
-          <CardTitle className="text-3xl font-semibold tracking-tight">
-            创建账号
-          </CardTitle>
-          <CardDescription className="text-base">
-            加入您的家庭厨房或创建一个新的家庭。
-          </CardDescription>
-        </CardHeader>
-        
+    <div className="min-h-dvh bg-cream-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-3">
+          <div className="w-14 h-14 mx-auto rounded-3xl bg-brand text-white flex items-center justify-center font-serif text-2xl">
+            厨
+          </div>
+          <h1 className="font-serif text-3xl text-ink-900">COOK · 私厨</h1>
+          <p className="text-xs text-ink-500">点单一下，厨房有人接</p>
+        </div>
+
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'create' | 'join')} className="w-full">
-          <div className="px-6 mb-4">
-            <TabsList className="grid w-full grid-cols-2 rounded-lg h-12 p-1">
-              <TabsTrigger value="create" className="rounded-md font-medium">创建家庭</TabsTrigger>
-              <TabsTrigger value="join" className="rounded-md font-medium">加入家庭</TabsTrigger>
+          <div className="mb-4">
+            <TabsList className="grid w-full grid-cols-2 rounded-full h-10 p-1">
+              <TabsTrigger value="create" className="rounded-full font-medium text-sm">创建家庭</TabsTrigger>
+              <TabsTrigger value="join" className="rounded-full font-medium text-sm">加入家庭</TabsTrigger>
             </TabsList>
           </div>
-          
-          <form onSubmit={handleSubmit}>
-            <TabsContent value="create" className="m-0">
-              <CardContent className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="surface-card p-6 space-y-4">
+              <TabsContent value="create" className="m-0 space-y-4">
                 <div className="space-y-2">
-                    <Label htmlFor="username-create">用户名</Label>
-                    <Input
-                      id="username-create"
-                      disabled={submitDisabled}
-                      value={username}
+                  <Label htmlFor="username-create">用户名</Label>
+                  <Input
+                    id="username-create"
+                    disabled={submitDisabled}
+                    value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="displayName-create">昵称</Label>
-                    <Input
-                      id="displayName-create"
-                      disabled={submitDisabled}
-                      value={displayName}
+                  <Input
+                    id="displayName-create"
+                    disabled={submitDisabled}
+                    value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-create">密码</Label>
-                    <Input
-                      id="password-create"
-                      type="password"
-                      disabled={submitDisabled}
-                      value={password}
+                  <Input
+                    id="password-create"
+                    type="password"
+                    disabled={submitDisabled}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
-              </CardContent>
-            </TabsContent>
-            
-            <TabsContent value="join" className="m-0">
-              <CardContent className="space-y-4">
+              </TabsContent>
+
+              <TabsContent value="join" className="m-0 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="inviteCode-join">邀请码</Label>
-                    <Input
-                      id="inviteCode-join"
-                      disabled={submitDisabled}
-                      value={inviteCode}
+                  <Input
+                    id="inviteCode-join"
+                    disabled={submitDisabled}
+                    value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value)}
-                    className="h-11 rounded-lg uppercase tracking-widest font-mono"
+                    className="uppercase tracking-widest font-mono"
                     placeholder="ABCDEF"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="username-join">用户名</Label>
-                    <Input
-                      id="username-join"
-                      disabled={submitDisabled}
-                      value={username}
+                  <Input
+                    id="username-join"
+                    disabled={submitDisabled}
+                    value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="displayName-join">昵称</Label>
-                    <Input
-                      id="displayName-join"
-                      disabled={submitDisabled}
-                      value={displayName}
+                  <Input
+                    id="displayName-join"
+                    disabled={submitDisabled}
+                    value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-join">密码</Label>
-                    <Input
-                      id="password-join"
-                      type="password"
-                      disabled={submitDisabled}
-                      value={password}
+                  <Input
+                    id="password-join"
+                    type="password"
+                    disabled={submitDisabled}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg"
                   />
                 </div>
-              </CardContent>
-            </TabsContent>
-            
-            <CardFooter className="flex flex-col gap-4 pt-6">
-              <Button
-                type="submit"
-                className="w-full h-12 rounded-lg font-medium text-base shadow-sm"
-                disabled={submitDisabled}
-              >
-                {isPending ? '正在创建账号...' : '注册'}
-              </Button>
-              <div className="text-sm text-center text-muted-foreground">
-                已经有账号了？{' '}
-                <Link
-                  to="/login"
-                  className="text-primary hover:underline font-medium"
-                >
-                  去登录
-                </Link>
-              </div>
-            </CardFooter>
+              </TabsContent>
+            </div>
+
+            <Button
+              type="submit"
+              variant="default"
+              size="pill"
+              className="w-full"
+              disabled={submitDisabled}
+            >
+              {isPending ? '注册中…' : '注册'}
+            </Button>
           </form>
         </Tabs>
-      </Card>
+
+        <p className="text-center text-xs text-ink-500">
+          已有账号？<Link to="/login" className="text-brand">登录</Link>
+        </p>
+      </div>
     </div>
   )
 }
