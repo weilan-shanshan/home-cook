@@ -270,8 +270,8 @@ export default function OrderDetailV2() {
 
       {/* ── Fixed bottom note input ── */}
       <div
-        className="fixed left-1/2 -translate-x-1/2 bottom-0 w-full max-w-[28rem] px-4 pt-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 flex items-center gap-2 z-30"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), var(--app-tabbar-height, 4rem))' }}
+        className="fixed left-1/2 -translate-x-1/2 w-full max-w-[28rem] px-4 pt-3 pb-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 flex items-center gap-2 z-30"
+        style={{ bottom: 'calc(var(--app-tabbar-height) + env(safe-area-inset-bottom))' }}
       >
         <input
           value={note}

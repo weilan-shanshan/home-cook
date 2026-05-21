@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router'
 import { useRecipe, useDeleteRecipe, DeleteRecipeError } from '@/hooks/useRecipes'
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useCookLogs, useCreateCookLog, useCreateRating, CookLogDetail, CookLogRating } from '@/hooks/useCookLogs'
-import { Star, Heart, ArrowLeft, Calendar, Plus, MessageSquare, Pencil } from 'lucide-react'
+import { Star, Heart, ArrowLeft, Calendar, Plus, MessageSquare, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useState } from 'react'
@@ -414,8 +414,8 @@ export default function RecipeDetail() {
       />
 
       {/* Fixed bottom action bar */}
-      <div className="fixed left-1/2 -translate-x-1/2 bottom-0 w-full max-w-[28rem] px-4 pt-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 flex items-center gap-3 z-30"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
+      <div className="fixed left-1/2 -translate-x-1/2 w-full max-w-[28rem] px-4 pt-3 pb-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 flex items-center gap-3 z-30"
+        style={{ bottom: 'calc(var(--app-tabbar-height) + env(safe-area-inset-bottom))' }}
       >
         <Button
           variant="outline"
@@ -427,11 +427,12 @@ export default function RecipeDetail() {
         </Button>
         <Button
           variant="outline"
-          size="lg"
-          className="rounded-full text-rose-500 border-rose-500/30 hover:bg-rose-50"
+          size="icon"
+          className="rounded-full text-rose-500 border-rose-500/30 hover:bg-rose-50 shrink-0"
           onClick={() => setIsDeleteDialogOpen(true)}
+          aria-label="删除"
         >
-          删除
+          <Trash2 className="w-4 h-4" />
         </Button>
         <Button
           size="pill"

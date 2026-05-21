@@ -149,7 +149,7 @@ export default function Home() {
           tone="mustard"
           label="全部点单"
           value={`${totalOrders} 单`}
-          hint="TODO(home-stats): 接入本周数据"
+          hint="累计点单数"
         />
         <StatTile
           tone="sage"

@@ -197,6 +197,7 @@ export function RecipeSheet({ open, onOpenChange, mode = 'single', onSubmitted }
           side="bottom"
           className="h-auto p-0 flex flex-col"
           aria-describedby={undefined}
+          hideClose
         >
           {/* Grab handle */}
           <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-cream-300" />
