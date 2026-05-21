@@ -1,58 +1,33 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { Star, ChefHat, HandPlatter, ClipboardList, AlertCircle, Loader2 } from 'lucide-react'
-import { useHomeSummary, type ActiveOrderSummary, type RecentOrderSummary } from '@/hooks/useHomeSummary'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { useHomeSummary } from '@/hooks/useHomeSummary'
 import { useCurrentUser } from '@/hooks/useAuth'
-import { useUpdateOrderStatus, type OrderStatus } from '@/hooks/useOrders'
-import { OrderCard, type OrderCardData } from '@/components/order/OrderCard'
+import { useUpdateOrderStatus } from '@/hooks/useOrders'
 import { Button } from '@/components/ui/button'
-import { ShareDialog } from '@/components/share/ShareDialog'
 import { useToast } from '@/components/ui/use-toast'
-import { HomeHeader } from '@/components/home/HomeHeader'
-import { AchievementStats } from '@/components/home/AchievementStats'
-import { HomeShortcuts } from '@/components/home/HomeShortcuts'
-import { HomeRecipeRail } from '@/components/home/HomeRecipeRail'
-import { HomeRecentComments } from '@/components/home/HomeRecentComments'
+import { StatTile } from '@/components/home/StatTile'
+import { HomeHeroCTA } from '@/components/home/HomeHeroCTA'
+import { HomePendingOrderCard, type PendingOrder } from '@/components/home/HomePendingOrderCard'
+import { RecentDishRail, type RailDish } from '@/components/home/RecentDishRail'
 
-function activeToCardData(order: ActiveOrderSummary): OrderCardData {
-  return {
-    id: order.id,
-    status: order.status as OrderStatus,
-    mealType: order.mealType,
-    mealDate: order.mealDate,
-    createdAt: order.createdAt,
-    isMine: order.isMine,
-    hasCook: order.cook != null,
-    cookUserId: order.cook?.userId ?? null,
-    cookDisplayName: order.cook?.displayName ?? null,
-    requesterDisplayName: order.requester.displayName,
-    items: order.items.map((it) => ({
-      recipeId: it.recipeId,
-      recipeTitle: it.recipeTitle,
-      image: it.image,
-    })),
-  }
+function getGreeting(): string {
+  const h = new Date().getHours()
+  if (h < 6) return '深夜好'
+  if (h < 11) return '早上好'
+  if (h < 13) return '中午好'
+  if (h < 18) return '下午好'
+  return '晚上好'
 }
 
-function recentToCardData(order: RecentOrderSummary, currentUserId: number | null): OrderCardData {
-  return {
-    id: order.id,
-    status: order.status as OrderStatus,
-    mealType: order.mealType,
-    mealDate: order.mealDate,
-    createdAt: order.createdAt,
-    isMine: !!currentUserId && order.requester.userId === currentUserId,
-    hasCook: false,
-    cookUserId: null,
-    cookDisplayName: null,
-    requesterDisplayName: order.requester.displayName,
-    items: order.recipeTitles.map((title, idx) => ({
-      recipeId: idx,
-      recipeTitle: title,
-      image: null,
-    })),
-  }
+function elapsedLabel(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime()
+  const mins = Math.floor(diff / 60_000)
+  if (mins < 1) return '刚刚'
+  if (mins < 60) return `${mins} 分钟前`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs} 小时前`
+  return `${Math.floor(hrs / 24)} 天前`
 }
 
 export default function Home() {
@@ -61,26 +36,14 @@ export default function Home() {
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const navigate = useNavigate()
 
-  const handleUpdateStatus = (
-    orderId: number,
-    next: 'confirmed' | 'preparing' | 'completed' | 'cancelled',
-  ) => {
+  const handleAccept = (orderId: string | number) => {
     updateStatus(
-      { id: orderId, status: next },
+      { id: orderId as number, status: 'confirmed' },
       {
         onSuccess: () => {
-          const labelMap: Record<string, string> = {
-            confirmed: '已接单',
-            preparing: '已开火',
-            completed: '已完成',
-            cancelled: '已取消',
-          }
-          toast({
-            title: '订单已更新',
-            description: `状态已更新为 ${labelMap[next] ?? next}。`,
-          })
+          toast({ title: '已接单', description: '订单状态已更新为已接单。' })
           queryClient.invalidateQueries({ queryKey: ['home-summary'] })
         },
         onError: (err) => {
@@ -118,146 +81,88 @@ export default function Home() {
     )
   }
 
-  const myActiveOrders = data.activeOrders.filter((order) => order.isMine)
-  const acceptableOrders = data.activeOrders.filter((order) => order.canAccept)
-  const otherActiveOrders = data.activeOrders.filter(
-    (order) => !order.isMine && !order.canAccept,
-  )
-  const hasAnyActive = data.activeOrders.length > 0
+  // Derive pending order (first canAccept order)
+  const acceptableOrder = data.activeOrders.find((o) => o.canAccept) ?? null
+  const pendingOrder: PendingOrder | null = acceptableOrder
+    ? {
+        id: acceptableOrder.id,
+        title: [
+          acceptableOrder.mealType,
+          ...acceptableOrder.items.map((it) => it.recipeTitle),
+        ].join(' · '),
+        meta: `${acceptableOrder.requester.displayName} 点单 · ${acceptableOrder.cook ? acceptableOrder.cook.displayName + ' 接单' : '尚无大厨'}`,
+        waitedLabel: elapsedLabel(acceptableOrder.createdAt),
+        items: acceptableOrder.items.map((it) => ({
+          id: it.recipeId,
+          name: it.recipeTitle,
+        })),
+      }
+    : null
+
+  // Recent dishes from frequent recipes
+  const recentDishes: RailDish[] = data.frequentRecipes.map((r) => ({
+    id: r.recipeId,
+    name: r.title,
+    cover: r.image?.thumbUrl ?? r.image?.url ?? null,
+  }))
+
+  // Stats: totalOrders as all-time total, totalCooks as cooked count
+  // TODO(home-stats): no per-week order delta in current API; using all-time totals as placeholders
+  const totalOrders = data.achievementSummary.totalOrders
+  const totalCooks = data.achievementSummary.totalCooks
+
+  const displayName = currentUser?.display_name ?? currentUser?.username ?? null
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-500">
-      <HomeHeader
-        displayName={currentUser?.display_name ?? null}
-        onShareMenu={() => setShareDialogOpen(true)}
-      />
-
-      {hasAnyActive && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-brand-100 text-brand-700">
-                <HandPlatter className="h-5 w-5" />
-              </div>
-              <h2 className="text-xl font-bold tracking-tight text-ink-900">进行中的点单</h2>
-              <span className="text-xs font-semibold text-ink-500 bg-cream-100 px-2 py-0.5 rounded-full">
-                {data.activeOrders.length}
-              </span>
-            </div>
-            <Link
-              to="/orders"
-              className="text-sm font-medium text-brand-700 hover:text-brand bg-brand-100 px-3 py-1 rounded-full transition-colors"
-            >
-              全部
-            </Link>
-          </div>
-
-          {myActiveOrders.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-500">我的点单</p>
-              {myActiveOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={activeToCardData(order)}
-                  currentUserId={currentUser?.id ?? null}
-                  mode="compact"
-                  onAction={handleUpdateStatus}
-                  isPending={isUpdating}
-                />
-              ))}
-            </div>
-          )}
-
-          {acceptableOrders.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-500">等你接单</p>
-              {acceptableOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={activeToCardData(order)}
-                  currentUserId={currentUser?.id ?? null}
-                  mode="compact"
-                  onAction={handleUpdateStatus}
-                  isPending={isUpdating}
-                />
-              ))}
-            </div>
-          )}
-
-          {otherActiveOrders.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-500">家人的点单</p>
-              {otherActiveOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={activeToCardData(order)}
-                  currentUserId={currentUser?.id ?? null}
-                  mode="compact"
-                  onAction={handleUpdateStatus}
-                  isPending={isUpdating}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <AchievementStats
-        totalOrders={data.achievementSummary.totalOrders}
-        totalCooks={data.achievementSummary.totalCooks}
-      />
-
-      <HomeShortcuts />
-
-      <HomeRecipeRail
-        title="今日推荐"
-        icon={<Star className="w-5 h-5 fill-current" />}
-        iconClassName="bg-amber-100 text-amber-500"
-        recipes={data.recommendedRecipes}
-        countLabel={(n) => `点过 ${n} 次`}
-      />
-
-      <HomeRecipeRail
-        title="常点好菜"
-        icon={<ChefHat className="w-5 h-5" />}
-        iconClassName="bg-brand-100 text-brand-700"
-        recipes={data.frequentRecipes}
-        countLabel={(n) => `做过 ${n} 次`}
-      />
-
-      {data.recentOrders.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-cream-200 text-ink-700">
-              <ClipboardList className="h-5 w-5" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight text-ink-900">最近订单动态</h2>
-          </div>
-          <div className="space-y-2">
-            {data.recentOrders.slice(0, 3).map((order) => (
-              <OrderCard
-                key={order.id}
-                order={recentToCardData(order, currentUser?.id ?? null)}
-                currentUserId={currentUser?.id ?? null}
-                mode="default"
-                onAction={handleUpdateStatus}
-                isPending={isUpdating}
-              />
-            ))}
+      {/* Header row */}
+      <div className="flex items-start justify-between pt-2">
+        <div>
+          <div className="text-xs text-ink-500">{getGreeting()}</div>
+          <div className="font-serif text-3xl leading-tight text-ink-900">
+            {displayName ?? '朋友'}
           </div>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={() => navigate('/profile')}
+          aria-label="个人中心"
+          className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold cursor-pointer"
+        >
+          厨
+        </button>
+      </div>
 
-      <HomeRecentComments comments={data.recentComments} />
+      {/* Hero CTA */}
+      <HomeHeroCTA />
 
-      <ShareDialog
-        open={shareDialogOpen}
-        onOpenChange={setShareDialogOpen}
-        title="分享今日菜单"
-        shareCardEndpoint="/api/home/share-card"
-        shareActionEndpoint="/api/home/share"
-        invalidateKeys={[['home-summary']]}
+      {/* Pending order card (renders null if none) */}
+      <HomePendingOrderCard
+        order={pendingOrder}
+        onAccept={handleAccept}
+        accepting={isUpdating}
       />
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 gap-3">
+        <StatTile
+          tone="mustard"
+          label="全部点单"
+          value={`${totalOrders} 单`}
+          hint="TODO(home-stats): 接入本周数据"
+        />
+        <StatTile
+          tone="sage"
+          label="掌勺"
+          value={`${totalCooks} 次`}
+          hint="累计主厨次数"
+        />
+      </div>
+
+      {/* Recent dish rail */}
+      {recentDishes.length > 0 && (
+        <RecentDishRail dishes={recentDishes} />
+      )}
     </div>
   )
 }
