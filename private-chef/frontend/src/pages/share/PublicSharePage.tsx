@@ -129,7 +129,7 @@ export default function PublicSharePage() {
             {payload.public_context.requester_display_name ? (
               <div className="surface-card p-4">
                 <div className="text-xs text-ink-400 flex items-center gap-1">
-                  <UserRound className="h-3.5 w-3.5" /> 点单人
+                  <UserRound className="h-3.5 w-3.5" /> 想吃的人
                 </div>
                 <div className="mt-1 font-medium text-ink-900">{payload.public_context.requester_display_name}</div>
               </div>

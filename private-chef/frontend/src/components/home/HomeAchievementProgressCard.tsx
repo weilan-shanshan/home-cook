@@ -44,10 +44,10 @@ export function HomeAchievementProgressCard({ summary }: Props) {
     {
       id: 'orders',
       icon: '🍳',
-      name: '点单达人',
+      name: '想吃达人',
       value: summary.totalOrders,
       max: orderMilestone,
-      hint: '累计点单',
+      hint: '累计想吃',
     },
     {
       id: 'cooks',

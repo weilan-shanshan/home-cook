@@ -26,7 +26,7 @@ export function HomeCommentsCard({ comments }: Props) {
       <div className="surface-card p-4">
         {/* Card header */}
         <div className="flex items-end justify-between mb-3">
-          <h2 className="font-serif text-lg text-ink-900">最近评论 · {comments.length}</h2>
+          <h2 className="font-serif text-lg text-ink-900">家人的话 · {comments.length}</h2>
           <button
             type="button"
             onClick={() => navigate('/profile')}
@@ -66,7 +66,7 @@ export function HomeCommentsCard({ comments }: Props) {
                         : 'bg-blush-300/65 text-blush-700'
                     }`}
                   >
-                    {c.roleType === 'cook' ? '大厨' : '点单人'}
+                    {c.roleType === 'cook' ? '掌勺人' : '想吃的人'}
                   </span>
                   <span className="text-[11px] text-ink-400 ml-auto shrink-0">
                     {relativeTime(c.createdAt)}

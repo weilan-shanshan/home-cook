@@ -26,7 +26,7 @@ export function HomeHeroCTA() {
       <div className="relative">
         <div className="text-xs text-white/85 mb-2">今晚吃什么</div>
         <div className="font-serif text-3xl leading-tight">
-          点单一下，<br />厨房有人接
+          说一声，<br />厨房有人接
         </div>
         <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white text-brand px-4 h-10 font-medium">
           立即点单 <ArrowRight className="w-4 h-4" />

@@ -58,7 +58,7 @@ export default function Home() {
       { id: orderId, status: 'confirmed' },
       {
         onSuccess: () => {
-          toast({ title: '已接单', description: '订单状态已更新为已接单。' })
+          toast({ title: '已接手', description: '好的，开始准备啦！' })
           queryClient.invalidateQueries({ queryKey: ['home-summary'] })
         },
         onError: (err) => {
@@ -132,8 +132,8 @@ export default function Home() {
 
       {/* 4. Stats 2×2 */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile tone="mustard" label="累计点单" value={`${totalOrders}`} hint="单" />
-        <StatTile tone="sage"    label="累计掌勺" value={`${totalCooks}`}  hint="次" />
+        <StatTile tone="mustard" label="累计想吃" value={`${totalOrders}`} hint="次" />
+        <StatTile tone="sage"    label="为家人做" value={`${totalCooks}`}  hint="次" />
         <StatTile tone="cream"   label="收藏菜"   value={`${favCount}`}    hint="道" />
         <StatTile tone="cream"   label="今日推荐" value={`${recommendedCount}`} hint="道菜" />
       </div>

@@ -12,9 +12,9 @@ type Props = {
 }
 
 const STATUS_CHIP: Record<ActiveOrderSummary['status'], { label: string; cls: string }> = {
-  submitted: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
-  confirmed: { label: '已接单',   cls: 'bg-honey-100 text-honey-700' },
-  preparing: { label: '制作中',   cls: 'bg-honey-100 text-honey-700' },
+  submitted: { label: '谁来做', cls: 'bg-brand-100 text-brand-700' },
+  confirmed: { label: '已接手',  cls: 'bg-honey-100 text-honey-700' },
+  preparing: { label: '正在做',  cls: 'bg-honey-100 text-honey-700' },
 }
 
 function relativeTime(iso: string): string {
@@ -37,7 +37,7 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
   return (
     <section>
       <div className="flex items-end justify-between mb-3">
-        <h2 className="font-serif text-lg text-ink-900">进行中</h2>
+        <h2 className="font-serif text-lg text-ink-900">正在做</h2>
         {hasMore && (
           <button
             type="button"
@@ -128,7 +128,7 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
                       onAccept?.(o.id)
                     }}
                   >
-                    我来接单 →
+                    我来做 →
                   </Button>
                 ) : (
                   <button
@@ -139,7 +139,7 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
                       navigate(`/orders/${o.id}`)
                     }}
                   >
-                    进入查看 →
+                    去看看 →
                   </button>
                 )}
               </div>

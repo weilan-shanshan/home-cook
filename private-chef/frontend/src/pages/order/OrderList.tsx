@@ -10,8 +10,8 @@ import { mealTypeLabel } from '@/lib/order-status'
 
 const TABS = [
   { value: 'all', label: '全部' },
-  { value: 'pending', label: '待接单' },
-  { value: 'cooking', label: '制作中' },
+  { value: 'pending', label: '等接手' },
+  { value: 'cooking', label: '正在做' },
   { value: 'done', label: '已完成' },
 ] as const
 type TabKey = (typeof TABS)[number]['value']
@@ -54,10 +54,10 @@ export default function OrderList() {
   function toCardData(o: Order): OrderCardData {
     const uiStatus = mapStatus(o)
     const requesterName = o.userId === currentUserId ? '我' : '家人'
-    const cookName = o.cookUserId != null ? '已接单' : null
+    const cookName = o.cookUserId != null ? '掌勺人' : null
     const meta = cookName
-      ? `${requesterName}·点单 · ${cookName}`
-      : `${requesterName}·点单 · 尚无大厨`
+      ? `${requesterName} 想吃 · ${cookName}`
+      : `${requesterName} 想吃 · 还没人接手`
 
     return {
       id: o.id,

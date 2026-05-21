@@ -38,10 +38,10 @@ const MEAL_TYPE_LABEL: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  submitted: '待接单',
-  confirmed: '已接单',
-  preparing: '制作中',
-  completed: '已完成',
+  submitted: '等接手',
+  confirmed: '已接手',
+  preparing: '正在做',
+  completed: '做好了',
   cancelled: '已取消',
 }
 

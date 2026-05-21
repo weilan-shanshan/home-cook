@@ -12,11 +12,11 @@ import {
 
 describe('STATUS_LABEL', () => {
   test('covers all 6 statuses', () => {
-    expect(STATUS_LABEL.pending).toBe('待接单')
-    expect(STATUS_LABEL.submitted).toBe('待接单')
-    expect(STATUS_LABEL.confirmed).toBe('已接单')
-    expect(STATUS_LABEL.preparing).toBe('制作中')
-    expect(STATUS_LABEL.completed).toBe('已完成')
+    expect(STATUS_LABEL.pending).toBe('等接手')
+    expect(STATUS_LABEL.submitted).toBe('等接手')
+    expect(STATUS_LABEL.confirmed).toBe('已接手')
+    expect(STATUS_LABEL.preparing).toBe('正在做')
+    expect(STATUS_LABEL.completed).toBe('做好了')
     expect(STATUS_LABEL.cancelled).toBe('已取消')
   })
 })
@@ -45,7 +45,7 @@ describe('TIMELINE_STAGES', () => {
   test('lists 4 stages in order', () => {
     expect(TIMELINE_STAGES).toEqual(['submitted', 'confirmed', 'preparing', 'completed'])
     expect(STAGE_LABEL.submitted).toBe('已下单')
-    expect(STAGE_LABEL.completed).toBe('已完成')
+    expect(STAGE_LABEL.completed).toBe('做好了')
   })
 })
 
@@ -65,10 +65,10 @@ describe('statusToTimelineIndex', () => {
 })
 
 describe('nextActionFor', () => {
-  test('returns 我来接单 when submitted, not mine, no cook', () => {
+  test('returns 我来做 when submitted, not mine, no cook', () => {
     expect(
       nextActionFor({ status: 'submitted', isMine: false, hasCook: false, isCook: false }),
-    ).toEqual({ label: '我来接单', next: 'confirmed', variant: 'default' })
+    ).toEqual({ label: '我来做', next: 'confirmed', variant: 'default' })
   })
   test('returns null when submitted but is mine (cannot accept own)', () => {
     expect(
@@ -80,18 +80,18 @@ describe('nextActionFor', () => {
       nextActionFor({ status: 'submitted', isMine: false, hasCook: true, isCook: false }),
     ).toBeNull()
   })
-  test('returns 去制作 when confirmed (any member can advance)', () => {
+  test('returns 去做 when confirmed (any member can advance)', () => {
     expect(
       nextActionFor({ status: 'confirmed', isMine: true, hasCook: true, isCook: false }),
-    ).toEqual({ label: '去制作', next: 'preparing', variant: 'default' })
+    ).toEqual({ label: '去做', next: 'preparing', variant: 'default' })
     expect(
       nextActionFor({ status: 'confirmed', isMine: false, hasCook: true, isCook: true }),
-    ).toEqual({ label: '去制作', next: 'preparing', variant: 'default' })
+    ).toEqual({ label: '去做', next: 'preparing', variant: 'default' })
   })
-  test('returns 出锅完成 when preparing', () => {
+  test('returns 做好啦 ✓ when preparing', () => {
     expect(
       nextActionFor({ status: 'preparing', isMine: false, hasCook: true, isCook: true }),
-    ).toEqual({ label: '出锅完成', next: 'completed', variant: 'default' })
+    ).toEqual({ label: '做好啦 ✓', next: 'completed', variant: 'default' })
   })
   test('returns null on completed and cancelled', () => {
     expect(

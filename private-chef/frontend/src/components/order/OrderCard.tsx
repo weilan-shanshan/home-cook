@@ -32,16 +32,16 @@ export type OrderCardData = {
 }
 
 const STATUS_CHIP: Record<OrderCardData['status'], { label: string; cls: string }> = {
-  pending: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
-  cooking: { label: '制作中',   cls: 'bg-honey-100 text-honey-700' },
-  done:    { label: '已完成',   cls: 'bg-sky-100 text-sky-700' },
+  pending: { label: '谁来做', cls: 'bg-brand-100 text-brand-700' },
+  cooking: { label: '正在做',  cls: 'bg-honey-100 text-honey-700' },
+  done:    { label: '做好了',  cls: 'bg-sky-100 text-sky-700' },
 }
 
 // ─── Pending variant ───────────────────────────────────────────────────────────
 
 function PendingOrderCard(props: OrderCardData & { navigate: ReturnType<typeof useNavigate> }) {
   const { navigate } = props
-  const label = props.primaryActionLabel ?? '我来接单'
+  const label = props.primaryActionLabel ?? '我来做'
   const totalCount = props.items.reduce((s, i) => s + (i.quantity ?? 1), 0)
   const showOverflow = props.items.length > 4
   const gridItems = showOverflow ? props.items.slice(0, 3) : props.items.slice(0, 4)
@@ -55,8 +55,8 @@ function PendingOrderCard(props: OrderCardData & { navigate: ReturnType<typeof u
       {/* Header: status chip (pulsing) + time */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <span className="inline-flex items-center h-7 px-3.5 rounded-full bg-brand text-cream-50 text-xs font-medium animate-[pulse_2s_ease-in-out_infinite]">
-          等你接单
-        </span>
+          谁来做
+</span>
         <span className="text-xs text-ink-500 shrink-0 pt-0.5">{props.agoLabel}</span>
       </div>
 
@@ -147,7 +147,7 @@ function DefaultOrderCard(props: OrderCardData & { navigate: ReturnType<typeof u
   const { navigate } = props
   const chip = STATUS_CHIP[props.status]
   const defaultLabel =
-    props.status === 'cooking' ? '出锅完成 ✓' : '已完成'
+    props.status === 'cooking' ? '做好啦 ✓' : '做好了'
   const label = props.primaryActionLabel ?? defaultLabel
   const totalCount = props.items.reduce((s, i) => s + (i.quantity ?? 1), 0)
   const showOverflow = props.items.length > 4

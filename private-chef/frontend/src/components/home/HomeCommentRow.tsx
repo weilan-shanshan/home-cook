@@ -16,7 +16,7 @@ function formatRelativeTime(iso: string): string {
 }
 
 export function HomeCommentRow({ comment }: Props) {
-  const roleLabel = comment.roleType === 'cook' ? '掌勺' : '点单人'
+  const roleLabel = comment.roleType === 'cook' ? '掌勺人' : '想吃的人'
   const initial = comment.displayName.slice(0, 1)
 
   return (

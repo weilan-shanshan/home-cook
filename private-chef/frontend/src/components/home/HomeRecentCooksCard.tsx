@@ -27,7 +27,7 @@ export function HomeRecentCooksCard({ orders }: Props) {
   return (
     <section>
       <div className="flex items-end justify-between mb-3">
-        <h2 className="font-serif text-lg text-ink-900">最近烹饪</h2>
+        <h2 className="font-serif text-lg text-ink-900">最近做过</h2>
         <Link to="/orders" aria-label="查看全部">
             <button type="button" className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors">
               <ChevronRight className="w-4 h-4" />

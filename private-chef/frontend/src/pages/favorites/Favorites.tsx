@@ -14,7 +14,7 @@ export default function Favorites() {
       {isLoading ? (
         <div className="surface-card p-6 text-center text-ink-500 text-sm">正在加载...</div>
       ) : !favorites?.length ? (
-        <div className="surface-card p-6 text-center text-ink-500 text-sm">暂无收藏</div>
+        <div className="surface-card p-6 text-center text-ink-500 text-sm">还没收藏什么菜</div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {favorites.map((fav) => (

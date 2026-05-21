@@ -146,9 +146,9 @@ export default function Profile() {
 
       {/* 2×2 StatTile grid */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile tone="cream"  label="累计点单" value={totalOrders} />
-        <StatTile tone="sage"   label="累计掌勺" value={totalCooks} />
-        <StatTile tone="sky"    label="待接单"   value={pending} />
+        <StatTile tone="cream"  label="累计想吃" value={totalOrders} />
+        <StatTile tone="sage"   label="为家人做" value={totalCooks} />
+        <StatTile tone="sky"    label="等接手"   value={pending} />
         <StatTile tone="butter" label="收藏菜谱" value={favoritesCount} />
       </div>
 
@@ -182,7 +182,7 @@ export default function Profile() {
           <MiniProgressBar
             value={myStats?.orderCount ?? totalOrders}
             max={orderMilestone}
-            label="点单"
+            label="想吃"
           />
           <MiniProgressBar
             value={myStats?.cookCount ?? totalCooks}
@@ -243,8 +243,8 @@ export default function Profile() {
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-honey-100 text-honey-600 flex items-center justify-center text-sm shrink-0">🍳</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-ink-900">点单达人</div>
-                <div className="text-[11px] text-ink-400">累计点单 {achievementsSummary.me.stats.orderCount} 次</div>
+                <div className="text-sm font-medium text-ink-900">想吃达人</div>
+                <div className="text-[11px] text-ink-400">累计想吃 {achievementsSummary.me.stats.orderCount} 次</div>
               </div>
               <span className="text-[10px] rounded-full bg-honey-100 text-honey-600 px-2 py-0.5 shrink-0">已解锁</span>
             </div>
@@ -253,7 +253,7 @@ export default function Profile() {
                 <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-sm shrink-0">👨‍🍳</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-ink-900">家庭掌勺</div>
-                  <div className="text-[11px] text-ink-400">累计掌勺 {achievementsSummary.me.stats.cookCount} 次</div>
+                  <div className="text-[11px] text-ink-400">掌勺了 {achievementsSummary.me.stats.cookCount} 次</div>
                 </div>
                 <span className="text-[10px] rounded-full bg-brand-50 text-brand-600 px-2 py-0.5 shrink-0">已解锁</span>
               </div>
@@ -276,7 +276,7 @@ export default function Profile() {
       {cookLogs.length > 0 && (
         <section>
           <div className="flex items-end justify-between mb-3">
-            <h2 className="font-serif text-lg text-ink-900">近期烹饪</h2>
+            <h2 className="font-serif text-lg text-ink-900">最近做过</h2>
           </div>
           <div className="surface-card divide-y divide-cream-100">
             {cookLogs.map((log) => (

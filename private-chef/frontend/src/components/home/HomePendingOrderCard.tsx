@@ -25,7 +25,7 @@ export function HomePendingOrderCard({ order, onAccept, accepting }: Props) {
       onClick={() => navigate(`/orders/${order.id}`)}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="rounded-full bg-brand-100 text-brand-700 text-xs px-2.5 py-1">等你接单</span>
+        <span className="rounded-full bg-brand-100 text-brand-700 text-xs px-2.5 py-1">谁来做</span>
         <span className="text-xs text-ink-500">{order.waitedLabel}</span>
       </div>
       <div className="font-medium text-ink-900">{order.title}</div>
@@ -38,7 +38,7 @@ export function HomePendingOrderCard({ order, onAccept, accepting }: Props) {
         disabled={accepting}
         onClick={(e) => { e.stopPropagation(); onAccept(order.id) }}
       >
-        {accepting ? '处理中…' : '我来接单'}
+        {accepting ? '处理中…' : '我来做'}
       </Button>
     </section>
   )

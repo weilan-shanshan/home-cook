@@ -63,7 +63,7 @@ export function HomeRecommendedGrid({ dishes, tagsMap }: Props) {
                 )}
                 <div className="mt-0.5 flex items-center gap-1">
                   {dish.orderCount > 0 && (
-                    <span className="text-[10px] text-ink-500">{dish.orderCount} 次</span>
+                    <span className="text-[10px] text-ink-500">{dish.orderCount} 次想吃</span>
                   )}
                 </div>
               </div>

@@ -60,7 +60,7 @@ export function HomeFrequentList({ dishes, tagsMap }: Props) {
                     ))}
                   </div>
                 )}
-                <div className="text-[10px] text-ink-500 mt-0.5">{dish.orderCount} 次点单</div>
+                <div className="text-[10px] text-ink-500 mt-0.5">{dish.orderCount} 次想吃</div>
               </div>
             </Link>
           )

@@ -7,7 +7,7 @@ function makeCardData(overrides: Partial<OrderCardData> = {}): OrderCardData {
   return {
     id: 1,
     no: '晚餐 #1',
-    meta: '爸·点单 · 尚无大厨',
+    meta: '爸 想吃 · 还没人接手',
     agoLabel: '2 分钟前',
     status: 'pending',
     items: [{ id: 1, recipeId: 1, name: '红烧肉', quantity: 1 }],
@@ -28,33 +28,33 @@ describe('OrderCard', () => {
   test('renders order title and meta', () => {
     renderCard()
     expect(screen.getByText('晚餐 #1')).toBeInTheDocument()
-    expect(screen.getByText('爸·点单 · 尚无大厨')).toBeInTheDocument()
+    expect(screen.getByText('爸 想吃 · 还没人接手')).toBeInTheDocument()
   })
 
-  test('pending status shows 等你接单 chip and 我来接单 button', () => {
+  test('pending status shows 谁来做 chip and 我来做 button', () => {
     renderCard({ status: 'pending' })
-    expect(screen.getByText('等你接单')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '我来接单' })).toBeInTheDocument()
+    expect(screen.getByText('谁来做')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '我来做' })).toBeInTheDocument()
   })
 
-  test('cooking status shows 制作中 chip and 出锅完成 button', () => {
+  test('cooking status shows 正在做 chip and 做好啦 button', () => {
     renderCard({ status: 'cooking' })
-    expect(screen.getByText('制作中')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /出锅完成/ })).toBeInTheDocument()
+    expect(screen.getByText('正在做')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /做好啦/ })).toBeInTheDocument()
   })
 
-  test('done status shows 已完成 chip and no action button', () => {
+  test('done status shows 做好了 chip and no action button', () => {
     renderCard({ status: 'done' })
-    const allDone = screen.getAllByText('已完成')
+    const allDone = screen.getAllByText('做好了')
     expect(allDone.length).toBeGreaterThanOrEqual(1)
     // No <button> for the CTA when done (it's a div), but the chip is a span not a button
-    expect(screen.queryByRole('button', { name: '已完成' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '做好了' })).toBeNull()
   })
 
   test('clicking action button calls onPrimary and stops navigation', () => {
     const onPrimary = vi.fn()
     renderCard({ status: 'pending', onPrimary })
-    fireEvent.click(screen.getByRole('button', { name: '我来接单' }))
+    fireEvent.click(screen.getByRole('button', { name: '我来做' }))
     expect(onPrimary).toHaveBeenCalledTimes(1)
   })
 

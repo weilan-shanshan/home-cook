@@ -31,7 +31,7 @@ export function HomeWishCard() {
       {wishes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-4 gap-2 text-center">
           <div className="text-2xl">✨</div>
-          <p className="text-sm text-ink-500">还没人许愿，点这里加一条 →</p>
+          <p className="text-sm text-ink-500">还没人许愿，加一条吧</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">

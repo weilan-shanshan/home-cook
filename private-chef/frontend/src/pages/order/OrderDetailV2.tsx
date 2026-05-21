@@ -33,15 +33,15 @@ function headlineFor(s: OrderStatus): string {
   switch (s) {
     case 'pending':
     case 'submitted':
-      return '等你接单'
+      return '等家人来做'
     case 'confirmed':
-      return '厨师已接单'
+      return '已经开始啦'
     case 'preparing':
-      return '正在制作'
+      return '正在做'
     case 'completed':
-      return '大功告成'
+      return '做好啦 🎉'
     case 'cancelled':
-      return '订单已取消'
+      return '这次先不做了'
   }
 }
 
@@ -49,13 +49,13 @@ function statusBadge(s: OrderStatus): string {
   switch (s) {
     case 'pending':
     case 'submitted':
-      return '等待中'
+      return '等接手'
     case 'confirmed':
-      return '进行中'
+      return '正在做'
     case 'preparing':
-      return '制作中'
+      return '正在做'
     case 'completed':
-      return '已完成'
+      return '做好了'
     case 'cancelled':
       return '已取消'
   }
@@ -162,7 +162,7 @@ export default function OrderDetailV2() {
             {mealTypeLabel(order.mealType)} #{order.id}
           </div>
           <div className="text-xs text-ink-500 mt-0.5">
-            {order.requester.displayName} 点单
+            {order.requester.displayName} 想吃
           </div>
         </div>
       </header>
@@ -170,7 +170,7 @@ export default function OrderDetailV2() {
       {/* ── Status hero card ── */}
       <section className="rounded-3xl bg-brand-100 border border-brand-100 p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-ink-500">订单状态</span>
+          <span className="text-xs text-ink-500">现在进度</span>
           <span
             className={
               isCancelled
@@ -188,7 +188,7 @@ export default function OrderDetailV2() {
 
         {isCancelled && (
           <div className="rounded-2xl bg-cream-100 px-3 py-2 text-ink-500 text-sm">
-            订单已取消
+            这次先不做了
           </div>
         )}
 
@@ -233,7 +233,7 @@ export default function OrderDetailV2() {
                     onClick={(e) => { e.stopPropagation() }}
                     className="text-[11px] text-honey-700 shrink-0 hover:underline"
                   >
-                    去评价 →
+                    夸夸厨师 →
                   </a>
                 )}
               </li>
@@ -250,9 +250,9 @@ export default function OrderDetailV2() {
 
       {/* ── Notes / Comments card ── */}
       <section className="surface-card p-4">
-        <div className="text-sm text-ink-500 mb-3">备注 {comments.length} 条</div>
+        <div className="text-sm text-ink-500 mb-3">家人留言 {comments.length} 条</div>
         {comments.length === 0 ? (
-          <p className="text-sm text-ink-400 text-center py-2">暂无备注</p>
+          <p className="text-sm text-ink-400 text-center py-2">还没有留言</p>
         ) : (
           <ul className="space-y-3">
             {comments.map((c) => (
@@ -294,7 +294,7 @@ export default function OrderDetailV2() {
               void handleSend()
             }
           }}
-          placeholder="加条备注…"
+          placeholder="想说点什么…"
           className="flex-1 h-11 rounded-full bg-cream-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
         />
         <button

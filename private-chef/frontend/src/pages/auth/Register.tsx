@@ -78,7 +78,7 @@ export default function Register() {
             厨
           </div>
           <h1 className="font-serif text-3xl text-ink-900">COOK · 私厨</h1>
-          <p className="text-xs text-ink-500">点单一下，厨房有人接</p>
+          <p className="text-xs text-ink-500">说一声，厨房有人接</p>
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'create' | 'join')} className="w-full">

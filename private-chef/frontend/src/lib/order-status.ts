@@ -1,11 +1,11 @@
 import type { OrderStatus } from '@/hooks/useOrders'
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: '待接单',
-  submitted: '待接单',
-  confirmed: '已接单',
-  preparing: '制作中',
-  completed: '已完成',
+  pending: '等接手',
+  submitted: '等接手',
+  confirmed: '已接手',
+  preparing: '正在做',
+  completed: '做好了',
   cancelled: '已取消',
 }
 
@@ -33,9 +33,9 @@ export type TimelineStage = (typeof TIMELINE_STAGES)[number]
 
 export const STAGE_LABEL: Record<TimelineStage, string> = {
   submitted: '已下单',
-  confirmed: '已接单',
-  preparing: '制作中',
-  completed: '已完成',
+  confirmed: '已接手',
+  preparing: '正在做',
+  completed: '做好了',
 }
 
 export function statusToTimelineIndex(status: OrderStatus): number {
@@ -70,13 +70,13 @@ export interface OrderAction {
 export function nextActionFor(ctx: OrderActionContext): OrderAction | null {
   const { status, isMine, hasCook } = ctx
   if ((status === 'submitted' || status === 'pending') && !isMine && !hasCook) {
-    return { label: '我来接单', next: 'confirmed', variant: 'default' }
+    return { label: '我来做', next: 'confirmed', variant: 'default' }
   }
   if (status === 'confirmed') {
-    return { label: '去制作', next: 'preparing', variant: 'default' }
+    return { label: '去做', next: 'preparing', variant: 'default' }
   }
   if (status === 'preparing') {
-    return { label: '出锅完成', next: 'completed', variant: 'default' }
+    return { label: '做好啦 ✓', next: 'completed', variant: 'default' }
   }
   return null
 }

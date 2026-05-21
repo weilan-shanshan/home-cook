@@ -329,7 +329,7 @@ export function ShareDialog({
 
                   <div className="grid gap-2 text-sm text-muted-foreground">
                     {payload.public_context.family_name ? <div>家庭：{payload.public_context.family_name}</div> : null}
-                    {payload.public_context.requester_display_name ? <div>点单人：{payload.public_context.requester_display_name}</div> : null}
+                    {payload.public_context.requester_display_name ? <div>想吃的人：{payload.public_context.requester_display_name}</div> : null}
                     {payload.public_context.cook_display_name ? <div>掌勺：{payload.public_context.cook_display_name}</div> : null}
                     {payload.public_context.featured_display_name ? <div>主角：{payload.public_context.featured_display_name}</div> : null}
                   </div>

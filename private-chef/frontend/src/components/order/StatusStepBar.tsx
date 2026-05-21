@@ -4,9 +4,9 @@ export type OrderStatus = 'placed' | 'accepted' | 'cooking' | 'done'
 
 const STEPS: { key: OrderStatus; label: string }[] = [
   { key: 'placed', label: '已下单' },
-  { key: 'accepted', label: '已接单' },
-  { key: 'cooking', label: '制作中' },
-  { key: 'done', label: '已完成' },
+  { key: 'accepted', label: '已接手' },
+  { key: 'cooking', label: '正在做' },
+  { key: 'done', label: '做好了' },
 ]
 
 const ORDER: OrderStatus[] = ['placed', 'accepted', 'cooking', 'done']

@@ -21,7 +21,7 @@ describe('HomeCommentRow', () => {
       </MemoryRouter>,
     )
     expect(screen.getByText('爸')).toBeInTheDocument()
-    expect(screen.getByText(/点单人/)).toBeInTheDocument()
+    expect(screen.getByText(/想吃的人/)).toBeInTheDocument()
     expect(screen.getByText('今天这顿红烧肉真不错')).toBeInTheDocument()
   })
 
