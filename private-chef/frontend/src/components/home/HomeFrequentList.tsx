@@ -1,5 +1,4 @@
 import { Link } from 'react-router'
-import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
 
@@ -10,8 +9,8 @@ type Props = {
 export function HomeFrequentList({ dishes }: Props) {
   if (dishes.length === 0) return null
 
-  const capped = dishes.slice(0, 3)
-  const hasMore = dishes.length > 3
+  const capped = dishes.slice(0, 4)
+  const hasMore = dishes.length > 4
 
   return (
     <section>
@@ -21,27 +20,26 @@ export function HomeFrequentList({ dishes }: Props) {
           <Link to="/menu" className="text-xs text-brand">查看全部 →</Link>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-3">
         {capped.map((dish) => (
           <Link
             key={dish.recipeId}
             to={`/recipe/${dish.recipeId}`}
-            className="surface-card p-3 flex items-center gap-3"
+            className="surface-card p-3 flex flex-col gap-2"
           >
-            <DishThumb
-              id={dish.recipeId}
-              name={dish.title}
-              src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
-              size="sm"
-              rounded="2xl"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-ink-900 truncate">{dish.title}</div>
-              <div className="text-[11px] text-ink-500 mt-0.5">
-                {dish.orderCount} 次
-              </div>
+            <div className="aspect-square w-full">
+              <DishThumb
+                id={dish.recipeId}
+                name={dish.title}
+                src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
+                className="w-full h-full"
+                rounded="lg"
+              />
             </div>
-            <ChevronRight className="w-4 h-4 text-ink-400 shrink-0" />
+            <div>
+              <div className="text-sm font-medium text-ink-900 line-clamp-1">{dish.title}</div>
+              <div className="text-[10px] text-ink-500">{dish.orderCount} 次点单</div>
+            </div>
           </Link>
         ))}
       </div>
