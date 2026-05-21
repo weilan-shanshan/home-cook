@@ -1,25 +1,77 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router'
-import { ChevronLeft, Heart, Share2, Loader2, Copy } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router'
+import { ArrowLeft, Send, Loader2 } from 'lucide-react'
 import { useOrder, useUpdateOrderStatus } from '@/hooks/useOrders'
-import { useToggleOrderLike } from '@/hooks/useOrderInteractions'
 import { useCurrentUser } from '@/hooks/useAuth'
+import { useOrderComments, useCreateOrderComment } from '@/hooks/useOrderInteractions'
 import { useToast } from '@/components/ui/use-toast'
 import { Button } from '@/components/ui/button'
-import { OrderCommentThread } from '@/components/comment/OrderCommentThread'
-import { OrderReviewCard } from '@/components/comment/OrderReviewCard'
-import { ShareDialog } from '@/components/share/ShareDialog'
-import { OrderStatusTimeline } from '@/components/order/OrderStatusTimeline'
-import { OrderStatusBadge } from '@/components/order/OrderStatusBadge'
-import { OrderActionButton } from '@/components/order/OrderActionButton'
-import { OrderItemRow } from '@/components/order/OrderItemRow'
-import { STATUS_LABEL, mealTypeLabel } from '@/lib/order-status'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { StatusStepBar, type OrderStatus as StepStatus } from '@/components/order/StatusStepBar'
+import { DishThumb } from '@/components/recipe/DishThumb'
+import { mealTypeLabel, nextActionFor } from '@/lib/order-status'
+import type { OrderStatus } from '@/hooks/useOrders'
 
-function formatDateTime(iso: string): string {
-  const d = new Date(iso.replace(' ', 'T'))
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${d.getMonth() + 1}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+function mapStepStatus(s: OrderStatus): StepStatus {
+  switch (s) {
+    case 'pending':
+    case 'submitted':
+      return 'placed'
+    case 'confirmed':
+      return 'accepted'
+    case 'preparing':
+      return 'cooking'
+    case 'completed':
+    case 'cancelled':
+      return 'done'
+  }
 }
+
+function headlineFor(s: OrderStatus): string {
+  switch (s) {
+    case 'pending':
+    case 'submitted':
+      return '等你接单'
+    case 'confirmed':
+      return '厨师已接单'
+    case 'preparing':
+      return '正在制作'
+    case 'completed':
+      return '大功告成'
+    case 'cancelled':
+      return '订单已取消'
+  }
+}
+
+function statusBadge(s: OrderStatus): string {
+  switch (s) {
+    case 'pending':
+    case 'submitted':
+      return '等待中'
+    case 'confirmed':
+      return '进行中'
+    case 'preparing':
+      return '制作中'
+    case 'completed':
+      return '已完成'
+    case 'cancelled':
+      return '已取消'
+  }
+}
+
+function relativeTime(iso: string): string {
+  const now = Date.now()
+  const ts = new Date(iso.replace(' ', 'T')).getTime()
+  const diff = Math.floor((now - ts) / 1000)
+  if (diff < 60) return '刚刚'
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`
+  return `${Math.floor(diff / 86400)} 天前`
+}
+
+// ─── component ───────────────────────────────────────────────────────────────
 
 export default function OrderDetailV2() {
   const { id } = useParams()
@@ -29,15 +81,17 @@ export default function OrderDetailV2() {
 
   const { data: order, isLoading, error } = useOrder(orderId)
   const { data: currentUser } = useCurrentUser()
+  const { data: comments = [] } = useOrderComments(orderId)
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
-  const toggleLike = useToggleOrderLike(orderId)
-  const [shareOpen, setShareOpen] = useState(false)
+  const { mutateAsync: addComment, isPending: isSending } = useCreateOrderComment(orderId)
+
+  const [note, setNote] = useState('')
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] text-ink-500">
         <Loader2 className="w-6 h-6 animate-spin mr-2" />
-        加载中...
+        加载中…
       </div>
     )
   }
@@ -45,9 +99,6 @@ export default function OrderDetailV2() {
     return (
       <div className="p-8 text-center text-rose-500">
         订单加载失败
-        <div className="mt-4">
-          <Link to="/orders" className="text-brand font-bold">返回订单列表</Link>
-        </div>
       </div>
     )
   }
@@ -56,9 +107,12 @@ export default function OrderDetailV2() {
   const hasCook = order.cook != null
   const isCook = currentUser?.id != null && order.cook?.userId === currentUser.id
 
-  const handleAction = (next: 'confirmed' | 'preparing' | 'completed' | 'cancelled') => {
+  const action = nextActionFor({ status: order.status, isMine, hasCook, isCook })
+
+  const handleAction = () => {
+    if (!action) return
     updateStatus(
-      { id: order.id, status: next },
+      { id: order.id, status: action.next },
       {
         onError: (err) => {
           toast({
@@ -71,151 +125,176 @@ export default function OrderDetailV2() {
     )
   }
 
-  const handleLike = () => {
-    toggleLike.mutate({ isLikedByMe: order.isLikedByMe })
+  const handleSend = async () => {
+    const text = note.trim()
+    if (!text) return
+    try {
+      await addComment({ content: text, roleType: 'member' })
+      setNote('')
+    } catch (err) {
+      toast({
+        title: '发送失败',
+        description: err instanceof Error ? err.message : '请重试',
+        variant: 'destructive',
+      })
+    }
   }
 
-  const handleReorder = () => {
-    const items = order.items.map((it) => ({
-      recipe_id: it.recipeId,
-      quantity: it.quantity,
-      title: it.recipeTitle,
-      thumb_url: it.image?.thumbUrl || it.image?.url || null,
-    }))
-    const params = new URLSearchParams()
-    params.set('items', JSON.stringify(items))
-    navigate(`/menu/create-order?${params.toString()}`)
-  }
+  const stepStatus = mapStepStatus(order.status)
+  const headline = headlineFor(order.status)
+  const badge = statusBadge(order.status)
+  const isCancelled = order.status === 'cancelled'
 
   return (
-    <div className="space-y-5 pb-32 animate-in fade-in duration-500">
-      {/* Top nav */}
-      <div className="flex items-center gap-3 pt-2">
+    <main className="space-y-4 pb-28 animate-in fade-in duration-500">
+      {/* ── Header ── */}
+      <header className="flex items-center gap-3 pt-2">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-ink-900"
           aria-label="返回"
+          className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center cursor-pointer"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ArrowLeft className="w-5 h-5 text-ink-700" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-extrabold">
+          <div className="font-serif text-xl text-ink-900 leading-tight">
             {mealTypeLabel(order.mealType)} #{order.id}
-          </h1>
-          <p className="text-[11px] text-ink-500">
-            {formatDateTime(order.createdAt)} · {order.requester.displayName} 点单
-          </p>
+          </div>
+          <div className="text-xs text-ink-500 mt-0.5">
+            {order.requester.displayName} 点单
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Status hero card */}
-      <div className="bg-gradient-to-br from-brand-50 to-cream-100 rounded-3xl p-5 border border-cream-300">
-        <p className="text-xs text-ink-500 mb-2">订单状态</p>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl font-extrabold text-brand-700">
-            {STATUS_LABEL[order.status]}
-          </span>
-          <span className="ml-auto">
-            <OrderStatusBadge status={order.status} />
+      {/* ── Status hero card ── */}
+      <section className="rounded-3xl bg-brand-100 border border-brand-100 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-ink-500">订单状态</span>
+          <span
+            className={
+              isCancelled
+                ? 'rounded-full bg-ink-300 text-ink-700 text-xs px-2.5 py-1'
+                : 'rounded-full bg-brand text-white text-xs px-2.5 py-1'
+            }
+          >
+            {badge}
           </span>
         </div>
-        <OrderStatusTimeline status={order.status} />
-        <div className="mt-4">
-          <OrderActionButton
-            status={order.status}
-            isMine={isMine}
-            hasCook={hasCook}
-            isCook={!!isCook}
-            onAction={handleAction}
-            isPending={isUpdating}
-            variant="wide"
-          />
-        </div>
-      </div>
 
-      {/* Items */}
-      <div>
-        <h2 className="text-xs font-bold uppercase tracking-wider text-ink-500 mb-2">
-          {order.items.length} 道菜
-        </h2>
-        <div className="bg-white rounded-3xl border border-cream-300 divide-y divide-cream-300 px-4">
-          {order.items.map((item) => (
-            <OrderItemRow
-              key={item.id}
-              item={{
-                recipeId: item.recipeId,
-                recipeTitle: item.recipeTitle,
-                quantity: item.quantity,
-                image: item.image,
-              }}
-            />
-          ))}
-        </div>
+        <h2 className="font-serif text-3xl text-brand leading-tight">{headline}</h2>
+
+        {!isCancelled && <StatusStepBar current={stepStatus} />}
+
+        {isCancelled && (
+          <div className="rounded-2xl bg-cream-100 px-3 py-2 text-ink-500 text-sm">
+            订单已取消
+          </div>
+        )}
+
+        {action && (
+          <Button
+            variant="default"
+            className="w-full rounded-full"
+            onClick={handleAction}
+            disabled={isUpdating}
+          >
+            {action.label} →
+          </Button>
+        )}
+      </section>
+
+      {/* ── Dishes card ── */}
+      <section className="surface-card p-4">
+        <div className="text-sm text-ink-500 mb-3">{order.items.length} 道菜</div>
+        <ul className="space-y-3">
+          {order.items.map((it) => {
+            const src = it.image?.thumbUrl ?? it.image?.url ?? undefined
+            return (
+              <li key={it.id} className="flex items-center gap-3">
+                <DishThumb
+                  id={it.recipeId}
+                  name={it.recipeTitle}
+                  src={src}
+                  size="md"
+                  rounded="2xl"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-ink-900 truncate">{it.recipeTitle}</div>
+                  <div className="text-[11px] text-ink-500">家常</div>
+                </div>
+                <div className="text-xs text-ink-500 flex-none">× {it.quantity}</div>
+              </li>
+            )
+          })}
+        </ul>
         {order.note && (
-          <div className="mt-3 bg-amber-100 text-ink-800 rounded-2xl px-4 py-3 text-sm">
-            <span className="font-bold mr-1">备注:</span>
+          <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-100 px-3 py-2 text-sm text-ink-800">
+            <span className="font-medium mr-1">备注:</span>
             {order.note}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Review (completed only) */}
-      {order.status === 'completed' && <OrderReviewCard orderId={order.id} />}
+      {/* ── Notes / Comments card ── */}
+      <section className="surface-card p-4">
+        <div className="text-sm text-ink-500 mb-3">备注 {comments.length} 条</div>
+        {comments.length === 0 ? (
+          <p className="text-sm text-ink-400 text-center py-2">暂无备注</p>
+        ) : (
+          <ul className="space-y-3">
+            {comments.map((c) => (
+              <li key={c.id} className="flex items-start gap-3">
+                <Avatar className="w-7 h-7 flex-none">
+                  <AvatarFallback className="bg-brand-100 text-brand text-xs">
+                    {(c.display_name ?? '?').slice(0, 1).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-ink-500 flex items-center gap-1.5 flex-wrap">
+                    <span className="rounded-full bg-cream-100 px-2 py-0.5 text-ink-700">
+                      {c.display_name ?? '用户'}
+                      {c.role_type === 'cook' && (
+                        <span className="ml-1 text-brand">厨师</span>
+                      )}
+                    </span>
+                    <span>{relativeTime(c.created_at)}</span>
+                  </div>
+                  <div className="text-sm text-ink-900 mt-1 leading-relaxed">{c.content}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
-      {/* Comments */}
-      <OrderCommentThread orderId={order.id} />
-
-      {/* Sticky bottom action row */}
+      {/* ── Fixed bottom note input ── */}
       <div
-        className="fixed left-0 right-0 z-30 px-4 py-3 bg-white/95 backdrop-blur border-t border-cream-300 max-w-md mx-auto flex items-center gap-2"
-        style={{ bottom: 'var(--app-tabbar-height, 4rem)' }}
+        className="fixed left-1/2 -translate-x-1/2 bottom-0 w-full max-w-[28rem] px-4 pt-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 flex items-center gap-2 z-30"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), var(--app-tabbar-height, 4rem))' }}
       >
-        <Button
-          type="button"
-          variant={order.isLikedByMe ? 'default' : 'outline'}
-          onClick={handleLike}
-          disabled={toggleLike.isPending}
-          className="flex-1 gap-2"
-          aria-pressed={order.isLikedByMe}
-        >
-          <Heart
-            className={
-              order.isLikedByMe
-                ? 'w-4 h-4 fill-white text-white'
-                : 'w-4 h-4 text-ink-500'
+        <input
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              void handleSend()
             }
-          />
-          {order.likeCount > 0 ? `赞 ${order.likeCount}` : '点赞'}
-        </Button>
-        <Button
+          }}
+          placeholder="加条备注…"
+          className="flex-1 h-11 rounded-full bg-cream-100 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+        />
+        <button
           type="button"
-          variant="outline"
-          onClick={() => setShareOpen(true)}
-          className="flex-1 gap-2"
+          onClick={() => void handleSend()}
+          disabled={isSending || !note.trim()}
+          aria-label="发送备注"
+          className="w-11 h-11 rounded-full bg-brand text-white flex items-center justify-center cursor-pointer disabled:opacity-40 transition-opacity"
         >
-          <Share2 className="w-4 h-4" />
-          {order.shareCount > 0 ? `分享 ${order.shareCount}` : '分享'}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleReorder}
-          className="flex-1 gap-2"
-        >
-          <Copy className="w-4 h-4" />
-          再来一单
-        </Button>
+          <Send className="w-4 h-4" />
+        </button>
       </div>
-
-      <ShareDialog
-        open={shareOpen}
-        onOpenChange={setShareOpen}
-        title="分享这份订单"
-        shareCardEndpoint={`/api/orders/${orderId}/share-card`}
-        shareActionEndpoint={`/api/orders/${orderId}/share`}
-        invalidateKeys={[['order', orderId]]}
-      />
-    </div>
+    </main>
   )
 }
