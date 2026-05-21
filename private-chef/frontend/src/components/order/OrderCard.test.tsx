@@ -3,85 +3,70 @@ import { describe, expect, test, vi } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { OrderCard, type OrderCardData } from './OrderCard'
 
-function makeOrder(overrides: Partial<OrderCardData>): OrderCardData {
+function makeCardData(overrides: Partial<OrderCardData> = {}): OrderCardData {
   return {
     id: 1,
-    status: 'submitted',
-    mealType: 'lunch',
-    mealDate: '2026-05-17',
-    createdAt: '2026-05-17 12:00:00',
-    isMine: false,
-    hasCook: false,
-    cookUserId: null,
-    cookDisplayName: null,
-    requesterDisplayName: '爸',
-    items: [
-      { recipeId: 1, recipeTitle: '红烧肉', image: null },
-    ],
+    no: '晚餐 #1',
+    meta: '爸·点单 · 尚无大厨',
+    agoLabel: '2 分钟前',
+    status: 'pending',
+    items: [{ id: 1, name: '红烧肉' }],
     ...overrides,
   }
 }
 
-function renderCard(props: Partial<React.ComponentProps<typeof OrderCard>> = {}) {
+function renderCard(props: Partial<OrderCardData> = {}) {
+  const data = makeCardData(props)
   return render(
     <MemoryRouter>
-      <OrderCard
-        order={makeOrder({})}
-        currentUserId={2}
-        mode="default"
-        onAction={vi.fn()}
-        isPending={false}
-        {...props}
-      />
+      <OrderCard {...data} />
     </MemoryRouter>,
   )
 }
 
 describe('OrderCard', () => {
-  test('default mode renders item thumbnails', () => {
-    renderCard({
-      order: makeOrder({
-        items: [
-          { recipeId: 1, recipeTitle: '红烧肉', image: null },
-          { recipeId: 2, recipeTitle: '清蒸鱼', image: null },
-        ],
-      }),
-    })
-    expect(screen.getByText(/午餐/)).toBeInTheDocument()
+  test('renders order title and meta', () => {
+    renderCard()
+    expect(screen.getByText('晚餐 #1')).toBeInTheDocument()
+    expect(screen.getByText('爸·点单 · 尚无大厨')).toBeInTheDocument()
   })
 
-  test('compact mode omits item thumbnails', () => {
-    const { container } = renderCard({
-      mode: 'compact',
-      order: makeOrder({
-        items: [{ recipeId: 1, recipeTitle: '红烧肉', image: null }],
-      }),
-    })
-    expect(container.querySelector('[data-test="order-thumbnails"]')).toBeNull()
+  test('pending status shows 等你接单 chip and 我来接单 button', () => {
+    renderCard({ status: 'pending' })
+    expect(screen.getByText('等你接单')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '我来接单' })).toBeInTheDocument()
   })
 
-  test('active status applies brand-200 border', () => {
-    const { container } = renderCard({ order: makeOrder({ status: 'preparing' }) })
-    expect(container.firstChild).toHaveClass('border-brand-200')
+  test('cooking status shows 制作中 chip and 出锅完成 button', () => {
+    renderCard({ status: 'cooking' })
+    expect(screen.getByText('制作中')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /出锅完成/ })).toBeInTheDocument()
   })
 
-  test('completed status applies muted styling', () => {
-    const { container } = renderCard({ order: makeOrder({ status: 'completed' }) })
-    expect((container.firstChild as HTMLElement).className).toContain('opacity-90')
-  })
-
-  test('clicking action button calls onAction with next status', () => {
-    const onAction = vi.fn()
-    renderCard({
-      order: makeOrder({ status: 'confirmed', hasCook: true, cookDisplayName: '妈' }),
-      onAction,
-    })
-    fireEvent.click(screen.getByRole('button', { name: /去制作/ }))
-    expect(onAction).toHaveBeenCalledWith(1, 'preparing')
-  })
-
-  test('no action button when status is completed', () => {
-    renderCard({ order: makeOrder({ status: 'completed' }) })
+  test('done status shows 已完成 chip and no action button', () => {
+    renderCard({ status: 'done' })
+    // both the status chip and the CTA div say 已完成 - check at least one exists
+    const allDone = screen.getAllByText('已完成')
+    expect(allDone.length).toBeGreaterThanOrEqual(1)
     expect(screen.queryByRole('button')).toBeNull()
+  })
+
+  test('clicking action button calls onPrimary and stops navigation', () => {
+    const onPrimary = vi.fn()
+    renderCard({ status: 'pending', onPrimary })
+    fireEvent.click(screen.getByRole('button', { name: '我来接单' }))
+    expect(onPrimary).toHaveBeenCalledTimes(1)
+  })
+
+  test('relative time label is rendered', () => {
+    renderCard({ agoLabel: '5 分钟前' })
+    expect(screen.getByText('5 分钟前')).toBeInTheDocument()
+  })
+
+  test('color chips are rendered for items', () => {
+    renderCard({ items: [{ id: 1, name: '红烧肉' }, { id: 2, name: '清蒸鱼' }] })
+    // OrderColorChips renders aria-label per item
+    expect(screen.getByLabelText('红烧肉')).toBeInTheDocument()
+    expect(screen.getByLabelText('清蒸鱼')).toBeInTheDocument()
   })
 })

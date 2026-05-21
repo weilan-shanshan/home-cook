@@ -1,65 +1,84 @@
-import { useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router'
-import { ChevronLeft, Loader2 } from 'lucide-react'
-import { useOrders, useUpdateOrderStatus, type Order, type OrderStatus } from '@/hooks/useOrders'
+import { useState, useMemo } from 'react'
+import { Loader2 } from 'lucide-react'
+import { Link } from 'react-router'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { OrderCard, type OrderCardData } from '@/components/order/OrderCard'
+import { useOrders, useUpdateOrderStatus, type Order } from '@/hooks/useOrders'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useToast } from '@/components/ui/use-toast'
-import { OrderCard, type OrderCardData } from '@/components/order/OrderCard'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { mealTypeLabel } from '@/lib/order-status'
 
-const STATUS_FILTERS: Array<{ key: 'all' | OrderStatus; label: string }> = [
-  { key: 'all', label: '全部' },
-  { key: 'submitted', label: '待接单' },
-  { key: 'confirmed', label: '已接单' },
-  { key: 'preparing', label: '制作中' },
-  { key: 'completed', label: '已完成' },
-  { key: 'cancelled', label: '已取消' },
-]
+const TABS = [
+  { value: 'all', label: '全部' },
+  { value: 'pending', label: '待接单' },
+  { value: 'cooking', label: '制作中' },
+  { value: 'done', label: '已完成' },
+] as const
+type TabKey = (typeof TABS)[number]['value']
 
-function toCardData(order: Order, currentUserId: number | null): OrderCardData {
-  return {
-    id: order.id,
-    status: order.status,
-    mealType: order.mealType,
-    mealDate: order.mealDate,
-    createdAt: order.createdAt,
-    isMine: !!currentUserId && order.userId === currentUserId,
-    hasCook: order.cookUserId != null,
-    cookUserId: order.cookUserId,
-    cookDisplayName: null,
-    requesterDisplayName: order.userId === currentUserId ? '我' : '家人',
-    items: order.items.map((it) => ({
-      recipeId: it.recipeId,
-      recipeTitle: it.recipeTitle,
-      image: it.image,
-    })),
+function formatRelativeTime(iso: string): string {
+  const ts = new Date(iso.replace(' ', 'T')).getTime()
+  const diffMin = Math.floor((Date.now() - ts) / 60000)
+  if (diffMin < 1) return '刚刚'
+  if (diffMin < 60) return `${diffMin} 分钟前`
+  const diffH = Math.floor(diffMin / 60)
+  if (diffH < 24) return `${diffH} 小时前`
+  return new Date(ts).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
+
+function mapStatus(o: Order): 'pending' | 'cooking' | 'done' {
+  switch (o.status) {
+    case 'pending':
+    case 'submitted':
+      return 'pending'
+    case 'confirmed':
+    case 'preparing':
+      return 'cooking'
+    case 'completed':
+    case 'cancelled':
+    default:
+      return 'done'
   }
 }
 
 export default function OrderList() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const recipeIdParam = searchParams.get('recipeId')
-  const recipeIdFilter = recipeIdParam ? Number(recipeIdParam) : undefined
-  const statusParam = searchParams.get('status') as OrderStatus | null
-  const statusFilter = statusParam && statusParam !== ('all' as OrderStatus) ? statusParam : undefined
+  const [tab, setTab] = useState<TabKey>('all')
 
-  const { data: orders, isLoading, isError } = useOrders({ recipeId: recipeIdFilter, status: statusFilter })
+  const { data: orders = [], isLoading, isError } = useOrders()
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus()
   const { data: currentUser } = useCurrentUser()
   const { toast } = useToast()
 
-  const counts = useMemo(() => {
-    const map: Partial<Record<OrderStatus | 'all', number>> = { all: orders?.length ?? 0 }
-    orders?.forEach((o) => {
-      map[o.status] = (map[o.status] ?? 0) + 1
-    })
-    return map
-  }, [orders])
+  const currentUserId = currentUser?.id ?? null
 
-  const handleAction = (orderId: number, next: 'confirmed' | 'preparing' | 'completed' | 'cancelled') => {
+  function toCardData(o: Order): OrderCardData {
+    const uiStatus = mapStatus(o)
+    const requesterName = o.userId === currentUserId ? '我' : '家人'
+    const cookName = o.cookUserId != null ? '已接单' : null
+    const meta = cookName
+      ? `${requesterName}·点单 · ${cookName}`
+      : `${requesterName}·点单 · 尚无大厨`
+
+    return {
+      id: o.id,
+      no: `${mealTypeLabel(o.mealType)} #${o.id}`,
+      meta,
+      agoLabel: formatRelativeTime(o.createdAt),
+      status: uiStatus,
+      items: o.items.map((it) => ({ id: it.recipeId, name: it.recipeTitle })),
+    }
+  }
+
+  function handlePrimary(o: Order) {
+    const next =
+      o.status === 'submitted' || o.status === 'pending'
+        ? 'confirmed'
+        : o.status === 'confirmed'
+          ? 'preparing'
+          : 'completed'
+
     updateStatus(
-      { id: orderId, status: next },
+      { id: o.id, status: next },
       {
         onError: (err) => {
           toast({
@@ -72,69 +91,31 @@ export default function OrderList() {
     )
   }
 
-  const setStatus = (next: 'all' | OrderStatus) => {
-    const params = new URLSearchParams(searchParams)
-    if (next === 'all') params.delete('status')
-    else params.set('status', next)
-    setSearchParams(params)
-  }
+  const counts: Record<TabKey, number> = useMemo(
+    () => ({
+      all: orders.length,
+      pending: orders.filter((o) => mapStatus(o) === 'pending').length,
+      cooking: orders.filter((o) => mapStatus(o) === 'cooking').length,
+      done: orders.filter((o) => mapStatus(o) === 'done').length,
+    }),
+    [orders],
+  )
 
-  const clearRecipeFilter = () => {
-    const next = new URLSearchParams(searchParams)
-    next.delete('recipeId')
-    setSearchParams(next)
-  }
-
-  const activeStatus: 'all' | OrderStatus = statusFilter ?? 'all'
+  const groups: Record<TabKey, Order[]> = useMemo(
+    () => ({
+      all: orders,
+      pending: orders.filter((o) => mapStatus(o) === 'pending'),
+      cooking: orders.filter((o) => mapStatus(o) === 'cooking'),
+      done: orders.filter((o) => mapStatus(o) === 'done'),
+    }),
+    [orders],
+  )
 
   return (
-    <div className="space-y-4 pb-12 animate-in fade-in duration-500">
-      <div className="flex items-center gap-3 pt-2">
-        {recipeIdFilter && (
-          <Link to="/orders" className="flex items-center text-sm text-ink-500 hover:text-ink-900">
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            返回
-          </Link>
-        )}
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink-900">订单</h1>
-      </div>
-
-      {recipeIdFilter && (
-        <div>
-          <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 px-3 py-1.5 rounded-full text-xs font-bold">
-            <span>筛选：包含菜品 #{recipeIdFilter}</span>
-            <button
-              type="button"
-              aria-label="清除筛选"
-              onClick={clearRecipeFilter}
-              className="w-4 h-4 rounded-full bg-brand-700 text-white flex items-center justify-center text-[10px]"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
-        {STATUS_FILTERS.map((f) => {
-          const n = counts[f.key] ?? 0
-          if (f.key !== 'all' && n === 0) return null
-          const active = activeStatus === f.key
-          return (
-            <Badge
-              key={f.key}
-              variant={active ? 'default' : 'outline'}
-              onClick={() => setStatus(f.key)}
-              className={cn(
-                'cursor-pointer flex-none px-3 py-1.5 rounded-full text-xs font-bold',
-                active && 'bg-ink-900 text-white',
-              )}
-            >
-              {f.label} {n > 0 && <span className="ml-1 opacity-80">{n}</span>}
-            </Badge>
-          )
-        })}
-      </div>
+    <main className="space-y-4 pb-20">
+      <header>
+        <h1 className="font-serif text-3xl text-ink-900">订单</h1>
+      </header>
 
       {isLoading && (
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 text-ink-500">
@@ -147,24 +128,57 @@ export default function OrderList() {
         <div className="text-center text-rose-500 text-sm py-12">订单加载失败</div>
       )}
 
-      {!isLoading && !isError && (orders?.length ?? 0) === 0 && (
+      {!isLoading && !isError && orders.length === 0 && (
         <div className="text-center text-ink-500 text-sm py-12">
-          还没有订单 — 去 <Link to="/menu" className="text-brand font-bold">点菜</Link> 吧
+          还没有订单 — 去{' '}
+          <Link to="/menu" className="text-brand font-bold">
+            点菜
+          </Link>{' '}
+          吧
         </div>
       )}
 
-      <div className="space-y-3">
-        {orders?.map((o) => (
-          <OrderCard
-            key={o.id}
-            order={toCardData(o, currentUser?.id ?? null)}
-            currentUserId={currentUser?.id ?? null}
-            mode="default"
-            onAction={handleAction}
-            isPending={isUpdating}
-          />
-        ))}
-      </div>
-    </div>
+      {!isLoading && !isError && orders.length > 0 && (
+        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+          <TabsList className="bg-transparent p-0 gap-2 overflow-x-auto -mx-4 px-4 justify-start h-auto">
+            {TABS.map((t) => {
+              const active = tab === t.value
+              const count = counts[t.value]
+              return (
+                <TabsTrigger
+                  key={t.value}
+                  value={t.value}
+                  className="rounded-full h-9 px-3.5 text-sm data-[state=active]:bg-ink-900 data-[state=active]:text-white data-[state=active]:shadow-none bg-cream-100 text-ink-700 cursor-pointer"
+                >
+                  {t.label}
+                  {count > 0 && (
+                    <span
+                      className={`ml-1.5 inline-flex items-center justify-center min-w-[20px] h-5 rounded-full px-1 text-[11px] ${active ? 'bg-white/20 text-white' : 'bg-ink-900 text-white'}`}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
+          {TABS.map((t) => (
+            <TabsContent key={t.value} value={t.value} className="space-y-3 mt-4">
+              {groups[t.value].map((o) => {
+                const uiStatus = mapStatus(o)
+                return (
+                  <OrderCard
+                    key={o.id}
+                    {...toCardData(o)}
+                    primaryDisabled={isUpdating}
+                    onPrimary={uiStatus !== 'done' ? () => handlePrimary(o) : undefined}
+                  />
+                )
+              })}
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
+    </main>
   )
 }

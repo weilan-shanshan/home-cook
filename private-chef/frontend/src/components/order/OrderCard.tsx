@@ -1,128 +1,65 @@
-import { Link } from 'react-router'
-import { cn } from '@/lib/utils'
-import { Utensils } from 'lucide-react'
-import { OrderStatusBadge } from './OrderStatusBadge'
-import { OrderActionButton } from './OrderActionButton'
-import { ACTIVE_STATUSES, mealTypeLabel } from '@/lib/order-status'
-import type { OrderStatus } from '@/hooks/useOrders'
+import { useNavigate } from 'react-router'
+import { OrderColorChips } from './OrderColorChips'
+import { Button } from '@/components/ui/button'
 
-export interface OrderCardData {
-  id: number
-  status: OrderStatus
-  mealType: string
-  mealDate: string
-  createdAt: string
-  isMine: boolean
-  hasCook: boolean
-  cookUserId: number | null
-  cookDisplayName: string | null
-  requesterDisplayName: string
-  items: Array<{
-    recipeId: number
-    recipeTitle: string
-    image: { thumbUrl: string | null; url: string } | null
-  }>
+export type OrderCardData = {
+  id: string | number
+  no: string
+  meta: string
+  agoLabel: string
+  status: 'pending' | 'cooking' | 'done'
+  items: { id: string | number; name?: string }[]
+  primaryActionLabel?: string
+  onPrimary?: () => void
+  primaryDisabled?: boolean
 }
 
-interface Props {
-  order: OrderCardData
-  currentUserId: number | null
-  mode: 'compact' | 'default'
-  onAction: (orderId: number, next: 'confirmed' | 'preparing' | 'completed' | 'cancelled') => void
-  isPending: boolean
-  className?: string
+const STATUS_CHIP: Record<OrderCardData['status'], { label: string; cls: string }> = {
+  pending: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
+  cooking: { label: '制作中', cls: 'bg-mustard-100 text-mustard-700' },
+  done: { label: '已完成', cls: 'bg-sage-100 text-sage-700' },
 }
 
-function formatRelativeTime(iso: string): string {
-  const ts = new Date(iso.replace(' ', 'T')).getTime()
-  const diffMin = Math.floor((Date.now() - ts) / 60000)
-  if (diffMin < 1) return '刚刚'
-  if (diffMin < 60) return `${diffMin} 分钟前`
-  const diffH = Math.floor(diffMin / 60)
-  if (diffH < 24) return `${diffH} 小时前`
-  return new Date(ts).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-}
-
-export function OrderCard({
-  order,
-  currentUserId,
-  mode,
-  onAction,
-  isPending,
-  className,
-}: Props) {
-  const isActive = ACTIVE_STATUSES.has(order.status)
-  const isCook = currentUserId != null && order.cookUserId === currentUserId
-
-  const showThumbnails = mode === 'default' && order.items.length > 0
-  const previewItems = order.items.slice(0, 4)
-  const remaining = Math.max(order.items.length - previewItems.length, 0)
-
+export function OrderCard(props: OrderCardData) {
+  const navigate = useNavigate()
+  const chip = STATUS_CHIP[props.status]
+  const defaultLabel =
+    props.status === 'pending'
+      ? '我来接单'
+      : props.status === 'cooking'
+        ? '出锅完成 ✓'
+        : '已完成'
+  const label = props.primaryActionLabel ?? defaultLabel
   return (
-    <div
-      className={cn(
-        'bg-white rounded-3xl p-4 transition-shadow',
-        isActive ? 'border-2 border-brand-200 shadow-card' : 'border border-cream-300 opacity-90',
-        className,
-      )}
+    <article
+      className="surface-card p-4 cursor-pointer"
+      onClick={() => navigate(`/orders/${props.id}`)}
     >
-      <div className="flex items-center justify-between mb-2.5 gap-2">
-        <OrderStatusBadge status={order.status} />
-        <span className="text-[10px] text-ink-500">{formatRelativeTime(order.createdAt)}</span>
+      <div className="flex items-center justify-between">
+        <span className={`rounded-full text-xs px-2.5 py-1 ${chip.cls}`}>{chip.label}</span>
+        <span className="text-xs text-ink-500">{props.agoLabel}</span>
       </div>
-
-      <Link to={`/orders/${order.id}`} className="block">
-        <p className="font-extrabold text-base mb-1 text-ink-900">
-          {mealTypeLabel(order.mealType)} #{order.id}
-        </p>
-        <p className="text-xs text-ink-500 mb-3">
-          {order.isMine ? '我' : order.requesterDisplayName} 点单
-          {order.hasCook ? (
-            <>
-              <span className="mx-1.5 text-ink-400">·</span>
-              {order.cookDisplayName ?? '已被接'} 掌勺
-            </>
-          ) : (
-            <span className="ml-1.5 text-brand font-semibold">尚无大厨</span>
-          )}
-        </p>
-
-        {showThumbnails && (
-          <div className="flex gap-2 mb-3" data-test="order-thumbnails">
-            {previewItems.map((item) => (
-              <div
-                key={item.recipeId}
-                className="w-12 h-12 rounded-xl bg-cream-100 overflow-hidden flex items-center justify-center flex-none"
-              >
-                {item.image ? (
-                  <img
-                    src={item.image.thumbUrl || item.image.url}
-                    alt={item.recipeTitle}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Utensils className="w-5 h-5 text-cream-400" />
-                )}
-              </div>
-            ))}
-            {remaining > 0 && (
-              <div className="w-12 h-12 rounded-xl bg-cream-100 border border-dashed border-cream-400 flex items-center justify-center text-[10px] font-bold text-ink-500 flex-none">
-                +{remaining}
-              </div>
-            )}
-          </div>
-        )}
-      </Link>
-
-      <OrderActionButton
-        status={order.status}
-        isMine={order.isMine}
-        hasCook={order.hasCook}
-        isCook={isCook}
-        onAction={(next) => onAction(order.id, next)}
-        isPending={isPending}
-        variant="wide"
-      />
-    </div>
+      <div className="mt-2 font-medium text-ink-900">{props.no}</div>
+      <div className="text-xs text-ink-500 mb-3">{props.meta}</div>
+      <OrderColorChips items={props.items} className="mb-4" />
+      {props.status !== 'done' ? (
+        <Button
+          variant={props.status === 'pending' ? 'inverse' : 'default'}
+          size="lg"
+          className="w-full"
+          disabled={props.primaryDisabled}
+          onClick={(e) => {
+            e.stopPropagation()
+            props.onPrimary?.()
+          }}
+        >
+          {label}
+        </Button>
+      ) : (
+        <div className="rounded-full bg-cream-100 text-ink-500 h-11 flex items-center justify-center text-sm">
+          {label}
+        </div>
+      )}
+    </article>
   )
 }
