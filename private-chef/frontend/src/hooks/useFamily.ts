@@ -11,6 +11,7 @@ export interface Family {
 
 export interface FamilyMember {
   id: number
+  username: string
   display_name: string | null
   role: 'admin' | 'member'
   joined_at: string

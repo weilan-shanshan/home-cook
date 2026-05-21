@@ -10,14 +10,18 @@ import { StatTile } from '@/components/home/StatTile'
 import { HomeRecentComments } from '@/components/home/HomeRecentComments'
 import { InstallEntryCard } from '@/components/pwa/InstallEntryCard'
 import { DishThumb } from '@/components/recipe/DishThumb'
-import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star } from 'lucide-react'
+import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star, Users } from 'lucide-react'
 import type { CookLogsListRes } from '@/hooks/useCookLogs'
 
-const LINKS = [
+const BASE_LINKS = [
   { to: '/favorites',    label: '收藏',   icon: Heart },
   { to: '/wishes',       label: '心愿单', icon: ListChecks },
   { to: '/achievements', label: '成就',   icon: Trophy },
   { to: '/profile/notifications', label: '通知设置', icon: Bell },
+] as const
+
+const ADMIN_LINKS = [
+  { to: '/profile/family', label: '家庭管理', icon: Users },
 ] as const
 
 function nextMilestone(n: number): number {
@@ -148,7 +152,7 @@ export default function Profile() {
 
       {/* 2-col Bento entry grid */}
       <section className="grid grid-cols-2 gap-3">
-        {LINKS.map((l) => {
+        {[...BASE_LINKS, ...(user.role === 'admin' ? ADMIN_LINKS : [])].map((l) => {
           const Icon = l.icon
           return (
             <Link

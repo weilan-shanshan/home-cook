@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { db, sqlite } from '../db/index.js'
 import { families, familyMembers, users } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
+import { hashPassword } from '../lib/auth.js'
 
 type AuthEnv = {
   Variables: {
@@ -197,6 +198,7 @@ familiesRouter.get('/:id/members', async (c) => {
   const members = await db
     .select({
       id: users.id,
+      username: users.username,
       displayName: users.displayName,
       role: users.role,
       joinedAt: familyMembers.joinedAt,
@@ -208,11 +210,58 @@ familiesRouter.get('/:id/members', async (c) => {
   return c.json(
     members.map((memberRow) => ({
       id: memberRow.id,
+      username: memberRow.username,
       display_name: memberRow.displayName,
       role: memberRow.role,
       joined_at: memberRow.joinedAt,
     })),
   )
+})
+
+familiesRouter.patch('/:familyId/members/:userId/password', async (c) => {
+  const familyId = parseFamilyId(c.req.param('familyId'))
+  if (familyId === null) {
+    return c.json({ error: 'Invalid family id' }, 400)
+  }
+
+  const targetUserId = Number(c.req.param('userId'))
+  if (!Number.isFinite(targetUserId) || targetUserId <= 0) {
+    return c.json({ error: 'Invalid user id' }, 400)
+  }
+
+  const sessionUser = c.get('user')
+
+  // Auth: calling user must be admin
+  if (sessionUser.role !== 'admin') {
+    return c.json({ error: 'Forbidden: admin only' }, 403)
+  }
+
+  // Auth: calling user must be in the same family
+  const callerInFamily = await isFamilyMember(sessionUser.id, familyId)
+  if (!callerInFamily) {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
+
+  // Auth: target user must also be in the same family
+  const targetInFamily = await isFamilyMember(targetUserId, familyId)
+  if (!targetInFamily) {
+    return c.json({ error: 'Target user is not a member of this family' }, 403)
+  }
+
+  const body = await c.req.json()
+  const parsed = z.object({ newPassword: z.string().min(6) }).safeParse(body)
+  if (!parsed.success) {
+    return c.json({ error: 'Validation failed', details: parsed.error.flatten() }, 400)
+  }
+
+  const newHash = await hashPassword(parsed.data.newPassword)
+
+  await db
+    .update(users)
+    .set({ passwordHash: newHash })
+    .where(eq(users.id, targetUserId))
+
+  return c.json({ ok: true })
 })
 
 familiesRouter.post('/join', async (c) => {
