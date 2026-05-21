@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, Search, Loader2, Utensils } from 'lucide-react'
-import { OrderItemRow } from '@/components/order/OrderItemRow'
+import { DishThumb } from '@/components/recipe/DishThumb'
+import { ArrowLeft, Search, Loader2, Utensils } from 'lucide-react'
 
 interface SelectedItem {
   recipe_id: number
@@ -40,6 +40,51 @@ export default function OrderCreate() {
   const fromOrderId = Number(searchParams.get('from')) || 0
   const { data: previousOrder } = useOrder(fromOrderId)
 
+  // Resolve ?ids= CSV param → pre-fill selected items once recipes load
+  const idsParam = searchParams.get('ids') ?? ''
+  const initialIds = useMemo(
+    () => idsParam.split(',').map(s => s.trim()).filter(Boolean),
+    [idsParam],
+  )
+
+  const recipes = useMemo(() => {
+    return recipesData?.pages.flatMap((page) => page.data) || []
+  }, [recipesData])
+
+  // Pre-fill from ?ids= (runs once recipes are available)
+  useEffect(() => {
+    if (!initialIds.length || !recipes.length) return
+    setSelectedItems(prev => {
+      if (prev.length > 0) return prev // already seeded
+      const matched = initialIds.flatMap(idStr => {
+        const r = recipes.find(x => String(x.id) === idStr)
+        if (!r) return []
+        return [{
+          recipe_id: r.id,
+          quantity: 1,
+          title: r.title,
+          thumb_url: r.first_image?.thumb_url ?? r.first_image?.url ?? null,
+        }]
+      })
+      return matched
+    })
+  }, [initialIds, recipes])
+
+  // Pre-fill from legacy ?items=JSON param
+  useEffect(() => {
+    const rawItems = searchParams.get('items')
+    if (!rawItems) return
+    try {
+      const parsed = JSON.parse(rawItems) as SelectedItem[]
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setSelectedItems(parsed)
+      }
+    } catch {
+      // ignore malformed query payloads
+    }
+  }, [searchParams])
+
+  // Pre-fill from ?from= (repeat order)
   useEffect(() => {
     if (previousOrder && previousOrder.items) {
       setSelectedItems(
@@ -55,26 +100,6 @@ export default function OrderCreate() {
     }
   }, [previousOrder])
 
-  const recipes = useMemo(() => {
-    return recipesData?.pages.flatMap((page) => page.data) || []
-  }, [recipesData])
-
-  useEffect(() => {
-    const rawItems = searchParams.get('items')
-    if (!rawItems) {
-      return
-    }
-
-    try {
-      const parsed = JSON.parse(rawItems) as SelectedItem[]
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setSelectedItems(parsed)
-      }
-    } catch {
-      // ignore malformed query payloads
-    }
-  }, [searchParams])
-
   const handleAddItem = (recipeId: number, title: string, thumbUrl: string | null) => {
     setSelectedItems((prev) => {
       const existing = prev.find((item) => item.recipe_id === recipeId)
@@ -87,17 +112,19 @@ export default function OrderCreate() {
     })
   }
 
-  const handleUpdateQuantity = (recipeId: number, delta: number) => {
-    setSelectedItems((prev) =>
-      prev
-        .map((item) =>
-          item.recipe_id === recipeId
-            ? { ...item, quantity: item.quantity + delta }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
+  const inc = (id: number) =>
+    setSelectedItems(prev =>
+      prev.map(x => x.recipe_id === id ? { ...x, quantity: x.quantity + 1 } : x)
     )
-  }
+
+  const dec = (id: number) =>
+    setSelectedItems(prev =>
+      prev.flatMap(x => {
+        if (x.recipe_id !== id) return [x]
+        const next = x.quantity - 1
+        return next <= 0 ? [] : [{ ...x, quantity: next }]
+      })
+    )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,27 +165,29 @@ export default function OrderCreate() {
     }
   }
 
+  const totalServings = selectedItems.reduce((s, i) => s + i.quantity, 0)
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pb-32 animate-in fade-in duration-500">
+    <form onSubmit={handleSubmit} className="space-y-4 pb-28">
       {/* Header */}
-      <div className="flex items-center gap-3 pt-2">
+      <header className="flex items-center gap-3 -mt-1">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-ink-900"
           aria-label="返回"
+          className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center cursor-pointer"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ArrowLeft className="w-5 h-5 text-ink-700" />
         </button>
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink-900">新建订单</h1>
-      </div>
+        <h1 className="font-serif text-2xl text-ink-900">提交点单</h1>
+      </header>
 
-      {/* Meal type + date */}
-      <div className="bg-white rounded-3xl border border-cream-300 p-4 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500">用餐信息</h3>
+      {/* Meal info */}
+      <section className="surface-card p-4 space-y-4">
+        <div className="text-xs font-semibold uppercase tracking-wider text-ink-400">用餐信息</div>
 
         <div className="space-y-2">
-          <Label className="text-ink-700 text-sm">用餐类型</Label>
+          <Label className="text-sm text-ink-700">用餐类型</Label>
           <div className="flex gap-2 flex-wrap">
             {[
               { key: 'breakfast', label: '早餐' },
@@ -170,7 +199,7 @@ export default function OrderCreate() {
                 key={key}
                 variant={mealType === key ? 'default' : 'outline'}
                 onClick={() => setMealType(key as MealType)}
-                className="cursor-pointer px-3 py-1.5 rounded-full text-sm font-bold"
+                className="cursor-pointer px-3 py-1.5 rounded-full text-sm"
               >
                 {label}
               </Badge>
@@ -179,7 +208,7 @@ export default function OrderCreate() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="meal_date" className="text-ink-700 text-sm">日期</Label>
+          <Label htmlFor="meal_date" className="text-sm text-ink-700">日期</Label>
           <Input
             id="meal_date"
             type="date"
@@ -188,54 +217,73 @@ export default function OrderCreate() {
             onChange={(e) => setMealDate(e.target.value)}
           />
         </div>
+      </section>
 
-        <div className="space-y-2">
-          <Label htmlFor="note" className="text-ink-700 text-sm">备注（可选）</Label>
-          <Textarea
-            id="note"
-            placeholder="有任何特殊要求或说明吗？"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="resize-y min-h-[80px]"
-          />
+      {/* Selected dishes */}
+      <section className="surface-card p-4">
+        <div className="text-sm text-ink-500 mb-3">
+          {selectedItems.length > 0 ? `${selectedItems.length} 道菜` : '还没选菜'}
         </div>
-      </div>
-
-      {/* Selected items */}
-      <div className="bg-white rounded-3xl border border-cream-300 p-4 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500">已选菜品</h3>
 
         {selectedItems.length === 0 ? (
-          <div className="text-center text-ink-500 text-sm py-6">
-            还没选菜 —{' '}
-            <Link to="/menu" className="text-brand font-bold">
-              去点菜
+          <div className="text-center text-ink-400 text-sm py-4">
+            从下方浏览或{' '}
+            <Link to="/menu" className="text-brand font-medium">
+              去菜单页点菜
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-cream-300">
+          <ul className="space-y-3">
             {selectedItems.map((item) => (
-              <OrderItemRow
-                key={item.recipe_id}
-                item={{
-                  recipeId: item.recipe_id,
-                  recipeTitle: item.title,
-                  quantity: item.quantity,
-                  image: item.thumb_url
-                    ? { url: item.thumb_url, thumbUrl: item.thumb_url }
-                    : null,
-                }}
-                editable
-                onQuantityChange={(delta) => handleUpdateQuantity(item.recipe_id, delta)}
-              />
+              <li key={item.recipe_id} className="flex items-center gap-3">
+                <DishThumb
+                  id={item.recipe_id}
+                  name={item.title}
+                  src={item.thumb_url ?? undefined}
+                  size="md"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-ink-900 truncate">{item.title}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => dec(item.recipe_id)}
+                    aria-label="减少"
+                    className="w-7 h-7 rounded-full bg-cream-100 text-ink-700 flex items-center justify-center cursor-pointer"
+                  >
+                    −
+                  </button>
+                  <span className="w-6 text-center text-sm">{item.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => inc(item.recipe_id)}
+                    aria-label="增加"
+                    className="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
+      </section>
+
+      {/* Note */}
+      <section className="space-y-2">
+        <label className="text-sm text-ink-700 px-1">备注（可选）</label>
+        <Textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="有任何特殊要求或说明吗？"
+          className="resize-y min-h-[80px]"
+        />
+      </section>
 
       {/* Recipe browser */}
-      <div className="bg-white rounded-3xl border border-cream-300 p-4 space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-ink-500">浏览菜谱</h3>
+      <section className="surface-card p-4 space-y-3">
+        <div className="text-xs font-semibold uppercase tracking-wider text-ink-400">浏览菜谱</div>
 
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-ink-400" />
@@ -266,32 +314,23 @@ export default function OrderCreate() {
                   key={recipe.id}
                   className="flex items-center gap-3 p-3 rounded-2xl border border-cream-200 hover:border-brand/40 bg-cream-50 transition-colors"
                 >
-                  {thumbUrl ? (
-                    <img
-                      src={thumbUrl}
-                      alt={recipe.title}
-                      className="w-12 h-12 rounded-xl object-cover bg-cream-100 flex-none"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-cream-100 flex items-center justify-center text-ink-400 flex-none">
-                      <Utensils className="h-5 w-5 opacity-40" />
-                    </div>
-                  )}
+                  <DishThumb
+                    id={recipe.id}
+                    name={recipe.title}
+                    src={thumbUrl ?? undefined}
+                    size="sm"
+                  />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-ink-900 line-clamp-1">{recipe.title}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      {recipe.tags?.slice(0, 2).map((t: { id: number; name: string }) => (
-                        <Badge key={t.id} variant="secondary" className="text-[9px] px-1 py-0">
-                          {t.name}
-                        </Badge>
-                      ))}
-                    </div>
+                    <p className="font-medium text-sm text-ink-900 line-clamp-1">{recipe.title}</p>
+                    {recipe.cook_minutes ? (
+                      <p className="text-[11px] text-ink-400">{recipe.cook_minutes} min</p>
+                    ) : null}
                   </div>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="shrink-0 rounded-full font-bold"
+                    className="shrink-0 rounded-full"
                     onClick={() => handleAddItem(recipe.id, recipe.title, thumbUrl)}
                   >
                     添加
@@ -301,25 +340,21 @@ export default function OrderCreate() {
             })
           )}
         </div>
-      </div>
+      </section>
 
       {/* Sticky submit bar */}
-      <div
-        className="fixed left-0 right-0 z-30 px-4 py-3 bg-white/95 backdrop-blur border-t border-cream-300 max-w-md mx-auto"
-        style={{ bottom: 'var(--app-tabbar-height, 4rem)' }}
-      >
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate(-1)}>
-            取消
-          </Button>
-          <Button
-            type="submit"
-            disabled={createOrder.isPending || selectedItems.length === 0}
-            className="flex-1"
-          >
-            {createOrder.isPending ? '提交中...' : '提交点单'}
-          </Button>
-        </div>
+      <div className="fixed left-1/2 -translate-x-1/2 bottom-0 w-full max-w-[28rem] px-4 pb-safe pt-3 bg-cream-50/95 backdrop-blur border-t border-cream-200 z-30">
+        <Button
+          type="submit"
+          variant="default"
+          size="pill"
+          className="w-full"
+          disabled={createOrder.isPending || selectedItems.length === 0}
+        >
+          {createOrder.isPending
+            ? '提交中…'
+            : `提交点单${totalServings > 0 ? `（${totalServings} 份）` : ''}`}
+        </Button>
       </div>
     </form>
   )
