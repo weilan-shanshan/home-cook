@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, ChevronRight } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DishThumb } from '@/components/recipe/DishThumb'
@@ -42,9 +42,10 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
           <button
             type="button"
             onClick={() => navigate('/orders')}
-            className="text-xs text-brand"
+            aria-label="查看全部"
+            className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors"
           >
-            查看全部 {orders.length} →
+            <ChevronRight className="w-4 h-4" />
           </button>
         )}
       </div>

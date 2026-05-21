@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
 import type { RecipeTag } from '@/hooks/useRecipes'
@@ -20,7 +21,11 @@ export function HomeFrequentList({ dishes, tagsMap }: Props) {
       <div className="flex items-end justify-between mb-3">
         <h2 className="font-serif text-lg text-ink-900">家里常点</h2>
         {hasMore && (
-          <Link to="/menu" className="text-xs text-brand">查看全部 →</Link>
+          <Link to="/menu" aria-label="查看全部">
+            <button type="button" className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </Link>
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">

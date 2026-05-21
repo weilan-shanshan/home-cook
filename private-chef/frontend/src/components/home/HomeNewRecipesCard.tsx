@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import type { RecipeListRow } from '@/hooks/useRecipes'
 
@@ -26,7 +27,11 @@ export function HomeNewRecipesCard({ recipes }: Props) {
     <section>
       <div className="flex items-end justify-between mb-3">
         <h2 className="font-serif text-lg text-ink-900">新菜来啦</h2>
-        <Link to="/menu" className="text-xs text-brand">查看全部 →</Link>
+        <Link to="/menu" aria-label="查看全部">
+            <button type="button" className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </Link>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {newest.map((r) => {

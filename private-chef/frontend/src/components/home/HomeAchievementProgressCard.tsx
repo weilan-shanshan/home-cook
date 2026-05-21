@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { AchievementSummary } from '@/hooks/useHomeSummary'
 
 type Props = { summary: AchievementSummary }
@@ -72,7 +73,11 @@ export function HomeAchievementProgressCard({ summary }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between p-5 pb-4">
         <h2 className="font-serif text-lg text-ink-900">成就</h2>
-        <Link to="/achievements" className="text-xs text-brand">全部 →</Link>
+        <Link to="/achievements" aria-label="查看全部">
+            <button type="button" className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </Link>
       </div>
 
       {/* Achievement rows */}
@@ -105,7 +110,7 @@ export function HomeAchievementProgressCard({ summary }: Props) {
                     {ach.hint} · 解锁奖励 🎁
                   </div>
                 </div>
-                <span className="text-ink-300 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
+                <ChevronDown className={`w-4 h-4 text-ink-faint transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Expanded panel */}

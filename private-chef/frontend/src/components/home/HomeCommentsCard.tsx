@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router'
+import { ChevronRight } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import type { RecentCommentSummary } from '@/hooks/useHomeSummary'
 
@@ -29,9 +30,10 @@ export function HomeCommentsCard({ comments }: Props) {
           <button
             type="button"
             onClick={() => navigate('/profile')}
-            className="text-xs text-brand"
+            aria-label="查看全部"
+            className="w-7 h-7 rounded-full surface-card flex items-center justify-center text-ink-500 hover:text-ink-700 transition-colors"
           >
-            全部 →
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
