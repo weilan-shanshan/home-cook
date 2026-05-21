@@ -231,7 +231,7 @@ export default function OrderDetailV2() {
                   <a
                     href={`/recipe/${it.recipeId}#comments`}
                     onClick={(e) => { e.stopPropagation() }}
-                    className="text-[11px] text-mustard-700 shrink-0 hover:underline"
+                    className="text-[11px] text-honey-700 shrink-0 hover:underline"
                   >
                     去评价 →
                   </a>
@@ -241,7 +241,7 @@ export default function OrderDetailV2() {
           })}
         </ul>
         {order.note && (
-          <div className="mt-4 rounded-2xl bg-amber-50 border border-amber-100 px-3 py-2 text-sm text-ink-800">
+          <div className="mt-4 rounded-2xl bg-honey-100 border border-honey-300/50 px-3 py-2 text-sm text-ink-800">
             <span className="font-medium mr-1">备注:</span>
             {order.note}
           </div>

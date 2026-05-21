@@ -1,10 +1,10 @@
 const DISH_PALETTE = [
-  { bg: 'bg-brand-300', text: 'text-white' },
-  { bg: 'bg-sage-200', text: 'text-sage-700' },
-  { bg: 'bg-mustard-300', text: 'text-ink-900' },
-  { bg: 'bg-rust-300', text: 'text-white' },
-  { bg: 'bg-cream-300', text: 'text-ink-900' },
-  { bg: 'bg-brand-100', text: 'text-brand-700' },
+  { bg: 'bg-brand-300', text: 'text-brand-700' },     /* 浅 sage */
+  { bg: 'bg-brand-200', text: 'text-brand-700' },     /* 浅薄荷绿 */
+  { bg: 'bg-honey-300', text: 'text-honey-700' },     /* 蜂蜜 */
+  { bg: 'bg-blush-300', text: 'text-blush-700' },     /* 杏粉 */
+  { bg: 'bg-sky-300', text: 'text-sky-700' },         /* 冰薄荷 */
+  { bg: 'bg-butter-300', text: 'text-butter-700' },   /* 奶油 */
 ] as const
 
 export function dishColor(seed: string | number | undefined | null) {

@@ -113,7 +113,7 @@ export default function WishList() {
                       <div className="font-medium text-ink-900">{wish.dishName}</div>
                       {wish.note && <div className="text-xs text-ink-500 mt-1">{wish.note}</div>}
                     </div>
-                    <span className="rounded-full bg-mustard-100 text-mustard-700 text-xs px-2.5 py-1 whitespace-nowrap">待实现</span>
+                    <span className="rounded-full bg-honey-100 text-honey-700 text-xs px-2.5 py-1 whitespace-nowrap">待实现</span>
                   </div>
                   <div className="flex gap-2 pt-2 border-t border-cream-200">
                     <Button
@@ -156,7 +156,7 @@ export default function WishList() {
                       <div className="font-medium text-ink-900">{wish.dishName}</div>
                       {wish.note && <div className="text-xs text-ink-500 mt-1">{wish.note}</div>}
                     </div>
-                    <span className="rounded-full bg-sage-100 text-sage-700 text-xs px-2.5 py-1 whitespace-nowrap">已实现</span>
+                    <span className="rounded-full bg-sky-100 text-sky-700 text-xs px-2.5 py-1 whitespace-nowrap">已实现</span>
                   </div>
                   {wish.recipeId && (
                     <div className="pt-2 border-t border-cream-200">

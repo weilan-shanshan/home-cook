@@ -54,7 +54,7 @@ export function RecipeComments({ recipeId }: Props) {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className="text-sm font-medium text-ink-900 truncate">{c.display_name}</span>
-                    <span className="inline-flex items-center gap-0.5 text-mustard-500">
+                    <span className="inline-flex items-center gap-0.5 text-honey-500">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}

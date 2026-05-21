@@ -12,7 +12,7 @@ export function HomeRecentComments({ comments }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <div className="p-1.5 rounded-lg bg-sage-100 text-sage-700">
+        <div className="p-1.5 rounded-lg bg-brand-100 text-brand-700">
           <MessageSquare className="h-5 w-5" />
         </div>
         <h2 className="text-xl font-bold tracking-tight text-ink-900">最新评论</h2>

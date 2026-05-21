@@ -76,10 +76,10 @@ export default function Profile() {
 
       {/* 2×2 StatTile grid */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile tone="cream"   label="累计点单" value={totalOrders} />
-        <StatTile tone="mustard" label="累计掌勺" value={totalCooks} />
-        <StatTile tone="sage"    label="待接单"   value={pending} />
-        <StatTile tone="cream"   label="收藏菜谱" value={favorites} />
+        <StatTile tone="cream"  label="累计点单" value={totalOrders} />
+        <StatTile tone="sage"   label="累计掌勺" value={totalCooks} />
+        <StatTile tone="sky"    label="待接单"   value={pending} />
+        <StatTile tone="butter" label="收藏菜谱" value={favorites} />
       </div>
 
       {/* 2-col Bento entry grid */}

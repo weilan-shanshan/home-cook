@@ -60,8 +60,8 @@ export function HomeCommentsCard({ comments }: Props) {
                   <span
                     className={`text-[11px] rounded-full px-2 py-0.5 ${
                       c.roleType === 'cook'
-                        ? 'bg-brand-100 text-brand-700'
-                        : 'bg-cream-100 text-ink-500'
+                        ? 'bg-sky-300/65 text-sky-700'
+                        : 'bg-blush-300/65 text-blush-700'
                     }`}
                   >
                     {c.roleType === 'cook' ? '大厨' : '点单人'}

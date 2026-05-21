@@ -98,7 +98,7 @@ export function RecipeImageGrid({
               </div>
             )}
             {item.status === 'uploaded' && (
-              <div className="absolute bottom-1 right-1 w-4 h-4 bg-sage-500 rounded-full flex items-center justify-center">
+              <div className="absolute bottom-1 right-1 w-4 h-4 bg-brand-500 rounded-full flex items-center justify-center">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="w-2.5 h-2.5 text-white">
                   <path strokeLinecap="round" d="M5 13l4 4L19 7" />
                 </svg>

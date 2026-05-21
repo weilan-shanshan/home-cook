@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: "bg-cream-100/80 backdrop-blur-md text-ink-900 border border-cream-200 hover:bg-cream-200/80",
         ghost: "text-ink-700 hover:bg-cream-100/60",
         link: "text-brand underline-offset-4 hover:underline",
-        inverse: "bg-ink-900 text-cream-50 shadow-button-inverse hover:bg-ink-800 active:bg-ink-900",
+        inverse: "bg-brand-700 text-cream-50 shadow-button-inverse hover:bg-brand-600 active:bg-brand-700",
       },
       size: {
         default: "h-11 px-6 py-2",

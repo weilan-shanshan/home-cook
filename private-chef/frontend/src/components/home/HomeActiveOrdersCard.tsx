@@ -13,8 +13,8 @@ type Props = {
 
 const STATUS_CHIP: Record<ActiveOrderSummary['status'], { label: string; cls: string }> = {
   submitted: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
-  confirmed: { label: '已接单',   cls: 'bg-mustard-100 text-mustard-700' },
-  preparing: { label: '制作中',   cls: 'bg-mustard-100 text-mustard-700' },
+  confirmed: { label: '已接单',   cls: 'bg-honey-100 text-honey-700' },
+  preparing: { label: '制作中',   cls: 'bg-honey-100 text-honey-700' },
 }
 
 function relativeTime(iso: string): string {

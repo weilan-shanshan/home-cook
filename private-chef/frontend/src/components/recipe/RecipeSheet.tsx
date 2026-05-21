@@ -207,7 +207,7 @@ export function RecipeSheet({ open, onOpenChange, mode = 'single', onSubmitted }
             <div className="space-y-1">
               {mode === 'continuous' && (
                 <div>
-                  <span className="rounded-full bg-mustard-100 text-mustard-700 text-[11px] px-2 py-0.5">
+                  <span className="rounded-full bg-butter-300/60 text-butter-700 text-[11px] px-2 py-0.5">
                     连续录入模式
                   </span>
                 </div>

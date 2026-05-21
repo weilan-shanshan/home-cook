@@ -33,8 +33,8 @@ export type OrderCardData = {
 
 const STATUS_CHIP: Record<OrderCardData['status'], { label: string; cls: string }> = {
   pending: { label: '等你接单', cls: 'bg-brand-100 text-brand-700' },
-  cooking: { label: '制作中',   cls: 'bg-mustard-100 text-mustard-700' },
-  done:    { label: '已完成',   cls: 'bg-sage-100 text-sage-700' },
+  cooking: { label: '制作中',   cls: 'bg-honey-100 text-honey-700' },
+  done:    { label: '已完成',   cls: 'bg-sky-100 text-sky-700' },
 }
 
 export function OrderCard(props: OrderCardData) {
@@ -122,8 +122,8 @@ export function OrderCard(props: OrderCardData) {
 
       {/* Note callout */}
       {props.note && (
-        <div className="mt-3 rounded-2xl bg-mustard-100 px-3 py-2 text-xs text-ink-700 flex items-start gap-1.5 line-clamp-2">
-          <MessageCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-mustard-500" />
+        <div className="mt-3 rounded-2xl bg-honey-100 px-3 py-2 text-xs text-ink-700 flex items-start gap-1.5 line-clamp-2">
+          <MessageCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-honey-500" />
           <span>{props.note}</span>
         </div>
       )}
