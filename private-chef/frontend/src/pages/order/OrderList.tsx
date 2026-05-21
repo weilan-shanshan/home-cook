@@ -65,7 +65,15 @@ export default function OrderList() {
       meta,
       agoLabel: formatRelativeTime(o.createdAt),
       status: uiStatus,
-      items: o.items.map((it) => ({ id: it.recipeId, name: it.recipeTitle })),
+      items: o.items.map((it) => ({
+        id: it.id,
+        recipeId: it.recipeId,
+        name: it.recipeTitle,
+        cover: it.image?.thumbUrl ?? it.image?.url ?? null,
+        quantity: it.quantity,
+        // avgRating / ratingCount / favorited / durationMin not available from useOrders()
+        // — RatingBadge and heart button hide gracefully when undefined
+      })),
     }
   }
 

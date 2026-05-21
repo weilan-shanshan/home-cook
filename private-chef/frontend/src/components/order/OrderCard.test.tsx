@@ -10,7 +10,7 @@ function makeCardData(overrides: Partial<OrderCardData> = {}): OrderCardData {
     meta: '爸·点单 · 尚无大厨',
     agoLabel: '2 分钟前',
     status: 'pending',
-    items: [{ id: 1, name: '红烧肉' }],
+    items: [{ id: 1, recipeId: 1, name: '红烧肉', quantity: 1 }],
     ...overrides,
   }
 }
@@ -63,10 +63,48 @@ describe('OrderCard', () => {
     expect(screen.getByText('5 分钟前')).toBeInTheDocument()
   })
 
-  test('color chips are rendered for items', () => {
-    renderCard({ items: [{ id: 1, name: '红烧肉' }, { id: 2, name: '清蒸鱼' }] })
-    // OrderColorChips renders aria-label per item
-    expect(screen.getByLabelText('红烧肉')).toBeInTheDocument()
-    expect(screen.getByLabelText('清蒸鱼')).toBeInTheDocument()
+  test('dish names are rendered as text in dish rows', () => {
+    renderCard({
+      items: [
+        { id: 1, recipeId: 1, name: '红烧肉', quantity: 1 },
+        { id: 2, recipeId: 2, name: '清蒸鱼', quantity: 2 },
+      ],
+    })
+    expect(screen.getByText('红烧肉')).toBeInTheDocument()
+    expect(screen.getByText('清蒸鱼')).toBeInTheDocument()
+  })
+
+  test('total count footer is rendered', () => {
+    renderCard({
+      items: [
+        { id: 1, recipeId: 1, name: '红烧肉', quantity: 2 },
+        { id: 2, recipeId: 2, name: '清蒸鱼', quantity: 3 },
+      ],
+    })
+    expect(screen.getByText('一共 5 份')).toBeInTheDocument()
+  })
+
+  test('favorite button calls onToggleFavorite with item', () => {
+    const onToggleFavorite = vi.fn()
+    renderCard({
+      items: [{ id: 1, recipeId: 1, name: '红烧肉', quantity: 1, favorited: false }],
+      onToggleFavorite,
+    })
+    const favBtn = screen.getByRole('button', { name: '收藏' })
+    fireEvent.click(favBtn)
+    expect(onToggleFavorite).toHaveBeenCalledTimes(1)
+    expect(onToggleFavorite.mock.calls[0][0]).toMatchObject({ id: 1, name: '红烧肉' })
+  })
+
+  test('extra dishes beyond 3 show overflow message', () => {
+    renderCard({
+      items: [
+        { id: 1, recipeId: 1, name: '菜1', quantity: 1 },
+        { id: 2, recipeId: 2, name: '菜2', quantity: 1 },
+        { id: 3, recipeId: 3, name: '菜3', quantity: 1 },
+        { id: 4, recipeId: 4, name: '菜4', quantity: 1 },
+      ],
+    })
+    expect(screen.getByText(/还有 1 道菜/)).toBeInTheDocument()
   })
 })
