@@ -1,61 +1,50 @@
 import { Link, useLocation } from 'react-router'
-import { ClipboardList, Home, User, Utensils } from 'lucide-react'
+import { ClipboardList, Home as HomeIcon, User, UtensilsCrossed } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+const TABS = [
+  { name: '首页', path: '/', match: (p: string) => p === '/', icon: HomeIcon },
+  { name: '菜单', path: '/menu', match: (p: string) => p.startsWith('/menu'), icon: UtensilsCrossed },
+  { name: '订单', path: '/orders', match: (p: string) => p.startsWith('/orders') || p.startsWith('/order/'), icon: ClipboardList },
+  { name: '我', path: '/profile', match: (p: string) => p.startsWith('/profile') || p.startsWith('/favorites') || p.startsWith('/wishes') || p.startsWith('/achievements'), icon: User },
+] as const
+
 export function TabBar() {
-  const location = useLocation()
-  const currentPath = location.pathname
-
-  const tabs = [
-    { name: '首页', path: '/', icon: Home },
-    { name: '点菜', path: '/menu', icon: Utensils },
-    { name: '订单', path: '/orders', icon: ClipboardList },
-    { name: '我的', path: '/profile', icon: User },
-  ]
-
+  const { pathname } = useLocation()
   return (
-    <nav className="app-shell-tabbar pb-safe bg-white/95 backdrop-blur border-t border-cream-300">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-4">
-        {tabs.map((tab) => {
-          const isActive = tab.path === '/'
-            ? currentPath === '/'
-            : currentPath.startsWith(tab.path)
-
-          const Icon = tab.icon
-
+    <nav className="app-shell-tabbar pb-safe bg-cream-50/95 backdrop-blur border-t border-cream-200">
+      <ul className="mx-auto flex h-16 max-w-md items-stretch justify-around px-2">
+        {TABS.map((t) => {
+          const active = t.match(pathname)
+          const Icon = t.icon
           return (
-            <Link
-              key={tab.path}
-              to={tab.path}
-              aria-current={isActive ? 'page' : undefined}
-              className={cn(
-                'relative flex h-14 w-14 flex-col items-center justify-center gap-1 transition-colors duration-200',
-                isActive ? 'text-brand' : 'text-ink-400 hover:text-ink-700',
-              )}
-            >
-              {isActive && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-8 rounded-b-full bg-brand" />
-              )}
-              <div
-                className={cn(
-                  'flex items-center justify-center rounded-full transition-all duration-200',
-                  isActive ? 'bg-brand/10 w-10 h-8' : 'w-8 h-8 hover:bg-cream-100',
-                )}
+            <li key={t.path} className="flex-1">
+              <Link
+                to={t.path}
+                aria-current={active ? 'page' : undefined}
+                className="h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Icon className={cn('transition-transform duration-200', isActive ? 'w-5 h-5' : 'w-5 h-5')} />
-              </div>
-              <span
-                className={cn(
-                  'text-[10px] leading-none transition-all duration-200',
-                  isActive ? 'font-bold' : 'font-medium',
-                )}
-              >
-                {tab.name}
-              </span>
-            </Link>
+                <span
+                  className={cn(
+                    'flex items-center justify-center w-10 h-7 rounded-lg transition-colors',
+                    active ? 'bg-brand text-white' : 'bg-transparent text-ink-400',
+                  )}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={active ? 2.4 : 2} />
+                </span>
+                <span
+                  className={cn(
+                    'text-[11px] leading-none transition-colors',
+                    active ? 'text-ink-900 font-semibold' : 'text-ink-400',
+                  )}
+                >
+                  {t.name}
+                </span>
+              </Link>
+            </li>
           )
         })}
-      </div>
+      </ul>
     </nav>
   )
 }
