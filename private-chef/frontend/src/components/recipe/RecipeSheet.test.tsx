@@ -38,7 +38,7 @@ beforeEach(() => {
 })
 
 describe('RecipeSheet', () => {
-  test('renders sheet when open', () => {
+  test('renders sheet with title when open', () => {
     renderWithProviders(<RecipeSheet open onOpenChange={vi.fn()} />)
     expect(screen.getByText('新增菜品')).toBeInTheDocument()
   })
@@ -48,14 +48,29 @@ describe('RecipeSheet', () => {
     expect(screen.queryByText('新增菜品')).not.toBeInTheDocument()
   })
 
-  test('default primary button is 创建并继续', () => {
-    renderWithProviders(<RecipeSheet open onOpenChange={vi.fn()} />)
+  test('continuous mode shows 创建并继续 button', () => {
+    renderWithProviders(<RecipeSheet open mode="continuous" onOpenChange={vi.fn()} />)
     expect(screen.getByRole('button', { name: /创建并继续/ })).toBeInTheDocument()
   })
 
-  test('uses persisted lastSubmitMode on open', () => {
-    localStorage.setItem('cook.recipe.lastSubmitMode', 'close')
+  test('single mode shows 创建菜品 button', () => {
+    renderWithProviders(<RecipeSheet open mode="single" onOpenChange={vi.fn()} />)
+    expect(screen.getByRole('button', { name: /创建菜品/ })).toBeInTheDocument()
+  })
+
+  test('continuous mode shows 连续录入模式 chip', () => {
+    renderWithProviders(<RecipeSheet open mode="continuous" onOpenChange={vi.fn()} />)
+    expect(screen.getByText('连续录入模式')).toBeInTheDocument()
+  })
+
+  test('single mode does not show 连续录入模式 chip', () => {
+    renderWithProviders(<RecipeSheet open mode="single" onOpenChange={vi.fn()} />)
+    expect(screen.queryByText('连续录入模式')).not.toBeInTheDocument()
+  })
+
+  test('default mode (no prop) shows 创建菜品 button', () => {
     renderWithProviders(<RecipeSheet open onOpenChange={vi.fn()} />)
-    expect(screen.getByRole('button', { name: /创建并关闭/ })).toBeInTheDocument()
+    // default mode is 'single'
+    expect(screen.getByRole('button', { name: /创建菜品/ })).toBeInTheDocument()
   })
 })

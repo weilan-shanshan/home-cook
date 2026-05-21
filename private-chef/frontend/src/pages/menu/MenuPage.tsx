@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Search, Plus, Check } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRecipes, useTags } from '@/hooks/useRecipes'
 import { Input } from '@/components/ui/input'
 import { ChipGroup } from '@/components/ui/chip-group'
@@ -16,6 +17,7 @@ export default function MenuPage() {
   const [activeTag, setActiveTag] = useState<string>('all')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 300)
@@ -193,9 +195,12 @@ export default function MenuPage() {
         </button>
       </FloatingBar>
 
-      {/* RecipeSheet — mode="continuous" will be wired by Task 8 */}
-      {/* TODO(task-8): pass mode="continuous" once RecipeSheet accepts the prop */}
-      <RecipeSheet open={sheetOpen} onOpenChange={setSheetOpen} />
+      <RecipeSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        mode="continuous"
+        onSubmitted={() => queryClient.invalidateQueries({ queryKey: ['recipes'] })}
+      />
     </div>
   )
 }
