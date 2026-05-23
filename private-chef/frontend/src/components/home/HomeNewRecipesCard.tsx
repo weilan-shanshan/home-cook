@@ -52,8 +52,9 @@ export function HomeNewRecipesCard({ recipes }: Props) {
                   id={r.id}
                   name={r.title}
                   src={src ?? null}
+                  size="fill"
                   rounded="lg"
-                  className="w-full h-full object-cover !rounded-none"
+                  className="object-cover !rounded-none"
                 />
                 {firstTag && (
                   <div className="absolute top-2 left-2 pointer-events-none">

@@ -86,13 +86,15 @@ export function HomeActiveOrdersCard({ orders, onAccept }: Props) {
                 <div className="grid grid-cols-4 gap-2 mb-3 mt-3">
                   {o.items.slice(0, 4).map((it) => (
                     <div key={it.recipeId} className="flex flex-col gap-1">
-                      <DishThumb
-                        id={it.recipeId}
-                        name={it.recipeTitle}
-                        src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
-                        className="w-full aspect-square"
-                        rounded="lg"
-                      />
+                      <div className="aspect-square w-full">
+                        <DishThumb
+                          id={it.recipeId}
+                          name={it.recipeTitle}
+                          src={it.image?.thumbUrl ?? it.image?.url ?? undefined}
+                          size="fill"
+                          rounded="lg"
+                        />
+                      </div>
                       <div className="text-[10px] text-ink-700 truncate">
                         {it.recipeTitle}
                       </div>

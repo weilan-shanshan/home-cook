@@ -15,8 +15,9 @@ function SquareCard({ dish }: { dish: SquareRecipeSummary }) {
           id={dish.id}
           name={dish.title}
           src={dish.first_image?.thumbUrl ?? dish.first_image?.url ?? null}
+          size="fill"
           rounded="lg"
-          className="w-full h-full object-cover"
+          className="object-cover"
         />
         {dish.tags.length > 0 && (
           <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">

@@ -43,7 +43,7 @@ export function HomeFrequentList({ dishes, tagsMap }: Props) {
                   id={dish.recipeId}
                   name={dish.title}
                   src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
-                  className="w-full h-full"
+                  size="fill"
                   rounded="lg"
                 />
                 {tags.length > 0 && (

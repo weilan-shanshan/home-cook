@@ -144,8 +144,9 @@ export default function MenuPage() {
                     id={r.id}
                     name={r.title}
                     src={src}
+                    size="fill"
                     rounded="lg"
-                    className="w-full h-full object-cover"
+                    className="object-cover"
                   />
                   {r.tags && r.tags.length > 0 && (
                     <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">

@@ -133,7 +133,7 @@ export default function Home() {
 
       {/* 4. Stats 2×2 */}
       <div className="grid grid-cols-2 gap-3">
-        <StatTile tone="mustard" label="累计想吃" value={`${totalOrders}`} hint="次" />
+        <StatTile tone="mustard" label="我的点单" value={`${totalOrders}`} hint="次" />
         <StatTile tone="sage"    label="为家人做" value={`${totalCooks}`}  hint="次" />
         <StatTile tone="cream"   label="收藏菜"   value={`${favCount}`}    hint="道" />
         <StatTile tone="cream"   label="今日推荐" value={`${recommendedCount}`} hint="道菜" />

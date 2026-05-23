@@ -43,9 +43,9 @@ export function HomeRecommendedGrid({ dishes, tagsMap }: Props) {
                   id={dish.recipeId}
                   name={dish.title}
                   src={dish.image?.thumbUrl ?? dish.image?.url ?? undefined}
-                  size="lg"
+                  size="fill"
                   rounded="lg"
-                  className="w-full h-full object-cover rounded-none"
+                  className="object-cover rounded-none"
                 />
                 {tags.length > 0 && (
                   <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">

@@ -44,8 +44,9 @@ export function HomeSquareCard() {
                 id={d.id}
                 name={d.title}
                 src={d.first_image?.thumbUrl ?? d.first_image?.url ?? null}
+                size="fill"
                 rounded="lg"
-                className="w-full h-full object-cover rounded-none"
+                className="object-cover rounded-none"
               />
               {d.tags.length > 0 && (
                 <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">

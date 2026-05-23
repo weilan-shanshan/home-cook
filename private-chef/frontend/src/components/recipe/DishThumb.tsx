@@ -5,12 +5,21 @@ type Props = {
   id?: string | number
   name?: string
   src?: string | null
-  size?: 'sm' | 'md' | 'lg'
+  /**
+   * `fill` lets the parent control sizing (use with an `aspect-square` wrapper).
+   * Fixed sizes are for inline thumbnails where the container has no defined dims.
+   */
+  size?: 'sm' | 'md' | 'lg' | 'fill'
   rounded?: 'lg' | '2xl' | '3xl'
   className?: string
 }
 
-const sizeClass = { sm: 'w-12 h-12 text-xs', md: 'w-16 h-16 text-sm', lg: 'w-20 h-20 text-base' }
+const sizeClass = {
+  sm: 'w-12 h-12 text-xs',
+  md: 'w-16 h-16 text-sm',
+  lg: 'w-20 h-20 text-base',
+  fill: 'w-full h-full text-base',
+}
 const roundClass = { lg: 'rounded-lg', '2xl': 'rounded-2xl', '3xl': 'rounded-3xl' }
 
 export function DishThumb({ id, name, src, size = 'md', rounded = '2xl', className }: Props) {

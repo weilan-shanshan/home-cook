@@ -9,12 +9,12 @@ interface Props {
 }
 
 const SIZE_CLASSES: Record<Size, string> = {
-  xs: 'text-[10px] px-2 py-0.5 leading-[14px]',
-  sm: 'text-[11px] px-2.5 py-0.5 leading-4',
+  xs: 'text-[11px] px-2.5 py-1 leading-[14px]',
+  sm: 'text-[12px] px-3 py-1 leading-4',
 }
 
 const BASE_CHIP =
-  'inline-flex items-center rounded-full font-semibold tracking-wide whitespace-nowrap bg-white/75 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.10)] ring-1 ring-white/40'
+  'inline-flex items-center rounded-full font-semibold tracking-wide whitespace-nowrap bg-white/85 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.12)] ring-1 ring-white/50'
 
 /**
  * Translucent white pill with the brand sage-green text.
