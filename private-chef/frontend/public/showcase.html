@@ -216,50 +216,60 @@ tailwind.config = {
   </div>
 </main>
 
-<!-- =========== FEATURE CALLOUTS =========== -->
+<!-- =========== WHY YOU'LL LOVE IT =========== -->
 <section class="max-w-[1700px] mx-auto mt-12 mb-20">
-  <h2 class="font-serif text-3xl text-ink-900 mb-8 text-center">设计·工程小细节</h2>
+  <h2 class="font-serif text-3xl text-ink-900 mb-2 text-center">这些能力让它不一样</h2>
+  <p class="text-center text-sm text-ink-500 mb-10">不是又一个菜谱 App，是把<span class="text-brand-600 font-medium">「想吃什么」</span>变成<span class="text-brand-600 font-medium">「全家一起吃」</span>的工具</p>
   <div class="grid grid-cols-4 gap-6">
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">📷</div>
-      <div class="font-serif text-base text-ink-900 mb-1">缩略图分发</div>
-      <div class="text-xs text-ink-500 leading-relaxed">上传时压缩 ≤2MB + 生成 ≤300KB/600px 缩略；旧图走 COS 数据万象 ?imageMogr2 在线缩放。列表全部走缩略图，只有「查看大图」才请求原图。</div>
+      <div class="text-3xl mb-3">💬</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">一句话点单</div>
+      <div class="text-sm text-ink-600 leading-relaxed">"今晚想吃糖醋排骨" — 全家人都看到，谁愿意做谁接手。不用反复在群里问"今天吃啥"。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">⬜</div>
-      <div class="font-serif text-base text-ink-900 mb-1">正方形菜品图</div>
-      <div class="text-xs text-ink-500 leading-relaxed">DishThumb fill 模式用 absolute inset-0 脱离文档流，让父容器 aspect-square 真正决定盒子。任何尺寸图片都安全裁切显示。</div>
+      <div class="text-3xl mb-3">🤖</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">AI 替你决定</div>
+      <div class="text-sm text-ink-600 leading-relaxed">选择困难症？说一句"想吃辣"或"半小时搞定"，AI 从本家菜里挑 3-5 道，每道附推荐理由，一键加入点单。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">🔄</div>
-      <div class="font-serif text-base text-ink-900 mb-1">滚动恢复</div>
-      <div class="text-xs text-ink-500 leading-relaxed">列表 → 详情 → 返回，自动回到原滚动位置。POP 路由时 requestAnimationFrame 重试 50 帧覆盖异步 hydration。</div>
+      <div class="text-3xl mb-3">🌍</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">看看别人家</div>
+      <div class="text-sm text-ink-600 leading-relaxed">家庭广场逛一圈，看别家在吃什么。喜欢的菜一键复制到本家菜谱，连图带步骤都搬过来。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">🏷️</div>
-      <div class="font-serif text-base text-ink-900 mb-1">标签 hash 配色</div>
-      <div class="text-xs text-ink-500 leading-relaxed">每个标签名按 sha-hash 落到 5 色调色板（honey / brand / blush / sky / butter），全站统一身份。chip 浮在图片左上角，白底 brand-700 文字。</div>
+      <div class="text-3xl mb-3">📷</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">一菜一相册</div>
+      <div class="text-sm text-ink-600 leading-relaxed">每道菜可以传多张图、随时设首图。做了一次拍一张，半年后菜单就是你家厨房的视觉日记。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">📤</div>
-      <div class="font-serif text-base text-ink-900 mb-1">分享生成海报</div>
-      <div class="text-xs text-ink-500 leading-relaxed">Canvas 绘制 1080×1720 海报，内嵌二维码扫码进 /share/:token 公开落地页。无需登录即可查看。</div>
+      <div class="text-3xl mb-3">⭐</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">每口都留念</div>
+      <div class="text-sm text-ink-600 leading-relaxed">谁做的、什么时候做的、家人打几分、留了什么评论 — 时间会替你记住"妈妈那次的红烧肉"。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">⚙️</div>
-      <div class="font-serif text-base text-ink-900 mb-1">自愈式迁移</div>
-      <div class="text-xs text-ink-500 leading-relaxed">scripts/migrate.cjs 通过 _journal.json 对账 __drizzle_migrations 表，遇到「already exists」幂等吞掉，让账本与现实自动对齐。</div>
+      <div class="text-3xl mb-3">🏆</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">家务变成游戏</div>
+      <div class="text-sm text-ink-600 leading-relaxed">想吃达人 · 家庭掌勺 · 收藏爱好者 — 每一次点单和掌勺都计数解锁，做饭这件事第一次有了"成就感"。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">📱</div>
-      <div class="font-serif text-base text-ink-900 mb-1">PWA</div>
-      <div class="text-xs text-ink-500 leading-relaxed">vite-plugin-pwa + workbox 离线缓存。iOS / Android 添加到桌面后像原生 App 一样启动。</div>
+      <div class="text-3xl mb-3">🎁</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">一键生成海报</div>
+      <div class="text-sm text-ink-600 leading-relaxed">把一道菜、一份订单、家庭成就，导出成精美海报含二维码。朋友扫码就能进来看，不用注册不用下载。</div>
     </div>
+
     <div class="feature-card">
-      <div class="text-2xl mb-2">🔐</div>
-      <div class="font-serif text-base text-ink-900 mb-1">家庭隔离</div>
-      <div class="text-xs text-ink-500 leading-relaxed">所有数据按 family_id 严格隔离；广场公开菜品跨家庭，但点单/接手仍限本家。</div>
+      <div class="text-3xl mb-3">📱</div>
+      <div class="font-serif text-lg text-ink-900 mb-1.5">装到桌面像 App</div>
+      <div class="text-sm text-ink-600 leading-relaxed">浏览器一键添加到主屏，下次点图标秒开，免登录、离线也能看。不占空间、不上 App Store、不打扰你。</div>
     </div>
+
   </div>
 </section>
 
