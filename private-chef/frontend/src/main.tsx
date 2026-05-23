@@ -5,6 +5,11 @@ import './styles/globals.css'
 import App from './App.tsx'
 import { registerServiceWorker } from './lib/pwa'
 
+// Take over scroll restoration ourselves (see useScrollRestoration).
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual'
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

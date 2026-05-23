@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
+import { TagChip } from '@/components/recipe/TagChip'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
 import type { RecipeTag } from '@/hooks/useRecipes'
 
@@ -37,7 +38,7 @@ export function HomeRecommendedGrid({ dishes, tagsMap }: Props) {
               to={`/recipe/${dish.recipeId}`}
               className="surface-card overflow-hidden flex flex-col"
             >
-              <div className="aspect-square w-full">
+              <div className="relative aspect-square w-full">
                 <DishThumb
                   id={dish.recipeId}
                   name={dish.title}
@@ -46,21 +47,16 @@ export function HomeRecommendedGrid({ dishes, tagsMap }: Props) {
                   rounded="lg"
                   className="w-full h-full object-cover rounded-none"
                 />
-              </div>
-              <div className="p-2.5">
-                <div className="text-sm font-medium line-clamp-1 text-ink-900">{dish.title}</div>
                 {tags.length > 0 && (
-                  <div className="flex gap-1 mt-1 flex-wrap">
+                  <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">
                     {tags.slice(0, 2).map((t) => (
-                      <span
-                        key={t.id}
-                        className="text-[9px] rounded-full bg-cream-200 text-ink-700 px-1.5 py-0.5"
-                      >
-                        {t.name}
-                      </span>
+                      <TagChip key={t.id} name={t.name} />
                     ))}
                   </div>
                 )}
+              </div>
+              <div className="p-2.5">
+                <div className="text-sm font-medium line-clamp-1 text-ink-900">{dish.title}</div>
                 <div className="mt-1 flex items-center gap-1">
                   {dish.orderCount > 0 && (
                     <span className="text-[10px] text-ink-500">{dish.orderCount} 次想吃</span>

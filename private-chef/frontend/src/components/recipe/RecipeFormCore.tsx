@@ -1,9 +1,12 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { Loader2, Plus } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { StepEditor } from '@/components/recipe/StepEditor'
 import { ImageUploadTile } from '@/components/recipe/ImageUploadTile'
+import { useToast } from '@/components/ui/use-toast'
+import { useCreateTag } from '@/hooks/useRecipes'
 import type { ImageItem } from './RecipeImageGrid'
 import type { RecipeTag } from '@/hooks/useRecipes'
 
@@ -43,12 +46,36 @@ export function RecipeFormCore({
   titleInputRef,
 }: RecipeFormCoreProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [newTagName, setNewTagName] = useState('')
+  const { toast } = useToast()
+  const createTagMutation = useCreateTag()
 
   const toggleTag = (tagId: number) => {
     const next = values.tagIds.includes(tagId)
       ? values.tagIds.filter((id) => id !== tagId)
       : [...values.tagIds, tagId]
     onChange({ tagIds: next })
+  }
+
+  const handleCreateTag = async () => {
+    const name = newTagName.trim()
+    if (!name || createTagMutation.isPending) return
+    if (availableTags.some((t) => t.name === name)) {
+      const existing = availableTags.find((t) => t.name === name)!
+      if (!values.tagIds.includes(existing.id)) toggleTag(existing.id)
+      setNewTagName('')
+      return
+    }
+    try {
+      const created = await createTagMutation.mutateAsync(name)
+      onChange({ tagIds: [...values.tagIds, created.id] })
+      setNewTagName('')
+    } catch (err) {
+      toast({
+        description: err instanceof Error ? err.message : '创建标签失败',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleAddImageClick = () => fileInputRef.current?.click()
@@ -166,20 +193,51 @@ export function RecipeFormCore({
 
       <div>
         <label className="text-sm text-ink-700 mb-1.5 block">标签</label>
-        <div className="flex flex-wrap gap-2">
-          {availableTags.map((tag) => {
-            const selected = values.tagIds.includes(tag.id)
-            return (
-              <Badge
-                key={tag.id}
-                variant={selected ? 'default' : 'secondary'}
-                onClick={() => toggleTag(tag.id)}
-                className="cursor-pointer"
-              >
-                {tag.name}
-              </Badge>
-            )
-          })}
+        {availableTags.length > 0 ? (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {availableTags.map((tag) => {
+              const selected = values.tagIds.includes(tag.id)
+              return (
+                <Badge
+                  key={tag.id}
+                  variant={selected ? 'default' : 'secondary'}
+                  onClick={() => toggleTag(tag.id)}
+                  className="cursor-pointer"
+                >
+                  {tag.name}
+                </Badge>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-[11px] text-ink-400 mb-2">还没有标签，在下面输入新建</p>
+        )}
+        <div className="flex gap-2">
+          <Input
+            value={newTagName}
+            onChange={(e) => setNewTagName(e.target.value)}
+            placeholder="新建标签，如 蔬菜 / 主菜 / 早餐"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                void handleCreateTag()
+              }
+            }}
+            className="h-9 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => void handleCreateTag()}
+            disabled={!newTagName.trim() || createTagMutation.isPending}
+            aria-label="新建标签"
+            className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full bg-brand text-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {createTagMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+          </button>
         </div>
         <p className="text-[10px] text-ink-500 mt-1.5">提交后标签会保留，方便连续录同类菜</p>
       </div>

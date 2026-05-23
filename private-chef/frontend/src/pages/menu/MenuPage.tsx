@@ -8,6 +8,7 @@ import { ChipGroup } from '@/components/ui/chip-group'
 import { FloatingBar } from '@/components/ui/floating-bar'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import { RecipeSheet } from '@/components/recipe/RecipeSheet'
+import { TagChip, TagOverflowChip } from '@/components/recipe/TagChip'
 import { cn } from '@/lib/utils'
 import { RatingBadge } from '@/components/recipe/RatingBadge'
 
@@ -95,12 +96,14 @@ export default function MenuPage() {
         />
       </div>
 
-      {/* Chip filter */}
-      <ChipGroup
-        options={chipOptions}
-        value={activeTag}
-        onChange={(v) => setActiveTag(v as string)}
-      />
+      {/* Chip filter — sticky so it stays visible while browsing */}
+      <div className="sticky top-0 -mx-4 px-4 py-2 z-20 bg-cream-50/95 backdrop-blur supports-[backdrop-filter]:bg-cream-50/75">
+        <ChipGroup
+          options={chipOptions}
+          value={activeTag}
+          onChange={(v) => setActiveTag(v as string)}
+        />
+      </div>
 
       {/* 2-col Bento grid */}
       {isLoading ? (
@@ -144,24 +147,22 @@ export default function MenuPage() {
                     rounded="lg"
                     className="w-full h-full object-cover"
                   />
+                  {r.tags && r.tags.length > 0 && (
+                    <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">
+                      {r.tags.slice(0, 2).map((t) => (
+                        <TagChip key={t.id} name={t.name} />
+                      ))}
+                      {r.tags.length > 2 && (
+                        <TagOverflowChip count={r.tags.length - 2} />
+                      )}
+                    </div>
+                  )}
                 </Link>
 
                 {/* Info + toggle */}
                 <div className="p-3 flex items-end justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-ink-900 text-sm line-clamp-1">{r.title}</p>
-                    {r.tags && r.tags.length > 0 && (
-                      <div className="flex gap-1 mt-0.5 flex-wrap">
-                        {r.tags.slice(0, 2).map((t) => (
-                          <span
-                            key={t.id}
-                            className="text-[9px] rounded-full bg-brand-50 text-brand-700 px-1.5 py-0.5"
-                          >
-                            {t.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <RatingBadge avg={(r as unknown as { avg_rating?: number | null }).avg_rating ?? null} count={(r as unknown as { rating_count?: number | null }).rating_count ?? null} />
                       {timesInfo && (

@@ -38,10 +38,10 @@ export function ChipGroup({ options, value, multiple, onChange, className }: Pro
             type="button"
             onClick={() => handle(o.value)}
             className={cn(
-              'shrink-0 inline-flex items-center gap-1 rounded-full px-3.5 h-8 text-sm font-medium transition-colors cursor-pointer',
+              'shrink-0 inline-flex items-center gap-1 rounded-full transition-all cursor-pointer',
               active
-                ? 'bg-brand text-white shadow-button'
-                : 'bg-cream-100 text-ink-700 hover:bg-cream-200',
+                ? 'h-9 px-4 text-sm font-bold bg-brand text-white shadow-button ring-2 ring-brand-400/40 scale-105'
+                : 'h-8 px-3.5 text-sm font-medium bg-cream-100 text-ink-700 hover:bg-cream-200',
             )}
             aria-pressed={active}
           >
@@ -50,7 +50,7 @@ export function ChipGroup({ options, value, multiple, onChange, className }: Pro
               <span
                 className={cn(
                   'ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full px-1 text-[11px]',
-                  active ? 'bg-white/20 text-white' : 'bg-cream-300 text-ink-700',
+                  active ? 'bg-white/25 text-white font-semibold' : 'bg-cream-300 text-ink-700',
                 )}
               >
                 {o.count}

@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
+import { TagChip } from '@/components/recipe/TagChip'
 import type { RecipeCardSummary } from '@/hooks/useHomeSummary'
 import type { RecipeTag } from '@/hooks/useRecipes'
 
@@ -37,7 +38,7 @@ export function HomeFrequentList({ dishes, tagsMap }: Props) {
               to={`/recipe/${dish.recipeId}`}
               className="surface-card p-3 flex flex-col gap-2"
             >
-              <div className="aspect-square w-full">
+              <div className="relative aspect-square w-full">
                 <DishThumb
                   id={dish.recipeId}
                   name={dish.title}
@@ -45,21 +46,16 @@ export function HomeFrequentList({ dishes, tagsMap }: Props) {
                   className="w-full h-full"
                   rounded="lg"
                 />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-ink-900 line-clamp-1">{dish.title}</div>
                 {tags.length > 0 && (
-                  <div className="flex gap-1 mt-0.5 flex-wrap">
+                  <div className="absolute top-2 left-2 right-2 flex flex-wrap gap-1 pointer-events-none">
                     {tags.slice(0, 2).map((t) => (
-                      <span
-                        key={t.id}
-                        className="text-[9px] rounded-full bg-cream-200 text-ink-700 px-1.5 py-0.5"
-                      >
-                        {t.name}
-                      </span>
+                      <TagChip key={t.id} name={t.name} />
                     ))}
                   </div>
                 )}
+              </div>
+              <div>
+                <div className="text-sm font-medium text-ink-900 line-clamp-1">{dish.title}</div>
                 <div className="text-[10px] text-ink-500 mt-0.5">{dish.orderCount} 次想吃</div>
               </div>
             </Link>

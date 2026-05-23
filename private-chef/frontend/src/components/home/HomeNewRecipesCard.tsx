@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { ChevronRight } from 'lucide-react'
 import { DishThumb } from '@/components/recipe/DishThumb'
+import { TagChip } from '@/components/recipe/TagChip'
 import type { RecipeListRow } from '@/hooks/useRecipes'
 
 type Props = {
@@ -55,9 +56,9 @@ export function HomeNewRecipesCard({ recipes }: Props) {
                   className="w-full h-full object-cover !rounded-none"
                 />
                 {firstTag && (
-                  <span className="absolute top-2 left-2 text-[9px] rounded-full bg-cream-50/90 text-brand-700 px-1.5 py-0.5 backdrop-blur-sm">
-                    {firstTag}
-                  </span>
+                  <div className="absolute top-2 left-2 pointer-events-none">
+                    <TagChip name={firstTag} />
+                  </div>
                 )}
               </div>
               {/* Bottom: name + creator + time */}

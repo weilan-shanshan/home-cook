@@ -225,6 +225,28 @@ export function useTags() {
   })
 }
 
+export function useCreateTag() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (name: string) => {
+      const res = await fetch(`${baseUrl}/api/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: '创建失败' }))
+        throw new Error(getErrorMessage(err, '创建失败'))
+      }
+      return res.json() as Promise<RecipeTag>
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] })
+    },
+  })
+}
+
 export function useSaveRecipeImage() {
   const queryClient = useQueryClient()
   return useMutation({

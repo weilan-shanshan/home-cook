@@ -2,8 +2,10 @@ import { Outlet } from 'react-router'
 import { RequireAuth } from '@/lib/auth'
 import { TabBar } from './TabBar'
 import { PWAInstallBanner } from '@/components/pwa/PWAInstallBanner'
+import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 
 export function AppLayout() {
+  useScrollRestoration()
   return (
     <RequireAuth>
       <div className="app-shell bg-cream-50 selection:bg-primary/20">

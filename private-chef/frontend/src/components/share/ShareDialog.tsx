@@ -25,15 +25,15 @@ type ShareDialogProps = {
 function accentStyles(accent: ShareCardPayload['visual']['accent']) {
   switch (accent) {
     case 'amber':
-      return 'from-amber-50 to-orange-100 border-amber-200'
+      return 'from-honey-50 to-honey-100'
     case 'tomato':
-      return 'from-rose-50 to-orange-100 border-rose-200'
+      return 'from-cream-100 to-honey-100'
     case 'champagne':
-      return 'from-stone-50 to-violet-100 border-stone-200'
+      return 'from-cream-50 to-cream-200'
     case 'sage':
-      return 'from-emerald-50 to-lime-100 border-emerald-200'
+      return 'from-brand-50 to-cream-100'
     default:
-      return 'from-muted/30 to-background border-border'
+      return 'from-cream-50 to-cream-100'
   }
 }
 
@@ -285,95 +285,123 @@ export function ShareDialog({
     }
   }
 
+  const busy = shareCardQuery.isLoading || workingAction !== null
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl rounded-3xl p-0 overflow-hidden">
-        <div className={`bg-gradient-to-br ${visualPreviewClass} p-6`}>
+      <DialogContent className="max-w-md rounded-3xl p-0 overflow-hidden gap-0 max-h-[92vh] flex flex-col">
+        {/* Header */}
+        <div className={`bg-gradient-to-br ${visualPreviewClass} px-5 pt-5 pb-4 shrink-0`}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Share2 className="h-5 w-5" />
-              {title || '分享这份内容'}
+            <DialogTitle className="flex items-center gap-2 font-serif text-xl text-ink-900">
+              <Share2 className="h-5 w-5 text-brand" />
+              {title || '分享给家人'}
             </DialogTitle>
-            <DialogDescription>
-              复制链接、发到微信，或生成带二维码的海报。
+            <DialogDescription className="text-xs text-ink-500">
+              保存图片分享，朋友扫二维码就能进来看。
             </DialogDescription>
           </DialogHeader>
+        </div>
 
-          <Card className="mt-5 rounded-3xl border border-border/60 glass-card shadow-lg">
-            <CardContent className="p-5">
-              {shareCardQuery.isLoading ? (
-                <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 加载分享内容...
-                </div>
-              ) : shareCardQuery.error || !payload ? (
-                <div className="py-10 text-sm text-destructive">无法加载分享预览。</div>
-              ) : (
-                <div className="space-y-4">
-                  {payload.cover_image_url ? (
-                    <div className="overflow-hidden rounded-2xl bg-muted">
-                      <img src={payload.cover_image_url} alt={payload.title} className="h-52 w-full object-cover" />
-                    </div>
-                  ) : null}
+        {/* Preview (scrollable middle) */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {shareCardQuery.isLoading ? (
+            <div className="flex items-center justify-center py-10 text-sm text-ink-500">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 加载分享内容…
+            </div>
+          ) : shareCardQuery.error || !payload ? (
+            <div className="py-10 text-center text-sm text-rose-500">无法加载分享预览</div>
+          ) : (
+            <Card className="rounded-2xl border border-cream-200 bg-white shadow-card">
+              <CardContent className="p-4 space-y-3">
+                {payload.cover_image_url ? (
+                  <div className="overflow-hidden rounded-xl bg-cream-100 aspect-square">
+                    <img
+                      src={payload.cover_image_url}
+                      alt={payload.title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
 
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {payload.visual.chips.map((chip) => (
-                        <span key={chip} className="rounded-full bg-black/5 px-3 py-1 text-xs text-muted-foreground">
+                <div className="space-y-1.5">
+                  {payload.visual.chips.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {payload.visual.chips.slice(0, 3).map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full bg-cream-100 px-2 py-0.5 text-[10px] text-ink-700"
+                        >
                           {chip}
                         </span>
                       ))}
                     </div>
-                    <h3 className="text-2xl font-semibold tracking-tight text-foreground">{payload.title}</h3>
-                    <p className="text-sm leading-6 text-muted-foreground">{payload.summary}</p>
-                  </div>
-
-                  <div className="grid gap-2 text-sm text-muted-foreground">
-                    {payload.public_context.family_name ? <div>家庭：{payload.public_context.family_name}</div> : null}
-                    {payload.public_context.requester_display_name ? <div>想吃的人：{payload.public_context.requester_display_name}</div> : null}
-                    {payload.public_context.cook_display_name ? <div>掌勺：{payload.public_context.cook_display_name}</div> : null}
-                    {payload.public_context.featured_display_name ? <div>主角：{payload.public_context.featured_display_name}</div> : null}
-                  </div>
-
-                  {payload.facts.length > 0 ? (
-                    <div className="rounded-2xl bg-secondary/50 border border-border/40 p-4 text-sm text-muted-foreground">
-                      {payload.facts.slice(0, 4).map((fact) => (
-                        <div key={fact} className="py-1">{fact}</div>
-                      ))}
-                    </div>
-                  ) : null}
+                  )}
+                  <h3 className="font-serif text-lg leading-tight text-ink-900">
+                    {payload.title}
+                  </h3>
+                  {payload.summary && (
+                    <p className="text-xs leading-5 text-ink-500 line-clamp-3">
+                      {payload.summary}
+                    </p>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                {payload.facts.length > 0 ? (
+                  <div className="rounded-xl bg-cream-50 border border-cream-100 px-3 py-2 text-[11px] text-ink-600 space-y-0.5">
+                    {payload.facts.slice(0, 3).map((fact) => (
+                      <div key={fact}>· {fact}</div>
+                    ))}
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        <div className="grid gap-3 p-6 sm:grid-cols-3">
+        {/* Sticky action bar */}
+        <div className="shrink-0 border-t border-cream-100 bg-white px-5 pt-3 pb-4 space-y-2.5">
           <Button
-            variant="outline"
-            className="h-12 rounded-2xl"
-            onClick={() => void runShare('copy_link', 'link')}
-            disabled={shareCardQuery.isLoading || workingAction !== null}
-          >
-            {workingAction === 'copy_link' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-            复制链接
-          </Button>
-          <Button
-            variant="outline"
-            className="h-12 rounded-2xl"
-            onClick={() => void runShare('wechat', 'card')}
-            disabled={shareCardQuery.isLoading || workingAction !== null}
-          >
-            {workingAction === 'wechat' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageCircleMore className="mr-2 h-4 w-4" />}
-            微信分享
-          </Button>
-          <Button
-            className="h-12 rounded-2xl"
+            size="lg"
+            className="w-full h-12 rounded-2xl text-sm font-semibold shadow-button"
             onClick={() => void runShare('poster_download', 'poster')}
-            disabled={shareCardQuery.isLoading || workingAction !== null}
+            disabled={busy}
           >
-            {workingAction === 'poster_download' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-            下载海报
+            {workingAction === 'poster_download' ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            保存图片分享（含二维码）
           </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="h-10 rounded-xl text-xs border-cream-200"
+              onClick={() => void runShare('copy_link', 'link')}
+              disabled={busy}
+            >
+              {workingAction === 'copy_link' ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Copy className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              复制链接
+            </Button>
+            <Button
+              variant="outline"
+              className="h-10 rounded-xl text-xs border-cream-200"
+              onClick={() => void runShare('wechat', 'card')}
+              disabled={busy}
+            >
+              {workingAction === 'wechat' ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <MessageCircleMore className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              发到微信
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
