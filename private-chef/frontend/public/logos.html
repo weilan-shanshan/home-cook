@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1400, initial-scale=1">
+<title>COOK · 私厨 — Logo 概念集</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50:'#F0F5E5',100:'#E0EBC8',200:'#C8DBA8',300:'#B5D199', DEFAULT:'#7AA468', 500:'#7AA468', 700:'#4A6B3A'},
+        cream: { 50:'#F8FBF2',100:'#F3F7EB',200:'#ECF1E0',300:'#DCE5C8'},
+        ink: { 900:'#1A1A18',700:'#3D3D38',500:'#7A7A72',400:'#A5A39B'},
+        honey: { 100:'#FDF1D9', 300:'#F4CE85', 500:'#F0B564', 700:'#B47A22'},
+      },
+      fontFamily: {
+        sans: ['Inter','PingFang SC','Hiragino Sans GB','sans-serif'],
+        serif: ['"Noto Serif SC"','Songti SC','SimSun','serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+  body{background:#F4EDDF;font-family:'Inter','PingFang SC',sans-serif;color:#1A1A18;padding:60px 40px}
+  .logo-card{background:white;border-radius:24px;padding:36px;box-shadow:0 4px 12px rgba(0,0,0,0.04);display:flex;flex-direction:column;gap:20px;border:1px solid rgba(0,0,0,0.04)}
+  .logo-large{width:160px;height:160px;display:flex;align-items:center;justify-content:center;margin:0 auto;background:#FAF6EE;border-radius:32px}
+  .logo-mini-row{display:flex;align-items:center;gap:24px;padding:14px 20px;background:#F8FBF2;border-radius:16px}
+  .logo-mini{width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#FAF6EE;border-radius:12px;flex-shrink:0}
+  .swatch{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<header class="max-w-[1400px] mx-auto mb-12">
+  <h1 class="font-serif text-4xl text-ink-900">Logo 概念集</h1>
+  <p class="text-sm text-ink-500 mt-2">围绕「家 / 灶 / 餐桌 / 温度」8 个方向。每个 logo 包含大号展示版（160×160）和小号 favicon 版（48×48 配「COOK · 私厨」字样），按你的实际使用场景验证。</p>
+  <p class="text-xs text-ink-400 mt-3">主色：<span class="swatch" style="background:#7AA468"></span>sage 绿 · <span class="swatch" style="background:#F0B564"></span>honey 黄 · <span class="swatch" style="background:#FAF6EE"></span>cream 米 · <span class="swatch" style="background:#1A1A18"></span>ink 墨</p>
+</header>
+
+<main class="max-w-[1400px] mx-auto grid grid-cols-4 gap-6">
+
+  <!-- ========== 01 · 屋顶=锅盖 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- house body -->
+        <rect x="22" y="56" width="76" height="46" rx="8" fill="#F0B564"/>
+        <!-- pot lid as roof -->
+        <path d="M14 56 L60 22 L106 56 Z" fill="#7AA468"/>
+        <circle cx="60" cy="32" r="5" fill="#4A6B3A"/>
+        <!-- steam wisps coming through the roof -->
+        <path d="M44 14 Q42 8 48 6 M60 12 Q56 6 62 2 M76 14 Q74 8 80 6" stroke="#7AA468" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+        <!-- door -->
+        <rect x="50" y="72" width="20" height="30" rx="3" fill="#FAF6EE"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="22" y="56" width="76" height="46" rx="8" fill="#F0B564"/>
+          <path d="M14 56 L60 22 L106 56 Z" fill="#7AA468"/>
+          <circle cx="60" cy="32" r="5" fill="#4A6B3A"/>
+          <rect x="50" y="72" width="20" height="30" rx="3" fill="#FAF6EE"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">屋顶 = 锅盖，蒸汽从家里飘出来</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">01 · 灶火之家</span><br>
+      房子的屋顶就是锅盖，蒸汽穿过屋顶代表「家里有人做饭」。视觉上一次说清「家 + 烹饪」。
+    </div>
+  </div>
+
+  <!-- ========== 02 · 碗 + 筷 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- chopsticks (diagonal) -->
+        <line x1="20" y1="20" x2="100" y2="60" stroke="#B47A22" stroke-width="6" stroke-linecap="round"/>
+        <line x1="20" y1="32" x2="100" y2="72" stroke="#B47A22" stroke-width="6" stroke-linecap="round"/>
+        <!-- bowl -->
+        <path d="M20 64 Q60 100 100 64 Z" fill="#7AA468"/>
+        <path d="M14 60 L106 60 Q106 66 100 66 L20 66 Q14 66 14 60 Z" fill="#4A6B3A"/>
+        <!-- steam -->
+        <path d="M40 50 Q38 42 44 38 Q42 32 46 28" stroke="#7AA468" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M60 48 Q58 38 64 34 Q62 26 66 22" stroke="#7AA468" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M80 50 Q78 42 84 38 Q82 32 86 28" stroke="#7AA468" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="20" x2="100" y2="60" stroke="#B47A22" stroke-width="6" stroke-linecap="round"/>
+          <line x1="20" y1="32" x2="100" y2="72" stroke="#B47A22" stroke-width="6" stroke-linecap="round"/>
+          <path d="M20 64 Q60 100 100 64 Z" fill="#7AA468"/>
+          <path d="M14 60 L106 60 Q106 66 100 66 L20 66 Q14 66 14 60 Z" fill="#4A6B3A"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">中式碗筷 + 蒸汽，地道东方餐桌</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">02 · 一碗热饭</span><br>
+      碗 + 筷 + 蒸汽，是中文世界里"吃饭"最直观的符号。配色温暖，识别度高，小尺寸（favicon）也清晰。
+    </div>
+  </div>
+
+  <!-- ========== 03 · 心形锅 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- handle -->
+        <rect x="92" y="56" width="22" height="9" rx="4" fill="#B47A22"/>
+        <!-- pot body shaped like heart bottom -->
+        <path d="M28 38 Q12 38 12 56 Q12 78 60 102 Q108 78 108 56 Q108 38 92 38 Q80 38 76 52 Q72 38 60 38 Q48 38 44 52 Q40 38 28 38 Z" fill="#7AA468"/>
+        <!-- inside dish dots -->
+        <circle cx="44" cy="62" r="4" fill="#F0B564"/>
+        <circle cx="60" cy="70" r="4" fill="#FAF6EE"/>
+        <circle cx="76" cy="64" r="4" fill="#F0B564"/>
+        <!-- steam -->
+        <path d="M50 26 Q48 20 54 16" stroke="#7AA468" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M68 26 Q66 18 72 14" stroke="#7AA468" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="92" y="56" width="22" height="9" rx="4" fill="#B47A22"/>
+          <path d="M28 38 Q12 38 12 56 Q12 78 60 102 Q108 78 108 56 Q108 38 92 38 Q80 38 76 52 Q72 38 60 38 Q48 38 44 52 Q40 38 28 38 Z" fill="#7AA468"/>
+          <circle cx="44" cy="62" r="4" fill="#F0B564"/>
+          <circle cx="60" cy="70" r="4" fill="#FAF6EE"/>
+          <circle cx="76" cy="64" r="4" fill="#F0B564"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">锅的形状是心，做菜=表达爱</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">03 · 爱意烹煮</span><br>
+      锅的轮廓巧妙合成爱心形状，里面有食材点缀，蒸汽袅袅。"为家人做饭"的诗意表达，温度感最强的一款。
+    </div>
+  </div>
+
+  <!-- ========== 04 · 锅铲 + 房子 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- house outline -->
+        <path d="M16 60 L60 22 L104 60 L104 98 Q104 102 100 102 L20 102 Q16 102 16 98 Z" fill="#FAF6EE" stroke="#4A6B3A" stroke-width="5"/>
+        <!-- inside: spatula (crossed) -->
+        <line x1="40" y1="60" x2="78" y2="92" stroke="#B47A22" stroke-width="5" stroke-linecap="round"/>
+        <rect x="34" y="48" width="18" height="14" rx="3" fill="#F0B564" transform="rotate(-30 43 55)"/>
+        <line x1="78" y1="60" x2="40" y2="92" stroke="#B47A22" stroke-width="5" stroke-linecap="round"/>
+        <rect x="68" y="48" width="18" height="14" rx="3" fill="#7AA468" transform="rotate(30 77 55)"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 60 L60 22 L104 60 L104 98 Q104 102 100 102 L20 102 Q16 102 16 98 Z" fill="#FAF6EE" stroke="#4A6B3A" stroke-width="5"/>
+          <line x1="40" y1="60" x2="78" y2="92" stroke="#B47A22" stroke-width="5" stroke-linecap="round"/>
+          <rect x="34" y="48" width="18" height="14" rx="3" fill="#F0B564" transform="rotate(-30 43 55)"/>
+          <line x1="78" y1="60" x2="40" y2="92" stroke="#B47A22" stroke-width="5" stroke-linecap="round"/>
+          <rect x="68" y="48" width="18" height="14" rx="3" fill="#7AA468" transform="rotate(30 77 55)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">家屋形 + 交叉锅铲，私厨的徽章</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">04 · 私厨徽章</span><br>
+      家形剪影 + 内部交叉锅铲（一绿一黄，对应两个家人角色），像徽章/印章，有"家庭专属"仪式感。
+    </div>
+  </div>
+
+  <!-- ========== 05 · 厨字 monogram ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="104" height="104" rx="24" fill="#7AA468"/>
+        <text x="60" y="76" font-family="'Noto Serif SC', serif" font-size="60" font-weight="700" fill="#FAF6EE" text-anchor="middle">厨</text>
+        <circle cx="98" cy="22" r="6" fill="#F0B564"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="8" width="104" height="104" rx="24" fill="#7AA468"/>
+          <text x="60" y="78" font-family="'Noto Serif SC', serif" font-size="64" font-weight="700" fill="#FAF6EE" text-anchor="middle">厨</text>
+          <circle cx="98" cy="22" r="6" fill="#F0B564"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">单字「厨」+ 蜜糖点缀</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">05 · 厨字款</span><br>
+      最直接：宋体「厨」字 + 圆角方块底色 + 右上角小蜜糖点。中文识别度最高，favicon 缩到 16px 也能认出。
+    </div>
+  </div>
+
+  <!-- ========== 06 · 蒸笼 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- steam wisps -->
+        <path d="M40 22 Q34 14 42 8" stroke="#7AA468" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M60 22 Q52 12 62 4" stroke="#7AA468" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M80 22 Q74 14 82 8" stroke="#7AA468" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <!-- top lid -->
+        <ellipse cx="60" cy="34" rx="48" ry="10" fill="#B47A22"/>
+        <ellipse cx="60" cy="32" rx="48" ry="10" fill="#F0B564"/>
+        <!-- middle tier -->
+        <rect x="12" y="38" width="96" height="22" fill="#F4CE85"/>
+        <rect x="12" y="56" width="96" height="4" fill="#B47A22"/>
+        <!-- bottom tier -->
+        <rect x="12" y="60" width="96" height="22" fill="#F0B564"/>
+        <rect x="12" y="78" width="96" height="4" fill="#B47A22"/>
+        <!-- pot bottom -->
+        <path d="M14 82 Q60 110 106 82 Z" fill="#7AA468"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="60" cy="34" rx="48" ry="10" fill="#B47A22"/>
+          <ellipse cx="60" cy="32" rx="48" ry="10" fill="#F0B564"/>
+          <rect x="12" y="38" width="96" height="22" fill="#F4CE85"/>
+          <rect x="12" y="56" width="96" height="4" fill="#B47A22"/>
+          <rect x="12" y="60" width="96" height="22" fill="#F0B564"/>
+          <rect x="12" y="78" width="96" height="4" fill="#B47A22"/>
+          <path d="M14 82 Q60 110 106 82 Z" fill="#7AA468"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">两层竹蒸笼 + 蒸汽，中式烟火气</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">06 · 蒸笼</span><br>
+      竹蒸笼是中式厨房最强的视觉符号之一。两层叠放代表家庭厨房的"多样"，温暖的蜜糖色配 sage 绿底锅，烟火气十足。
+    </div>
+  </div>
+
+  <!-- ========== 07 · 圆桌 + 几道菜 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- table -->
+        <ellipse cx="60" cy="68" rx="50" ry="34" fill="#7AA468"/>
+        <ellipse cx="60" cy="62" rx="50" ry="34" fill="#B5D199"/>
+        <!-- dishes on top -->
+        <circle cx="40" cy="56" r="10" fill="#F0B564"/>
+        <circle cx="40" cy="56" r="6" fill="#B47A22"/>
+        <circle cx="78" cy="56" r="10" fill="#FAF6EE"/>
+        <circle cx="78" cy="56" r="6" fill="#F0B564"/>
+        <circle cx="60" cy="72" r="12" fill="#FAF6EE"/>
+        <circle cx="60" cy="72" r="8" fill="#7AA468"/>
+        <!-- chopsticks -->
+        <line x1="22" y1="36" x2="34" y2="46" stroke="#B47A22" stroke-width="3" stroke-linecap="round"/>
+        <line x1="98" y1="36" x2="86" y2="46" stroke="#B47A22" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="60" cy="68" rx="50" ry="34" fill="#7AA468"/>
+          <ellipse cx="60" cy="62" rx="50" ry="34" fill="#B5D199"/>
+          <circle cx="40" cy="56" r="10" fill="#F0B564"/>
+          <circle cx="78" cy="56" r="10" fill="#FAF6EE"/>
+          <circle cx="60" cy="72" r="12" fill="#FAF6EE"/>
+          <circle cx="60" cy="72" r="8" fill="#7AA468"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">俯视圆桌 + 三盘菜，团圆视角</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">07 · 团圆桌</span><br>
+      俯视一张圆桌，桌上三盘菜（主菜+汤+主食）。"全家围坐"的具象表达，最贴近产品"家庭点单+共食"主张。
+    </div>
+  </div>
+
+  <!-- ========== 08 · 火苗 + 屋顶 ========== -->
+  <div class="logo-card">
+    <div class="logo-large">
+      <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- house base -->
+        <rect x="22" y="60" width="76" height="42" rx="6" fill="#7AA468"/>
+        <!-- roof -->
+        <path d="M14 60 L60 24 L106 60 Z" fill="#4A6B3A"/>
+        <!-- flame inside the house (the hearth) -->
+        <path d="M60 96 Q42 88 50 72 Q56 78 56 70 Q60 60 64 70 Q66 78 70 72 Q78 88 60 96 Z" fill="#F0B564"/>
+        <path d="M60 92 Q50 86 54 76 Q58 80 58 74 Q60 68 62 74 Q62 80 66 76 Q70 86 60 92 Z" fill="#B47A22"/>
+        <!-- chimney -->
+        <rect x="84" y="34" width="10" height="20" fill="#4A6B3A"/>
+        <!-- smoke -->
+        <path d="M89 26 Q86 18 92 14" stroke="#7AA468" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="logo-mini-row">
+      <div class="logo-mini">
+        <svg width="36" height="36" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="22" y="60" width="76" height="42" rx="6" fill="#7AA468"/>
+          <path d="M14 60 L60 24 L106 60 Z" fill="#4A6B3A"/>
+          <path d="M60 96 Q42 88 50 72 Q56 78 56 70 Q60 60 64 70 Q66 78 70 72 Q78 88 60 96 Z" fill="#F0B564"/>
+          <path d="M60 92 Q50 86 54 76 Q58 80 58 74 Q60 68 62 74 Q62 80 66 76 Q70 86 60 92 Z" fill="#B47A22"/>
+          <rect x="84" y="34" width="10" height="20" fill="#4A6B3A"/>
+        </svg>
+      </div>
+      <div>
+        <div class="font-serif text-xl text-ink-900 leading-tight">COOK · 私厨</div>
+        <div class="text-xs text-ink-500">家屋里的灶火 + 烟囱炊烟</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-ink-500 leading-relaxed">
+      <span class="font-medium text-ink-700">08 · 灶台炊烟</span><br>
+      家屋 + 屋内灶火 + 屋顶烟囱炊烟。"hearth = 心" 的西方概念 + 东方炊烟印象的融合，温度感和地域感都强。
+    </div>
+  </div>
+
+</main>
+
+<footer class="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-cream-300 text-xs text-ink-400">
+  <p>选定后告诉我编号（如「用 03」），我会：1) 把对应 SVG 拆成独立组件替换 <code>CookLogo.tsx</code> · 2) 重新生成 PWA icons (192/512/maskable PNG) · 3) 同步 showcase.html 的 hero 头像 · 4) 顺手更新 <code>manifest.json</code>。</p>
+</footer>
+
+</body>
+</html>
