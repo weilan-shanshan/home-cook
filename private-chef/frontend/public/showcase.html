@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1800, initial-scale=1">
+<title>COOK · 私厨 — 功能总览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50:'#F0F5E5',100:'#E0EBC8',200:'#C8DBA8',300:'#B5D199',400:'#9CC084', DEFAULT:'#7AA468', 500:'#7AA468', 600:'#6B8E5A',700:'#4A6B3A'},
+        cream: { 50:'#F8FBF2',100:'#F3F7EB',200:'#ECF1E0',300:'#DCE5C8',400:'#C2D0A8'},
+        ink: { 900:'#1A1A18',800:'#2C2C28',700:'#3D3D38',600:'#5C5C56',500:'#7A7A72',400:'#A5A39B'},
+        honey: { 100:'#FDF1D9', 300:'#F4CE85', 500:'#F0B564', 700:'#B47A22'},
+      },
+      fontFamily: {
+        sans: ['Inter','PingFang SC','Hiragino Sans GB','sans-serif'],
+        serif: ['"Noto Serif SC"','Songti SC','SimSun','serif'],
+      },
+      borderRadius: { '4xl':'32px' },
+    }
+  }
+}
+</script>
+<style>
+  body {
+    background: #F4EDDF;
+    background-image:
+      radial-gradient(at 92% 8%, rgba(122,164,104,.10) 0%, transparent 50%),
+      radial-gradient(at 8% 92%, rgba(240,181,100,.08) 0%, transparent 45%),
+      radial-gradient(at 50% 50%, rgba(240,181,100,.04) 0%, transparent 60%);
+    font-family: 'Inter','PingFang SC',sans-serif;
+    color: #1A1A18;
+    min-height: 100vh;
+    padding: 60px 40px 80px;
+  }
+  /* "iPhone"-styled frame */
+  .phone {
+    width: 360px;
+    height: 780px;
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow:
+      0 30px 60px -15px rgba(31,24,21,0.25),
+      0 10px 25px -5px rgba(31,24,21,0.10),
+      0 0 0 8px #1A1A18,
+      0 0 0 10px rgba(0,0,0,0.06);
+    background: #FAF6EE;
+    position: relative;
+    isolation: isolate;
+  }
+  .phone::before {
+    /* notch */
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 26px;
+    background: #1A1A18;
+    border-radius: 14px;
+    z-index: 10;
+  }
+  .phone iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .badge {
+    position: absolute;
+    top: -14px;
+    left: 24px;
+    background: #1A1A18;
+    color: #FAF6EE;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    z-index: 5;
+  }
+  .feature-card {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 18px 22px;
+  }
+  .glow {
+    box-shadow: 0 0 0 1px rgba(122,164,104,0.30), 0 8px 32px -8px rgba(122,164,104,0.20);
+  }
+</style>
+</head>
+<body>
+
+<!-- =========== HEADER =========== -->
+<header class="max-w-[1700px] mx-auto mb-20">
+  <div class="flex items-end justify-between gap-8 flex-wrap">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-brand-200 flex items-center justify-center text-3xl shadow-lg">🌿</div>
+        <div>
+          <div class="text-[12px] uppercase tracking-[0.2em] text-ink-500">PRIVATE CHEF · COOK</div>
+          <div class="font-serif text-[44px] leading-none text-ink-900 mt-1">私厨 · COOK</div>
+        </div>
+      </div>
+      <p class="font-serif text-[28px] leading-tight text-ink-700 max-w-[640px]">
+        说一声，厨房有人接。<br/>
+        一个把<span class="text-brand-600 font-medium">「想吃什么」</span>变成<span class="text-brand-600 font-medium">「我来做」</span>的家庭餐桌应用。
+      </p>
+    </div>
+    <div class="grid grid-cols-2 gap-3 max-w-[420px]">
+      <div class="feature-card">
+        <div class="text-[11px] tracking-widest text-ink-500 uppercase mb-1">想吃 / 接手</div>
+        <div class="font-serif text-base text-ink-900 leading-snug">点单 → 接手 → 做好 → 评分，家人之间像在外卖</div>
+      </div>
+      <div class="feature-card">
+        <div class="text-[11px] tracking-widest text-ink-500 uppercase mb-1">AI 帮选</div>
+        <div class="font-serif text-base text-ink-900 leading-snug">说想吃啥，AI 从本家菜里挑 3-5 道带理由推荐</div>
+      </div>
+      <div class="feature-card">
+        <div class="text-[11px] tracking-widest text-ink-500 uppercase mb-1">家庭广场</div>
+        <div class="font-serif text-base text-ink-900 leading-snug">看别人家在吃啥，喜欢就一键复制到本家菜谱</div>
+      </div>
+      <div class="feature-card">
+        <div class="text-[11px] tracking-widest text-ink-500 uppercase mb-1">收藏 · 成就</div>
+        <div class="font-serif text-base text-ink-900 leading-snug">每一次想吃和掌勺都计入家庭故事</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- =========== PHONE GRID =========== -->
+<main class="max-w-[1700px] mx-auto">
+  <!-- Row 1 -->
+  <div class="grid grid-cols-3 gap-x-12 gap-y-24 justify-items-center mb-20">
+
+    <div class="relative">
+      <span class="badge">01 · 首页</span>
+      <div class="phone glow">
+        <iframe src="/" loading="lazy" title="首页"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">家的入口</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">今晚吃啥 · 进行中的点单 · 今日推荐 · 家里常点 · 家庭广场 · 成就，一屏掌握全家餐桌动态。</div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="badge">02 · 菜单</span>
+      <div class="phone">
+        <iframe src="/menu" loading="lazy" title="菜单"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">家里的菜谱</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">按标签筛选，hash 配色徽章覆盖在菜品图上，整洁又有食欲。可多选直接「+ 加入点单」。</div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="badge">03 · 心愿单 · AI</span>
+      <div class="phone glow">
+        <iframe src="/wishes" loading="lazy" title="心愿单 AI 推荐"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">AI 帮我选今晚吃啥</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">阿里云百炼 qwen-turbo 驱动，输入「想吃辣 / 半小时搞定 / 清淡」就从本家菜里挑 3-5 道带理由推荐。8 次/月/家庭。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 2 -->
+  <div class="grid grid-cols-3 gap-x-12 gap-y-24 justify-items-center mb-20">
+
+    <div class="relative">
+      <span class="badge">04 · 家庭广场</span>
+      <div class="phone">
+        <iframe src="/square" loading="lazy" title="家庭广场"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">看看别人家在吃啥</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">公开菜品跨家庭浏览。点赞、评论、一键复制到本家菜谱再点单。</div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="badge">05 · 菜品详情</span>
+      <div class="phone glow">
+        <iframe src="/recipe/15" loading="lazy" title="菜品详情"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">菜的全部信息</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">多图轮播、点击看大图（含设为首图）、烹饪记录、评论评分、一键发布到家庭广场。</div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <span class="badge">06 · 我的</span>
+      <div class="phone">
+        <iframe src="/profile" loading="lazy" title="我的"></iframe>
+      </div>
+      <div class="mt-6 max-w-[360px]">
+        <div class="font-serif text-xl text-ink-900">我的足迹</div>
+        <div class="text-sm text-ink-500 mt-1 leading-relaxed">本月足迹、收藏精选、已解锁成就（点击展开看每个成就背后的菜）、家庭管理。</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- =========== FEATURE CALLOUTS =========== -->
+<section class="max-w-[1700px] mx-auto mt-12 mb-20">
+  <h2 class="font-serif text-3xl text-ink-900 mb-8 text-center">设计·工程小细节</h2>
+  <div class="grid grid-cols-4 gap-6">
+    <div class="feature-card">
+      <div class="text-2xl mb-2">📷</div>
+      <div class="font-serif text-base text-ink-900 mb-1">缩略图分发</div>
+      <div class="text-xs text-ink-500 leading-relaxed">上传时压缩 ≤2MB + 生成 ≤300KB/600px 缩略；旧图走 COS 数据万象 ?imageMogr2 在线缩放。列表全部走缩略图，只有「查看大图」才请求原图。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">⬜</div>
+      <div class="font-serif text-base text-ink-900 mb-1">正方形菜品图</div>
+      <div class="text-xs text-ink-500 leading-relaxed">DishThumb fill 模式用 absolute inset-0 脱离文档流，让父容器 aspect-square 真正决定盒子。任何尺寸图片都安全裁切显示。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">🔄</div>
+      <div class="font-serif text-base text-ink-900 mb-1">滚动恢复</div>
+      <div class="text-xs text-ink-500 leading-relaxed">列表 → 详情 → 返回，自动回到原滚动位置。POP 路由时 requestAnimationFrame 重试 50 帧覆盖异步 hydration。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">🏷️</div>
+      <div class="font-serif text-base text-ink-900 mb-1">标签 hash 配色</div>
+      <div class="text-xs text-ink-500 leading-relaxed">每个标签名按 sha-hash 落到 5 色调色板（honey / brand / blush / sky / butter），全站统一身份。chip 浮在图片左上角，白底 brand-700 文字。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">📤</div>
+      <div class="font-serif text-base text-ink-900 mb-1">分享生成海报</div>
+      <div class="text-xs text-ink-500 leading-relaxed">Canvas 绘制 1080×1720 海报，内嵌二维码扫码进 /share/:token 公开落地页。无需登录即可查看。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">⚙️</div>
+      <div class="font-serif text-base text-ink-900 mb-1">自愈式迁移</div>
+      <div class="text-xs text-ink-500 leading-relaxed">scripts/migrate.cjs 通过 _journal.json 对账 __drizzle_migrations 表，遇到「already exists」幂等吞掉，让账本与现实自动对齐。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">📱</div>
+      <div class="font-serif text-base text-ink-900 mb-1">PWA</div>
+      <div class="text-xs text-ink-500 leading-relaxed">vite-plugin-pwa + workbox 离线缓存。iOS / Android 添加到桌面后像原生 App 一样启动。</div>
+    </div>
+    <div class="feature-card">
+      <div class="text-2xl mb-2">🔐</div>
+      <div class="font-serif text-base text-ink-900 mb-1">家庭隔离</div>
+      <div class="text-xs text-ink-500 leading-relaxed">所有数据按 family_id 严格隔离；广场公开菜品跨家庭，但点单/接手仍限本家。</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== FOOTER =========== -->
+<footer class="max-w-[1700px] mx-auto mt-20 pt-10 border-t border-cream-300">
+  <div class="flex items-end justify-between gap-8 flex-wrap">
+    <div>
+      <div class="font-serif text-xl text-ink-900 mb-2">现在就开始</div>
+      <p class="text-sm text-ink-500 max-w-[480px]">手机访问 https://weilanshanshan.top 一键添加到桌面，新建家庭、邀请家人，今晚的晚饭就从「想吃」开始。</p>
+    </div>
+    <div class="text-right">
+      <div class="font-serif text-2xl text-brand-600">🌿 COOK · 私厨</div>
+      <div class="text-[11px] text-ink-400 mt-1 tracking-widest uppercase">Made for families. Powered by 阿里云百炼.</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
