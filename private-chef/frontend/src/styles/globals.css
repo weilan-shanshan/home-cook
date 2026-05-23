@@ -61,6 +61,12 @@
     min-height: 100%;
   }
 
+  /* PWA 安全区底色：让 iOS 状态栏 / 安卓系统栏 / 底部 home indicator 区域与 body 同色，
+     避免 standalone 模式下顶/底出现割裂色条。 */
+  html {
+    background-color: #F3F7EB;
+  }
+
   * {
     @apply border-border;
   }
