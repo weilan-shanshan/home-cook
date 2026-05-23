@@ -18,6 +18,8 @@ import { homeRouter } from './routes/home.js'
 import { profileRouter } from './routes/profile.js'
 import { achievementsRouter } from './routes/achievements.js'
 import { sharesRouter } from './routes/shares.js'
+import { squareRouter } from './routes/square.js'
+import { aiRouter } from './routes/ai.js'
 
 function isSqliteUniqueError(error: unknown): error is Error {
   return error instanceof Error && error.message.includes('UNIQUE constraint failed')
@@ -44,6 +46,8 @@ export function createApp() {
     .route('/api/cook-logs', cookLogsRouter)
     .route('/api', ratingsRouter)
     .route('/api/families', familiesRouter)
+    .route('/api/square', squareRouter)
+    .route('/api/ai', aiRouter)
 
   app.onError((error, c) => {
     if (error instanceof ZodError) {

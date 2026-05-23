@@ -68,6 +68,9 @@ export const recipes = sqliteTable('recipes', {
   steps: text('steps'),
   cookMinutes: integer('cook_minutes'),
   servings: integer('servings').default(2),
+  isPublic: integer('is_public', { mode: 'boolean' }).notNull().default(false),
+  sourceRecipeId: integer('source_recipe_id'),
+  sourceFamilyId: integer('source_family_id'),
   createdBy: integer('created_by')
     .notNull()
     .references(() => users.id),
@@ -81,6 +84,67 @@ export const recipes = sqliteTable('recipes', {
 
 export type Recipe = typeof recipes.$inferSelect
 export type NewRecipe = typeof recipes.$inferInsert
+
+// Cross-family likes on recipes published to the family square.
+export const recipeLikes = sqliteTable(
+  'recipe_likes',
+  {
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.recipeId, t.userId] }),
+  }),
+)
+
+export type RecipeLike = typeof recipeLikes.$inferSelect
+export type NewRecipeLike = typeof recipeLikes.$inferInsert
+
+// Cross-family comments on public square recipes.
+export const recipeComments = sqliteTable('recipe_comments', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  recipeId: integer('recipe_id')
+    .notNull()
+    .references(() => recipes.id, { onDelete: 'cascade' }),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  content: text('content').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+})
+
+export type RecipeComment = typeof recipeComments.$inferSelect
+export type NewRecipeComment = typeof recipeComments.$inferInsert
+
+// Monthly AI quota counter, one row per family per YYYY-MM.
+export const aiUsage = sqliteTable(
+  'ai_usage',
+  {
+    familyId: integer('family_id')
+      .notNull()
+      .references(() => families.id),
+    yearMonth: text('year_month').notNull(),
+    count: integer('count').notNull().default(0),
+    updatedAt: text('updated_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.familyId, t.yearMonth] }),
+  }),
+)
+
+export type AiUsage = typeof aiUsage.$inferSelect
+export type NewAiUsage = typeof aiUsage.$inferInsert
 
 export const recipeImages = sqliteTable('recipe_images', {
   id: integer('id').primaryKey({ autoIncrement: true }),

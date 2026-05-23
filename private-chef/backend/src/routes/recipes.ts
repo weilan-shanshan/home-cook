@@ -208,7 +208,7 @@ recipesRouter.get('/:id', async (c) => {
     .prepare(
       `SELECT
          r.id, r.title, r.description, r.steps, r.cook_minutes, r.servings,
-         r.created_by, r.created_at, r.updated_at,
+         r.created_by, r.created_at, r.updated_at, r.is_public,
          (SELECT AVG(CAST(rat.score AS REAL))
           FROM ratings rat
           INNER JOIN cook_logs cl ON cl.id = rat.cook_log_id
@@ -226,6 +226,7 @@ recipesRouter.get('/:id', async (c) => {
     created_by: number
     created_at: string
     updated_at: string
+    is_public: number
     avg_rating: number | null
   }>
 
@@ -303,6 +304,7 @@ recipesRouter.get('/:id', async (c) => {
     avg_rating: recipe.avg_rating
       ? Math.round(recipe.avg_rating * 10) / 10
       : null,
+    is_public: !!recipe.is_public,
     images: resolvedImages,
     tags: recipeTags_,
     recent_cook_logs: recentCookLogs,
@@ -703,6 +705,26 @@ recipesRouter.delete('/:id', async (c) => {
   }
 
   return c.json({ success: true })
+})
+
+// Toggle whether this recipe is published to the family square.
+recipesRouter.post('/:id/publish', async (c) => {
+  const recipeId = Number(c.req.param('id'))
+  if (!Number.isFinite(recipeId) || recipeId <= 0) {
+    return c.json({ error: 'Invalid recipe id' }, 400)
+  }
+  const familyId = c.get('familyId')
+  const body = await c.req.json().catch(() => ({}))
+  const isPublic = body?.is_public === true || body?.is_public === 1
+
+  const result = sqlite
+    .prepare(`UPDATE recipes SET is_public = ? WHERE id = ? AND family_id = ?`)
+    .run(isPublic ? 1 : 0, recipeId, familyId)
+
+  if (result.changes === 0) {
+    return c.json({ error: 'Recipe not found' }, 404)
+  }
+  return c.json({ id: recipeId, is_public: isPublic })
 })
 
 export { recipesRouter }

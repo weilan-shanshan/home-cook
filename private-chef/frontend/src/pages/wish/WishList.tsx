@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CheckCircle, XCircle } from 'lucide-react'
+import { WishAiPanel } from '@/components/wish/WishAiPanel'
 
 export default function WishList() {
   const { data: pendingWishes, isLoading: isLoadingPending } = useWishes('pending')
@@ -92,6 +93,8 @@ export default function WishList() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <WishAiPanel />
 
       <Tabs defaultValue="pending" className="w-full">
         <TabsList className="mb-4">

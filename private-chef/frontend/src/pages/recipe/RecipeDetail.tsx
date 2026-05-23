@@ -2,6 +2,8 @@ import { useParams, useNavigate } from 'react-router'
 import { useRecipe, useDeleteRecipe, DeleteRecipeError } from '@/hooks/useRecipes'
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useSetPrimaryImage } from '@/hooks/useSetPrimaryImage'
+import { usePublishRecipe } from '@/hooks/useSquare'
+import { Globe } from 'lucide-react'
 import { useCookLogs, useCreateCookLog, useCreateRating, CookLogDetail, CookLogRating } from '@/hooks/useCookLogs'
 import { Star, Heart, ArrowLeft, Calendar, Plus, MessageSquare, Pencil, Trash2 } from 'lucide-react'
 import { RatingBadge } from '@/components/recipe/RatingBadge'
@@ -217,6 +219,7 @@ export default function RecipeDetail() {
   const deleteMutation = useDeleteRecipe()
   const favoriteMutation = useToggleFavorite()
   const setPrimaryMutation = useSetPrimaryImage()
+  const publishMutation = usePublishRecipe()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [referencedBlock, setReferencedBlock] = useState<{
@@ -430,6 +433,52 @@ export default function RecipeDetail() {
         {recipe.description && (
           <p className="font-serif text-sm text-ink-700 leading-relaxed">{recipe.description}</p>
         )}
+
+        {/* Publish-to-square toggle */}
+        <button
+          type="button"
+          disabled={publishMutation.isPending}
+          onClick={() => {
+            const next = !(recipe as unknown as { is_public?: boolean }).is_public
+            publishMutation.mutate(
+              { recipeId, isPublic: next },
+              {
+                onSuccess: () =>
+                  toast({
+                    title: next ? '已发布到广场' : '已撤回，仅本家可见',
+                    description: next ? '别的家庭都能看到这道菜了' : undefined,
+                  }),
+                onError: (e) =>
+                  toast({
+                    title: '操作失败',
+                    description: e instanceof Error ? e.message : '请重试',
+                    variant: 'destructive',
+                  }),
+              },
+            )
+          }}
+          className="w-full flex items-center justify-between rounded-2xl bg-cream-50 border border-cream-200 px-4 py-3 cursor-pointer hover:bg-cream-100 transition-colors"
+        >
+          <span className="flex items-center gap-2 text-sm text-ink-700">
+            <Globe className="w-4 h-4 text-brand" />
+            发布到家庭广场
+          </span>
+          <span
+            className={`relative w-9 h-5 rounded-full transition-colors ${
+              (recipe as unknown as { is_public?: boolean }).is_public
+                ? 'bg-brand'
+                : 'bg-cream-300'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
+                (recipe as unknown as { is_public?: boolean }).is_public
+                  ? 'left-[18px]'
+                  : 'left-0.5'
+              }`}
+            />
+          </span>
+        </button>
       </div>
 
       {/* Steps */}

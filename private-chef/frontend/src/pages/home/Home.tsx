@@ -19,6 +19,7 @@ import { HomeRecommendedGrid } from '@/components/home/HomeRecommendedGrid'
 import { HomeFrequentList } from '@/components/home/HomeFrequentList'
 import { HomeRecentCooksCard } from '@/components/home/HomeRecentCooksCard'
 import { HomeNewRecipesCard } from '@/components/home/HomeNewRecipesCard'
+import { HomeSquareCard } from '@/components/home/HomeSquareCard'
 
 function getGreeting(): string {
   const h = new Date().getHours()
@@ -149,6 +150,9 @@ export default function Home() {
 
       {/* 6c. 新菜来啦 — newest recipes */}
       <HomeNewRecipesCard recipes={allRecipes} />
+
+      {/* 6d. 家庭广场 — 公开菜跨家庭浏览 */}
+      <HomeSquareCard />
 
       {/* 7. Recent comments */}
       <HomeCommentsCard comments={data.recentComments} />

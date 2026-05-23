@@ -19,6 +19,8 @@ import FamilyManage from '@/pages/profile/FamilyManage'
 import TagsManage from '@/pages/profile/TagsManage'
 import Achievements from '@/pages/achievements/Achievements'
 import PublicSharePage from '@/pages/share/PublicSharePage'
+import SquarePage from '@/pages/square/SquarePage'
+import SquareRecipeDetail from '@/pages/square/SquareRecipeDetail'
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
           <Route path="/recipe/new" element={<Navigate to="/menu" replace />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/recipe/:id/edit" element={<RecipeForm />} />
+          <Route path="/square" element={<SquarePage />} />
+          <Route path="/square/:id" element={<SquareRecipeDetail />} />
         </Route>
       </Routes>
       <Toaster />
