@@ -105,7 +105,50 @@ tailwind.config = {
   <div class="flex items-end justify-between gap-8 flex-wrap">
     <div>
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-14 h-14 rounded-2xl bg-brand-200 flex items-center justify-center text-3xl shadow-lg">🌿</div>
+        <svg width="64" height="64" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="rounded-2xl shadow-lg">
+          <defs>
+            <radialGradient id="hdrBg" cx="0.5" cy="0.35" r="0.75">
+              <stop offset="0%" stop-color="#E0EBC8"/>
+              <stop offset="60%" stop-color="#B5D199"/>
+              <stop offset="100%" stop-color="#9CC084"/>
+            </radialGradient>
+            <radialGradient id="hdrSheen" cx="0.78" cy="0.2" r="0.55">
+              <stop offset="0%" stop-color="#FCFAF3" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#FCFAF3" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="512" height="512" rx="112" fill="url(#hdrBg)"/>
+          <rect width="512" height="512" rx="112" fill="url(#hdrSheen)"/>
+          <path d="M 376 350 Q 432 340 428 290 Q 424 252 396 244" fill="none" stroke="#F0B564" stroke-width="28" stroke-linecap="round"/>
+          <path d="M 160 290 Q 160 230 204 210 Q 256 198 308 210 Q 352 230 352 290 L 352 416 Q 352 432 332 432 L 180 432 Q 160 432 160 416 Z" fill="#F0B564"/>
+          <path d="M 184 264 Q 256 250 328 264 L 336 412 Q 330 424 314 424 L 198 424 Q 182 424 180 412 Z" fill="#7AA468"/>
+          <path d="M 218 260 Q 230 218 256 216 Q 282 218 294 260" fill="none" stroke="#7AA468" stroke-width="14" stroke-linecap="round"/>
+          <rect x="220" y="350" width="72" height="44" rx="4" fill="#5E8C50"/>
+          <ellipse cx="200" cy="316" rx="22" ry="16" fill="#F0B564"/>
+          <ellipse cx="312" cy="316" rx="22" ry="16" fill="#F0B564"/>
+          <ellipse cx="256" cy="302" rx="68" ry="11" fill="#8B5A1E"/>
+          <ellipse cx="256" cy="302" rx="62" ry="8" fill="#FCFAF3"/>
+          <path d="M 192 304 L 320 304 L 308 344 Q 304 354 296 354 L 216 354 Q 208 354 204 344 Z" fill="#FCFAF3" stroke="#8B5A1E" stroke-width="3"/>
+          <path d="M 208 302 Q 218 286 232 282 Q 256 278 280 282 Q 294 286 304 302 Z" fill="#FDF1D9"/>
+          <ellipse cx="256" cy="284" rx="11" ry="8" fill="#F0B564"/>
+          <ellipse cx="234" cy="288" rx="4" ry="1.5" fill="#5E8C50" transform="rotate(-25 234 288)"/>
+          <ellipse cx="276" cy="288" rx="4" ry="1.5" fill="#5E8C50" transform="rotate(20 276 288)"/>
+          <path d="M 244 264 Q 240 250 248 244 Q 244 232 250 224" stroke="#7AA468" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <path d="M 268 264 Q 272 250 264 244 Q 268 232 262 224" stroke="#7AA468" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <circle cx="256" cy="172" r="72" fill="#F0B564"/>
+          <path d="M 192 134 L 202 90 L 234 124 Z" fill="#F0B564"/>
+          <path d="M 320 134 L 310 90 L 278 124 Z" fill="#F0B564"/>
+          <path d="M 206 122 L 212 106 L 226 122 Z" fill="#F4D5C7"/>
+          <path d="M 306 122 L 300 106 L 286 122 Z" fill="#F4D5C7"/>
+          <path d="M 220 174 Q 228 180 236 174" stroke="#1A1A18" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M 276 174 Q 284 180 292 174" stroke="#1A1A18" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <ellipse cx="200" cy="200" rx="14" ry="8" fill="#F4D5C7" opacity="0.7"/>
+          <ellipse cx="312" cy="200" rx="14" ry="8" fill="#F4D5C7" opacity="0.7"/>
+          <path d="M 250 196 L 256 204 L 262 196 Z" fill="#B47A22"/>
+          <path d="M 244 218 Q 256 226 268 218" stroke="#1A1A18" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="208" cy="438" rx="22" ry="12" fill="#F0B564"/>
+          <ellipse cx="304" cy="438" rx="22" ry="12" fill="#F0B564"/>
+        </svg>
         <div>
           <div class="text-[12px] uppercase tracking-[0.2em] text-ink-500">PRIVATE CHEF · COOK</div>
           <div class="font-serif text-[44px] leading-none text-ink-900 mt-1">私厨 · COOK</div>
@@ -313,7 +356,7 @@ tailwind.config = {
       <p class="text-sm text-ink-500 max-w-[480px]">手机访问 https://weilanshanshan.top 一键添加到桌面，新建家庭、邀请家人，今晚的晚饭就从「想吃」开始。</p>
     </div>
     <div class="text-right">
-      <div class="font-serif text-2xl text-brand-600">🌿 COOK · 私厨</div>
+      <div class="font-serif text-2xl text-brand-600">🐱 COOK · 私厨</div>
       <div class="text-[11px] text-ink-400 mt-1 tracking-widest uppercase">Made for families · Powered by 阿里云百炼 · Source available under PolyForm Noncommercial.</div>
     </div>
   </div>
