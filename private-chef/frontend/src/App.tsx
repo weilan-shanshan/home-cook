@@ -25,7 +25,6 @@ import SquareRecipeDetail from '@/pages/square/SquareRecipeDetail'
 function App() {
   return (
     <BrowserRouter>
-      <div className="app-top-fade" aria-hidden />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

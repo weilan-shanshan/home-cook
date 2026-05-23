@@ -94,20 +94,6 @@
     min-height: 100dvh;
   }
 
-  /* 顶部 sage 渐变带：让 PWA 状态栏 / Chrome 地址栏（theme-color #7AA468）
-     与页面顶部之间没有硬色界，渐隐到底色后看不出接缝。
-     用 fixed 定位贴在视口顶部，z 低于内容，不影响交互。 */
-  .app-top-fade {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    pointer-events: none;
-    z-index: 1;
-    background-image: linear-gradient(to bottom, #7AA468 0, rgba(122, 164, 104, 0) 100%);
-  }
-
   .app-shell-main {
     @apply flex-1 w-full px-4;
     padding-top: var(--app-shell-top-padding);
