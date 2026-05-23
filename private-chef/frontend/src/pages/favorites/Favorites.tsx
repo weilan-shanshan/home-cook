@@ -19,7 +19,7 @@ export default function Favorites() {
         <div className="grid grid-cols-2 gap-3">
           {favorites.map((fav) => (
             <div key={fav.id} className="surface-card overflow-hidden">
-              <Link to={`/recipe/${fav.id}`} className="block aspect-square">
+              <Link to={`/recipe/${fav.id}`} className="block relative aspect-square">
                 <DishThumb id={fav.id} name={fav.title} src={fav.first_image?.thumb_url ?? fav.first_image?.url ?? undefined} size="fill" rounded="lg" />
               </Link>
               <div className="p-3 flex items-end justify-between">
