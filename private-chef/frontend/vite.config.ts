@@ -20,7 +20,7 @@ export default defineConfig({
         description: '家庭点餐与厨师协作的轻量私厨应用',
         lang: 'zh-CN',
         dir: 'ltr',
-        theme_color: '#F3F7EB',
+        theme_color: '#7AA468',
         background_color: '#F3F7EB',
         start_url: '/?source=pwa',
         scope: '/',
