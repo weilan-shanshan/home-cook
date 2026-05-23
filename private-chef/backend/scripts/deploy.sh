@@ -23,6 +23,8 @@ mkdir -p "$REMOTE_DIR/logs"
 cd "$APP_DIR"
 npm ci
 npm run build
+# Apply any new drizzle migrations BEFORE pruning dev deps (drizzle-kit lives in devDeps).
+node scripts/migrate.cjs
 npm prune --omit=dev
 pm2 startOrRestart ecosystem.config.cjs --env production --update-env
 

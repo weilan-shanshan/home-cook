@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { AchievementSummary } from '@/hooks/useHomeSummary'
+import { useAchievementDishes } from '@/hooks/useAchievementsSummary'
+import { DishThumb } from '@/components/recipe/DishThumb'
 
 type Props = { summary: AchievementSummary }
 
@@ -36,6 +38,8 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 
 export function HomeAchievementProgressCard({ summary }: Props) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const hasExpanded = expandedIds.size > 0
+  const { data: dishes, isLoading: dishesLoading } = useAchievementDishes(hasExpanded)
 
   const orderMilestone = nextMilestone(summary.totalOrders)
   const cookMilestone = nextMilestone(summary.totalCooks)
@@ -116,17 +120,59 @@ export function HomeAchievementProgressCard({ summary }: Props) {
               {/* Expanded panel */}
               {isExpanded && (
                 <div className="px-5 pb-4 bg-cream-50">
-                  <p className="text-[11px] text-ink-400 mb-3">相关菜品</p>
-                  {/* TODO(data): per-achievement dish list not yet available from /api/achievements/summary.
-                      Need a dedicated endpoint or extend the summary to return recipe references. */}
-                  <div className="grid grid-cols-4 gap-2">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="flex flex-col items-center gap-1">
-                        <div className="w-full aspect-square rounded-xl bg-cream-200 animate-pulse" />
-                        <div className="h-2 w-10 rounded bg-cream-200 animate-pulse" />
+                  <p className="text-[11px] text-ink-400 mb-3">
+                    {ach.id === 'orders' ? '最常想吃的菜' : '掌勺最多的菜'}
+                  </p>
+                  {(() => {
+                    const list = ach.id === 'orders' ? dishes?.orders : dishes?.cooks
+                    if (dishesLoading || !list) {
+                      return (
+                        <div className="grid grid-cols-4 gap-2">
+                          {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="flex flex-col items-center gap-1">
+                              <div className="w-full aspect-square rounded-xl bg-cream-200 animate-pulse" />
+                              <div className="h-2 w-10 rounded bg-cream-200 animate-pulse" />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+                    if (list.length === 0) {
+                      return (
+                        <p className="text-[11px] text-ink-400 text-center py-3">
+                          {ach.id === 'orders' ? '还没人点过菜' : '还没人做过菜'}
+                        </p>
+                      )
+                    }
+                    return (
+                      <div className="grid grid-cols-4 gap-2">
+                        {list.map((d) => (
+                          <Link
+                            key={d.recipe_id}
+                            to={`/recipe/${d.recipe_id}`}
+                            className="flex flex-col items-center gap-1 min-w-0"
+                          >
+                            <div className="aspect-square w-full">
+                              <DishThumb
+                                id={d.recipe_id}
+                                name={d.title}
+                                src={d.first_image?.thumbUrl ?? d.first_image?.url ?? null}
+                                size="fill"
+                                rounded="lg"
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="text-[10px] text-ink-700 truncate w-full text-center">
+                              {d.title}
+                            </div>
+                            <div className="text-[9px] text-ink-400">
+                              {ach.id === 'orders' ? `${d.score} 次想吃` : `做过 ${d.score} 次`}
+                            </div>
+                          </Link>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )
+                  })()}
                   <Link
                     to={`/achievements`}
                     className="mt-3 inline-block text-[11px] text-brand"

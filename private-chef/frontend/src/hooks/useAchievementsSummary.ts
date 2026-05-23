@@ -45,3 +45,29 @@ export function useAchievementsSummary() {
     },
   })
 }
+
+export interface AchievementDish {
+  recipe_id: number
+  title: string
+  score: number
+  first_image: { url: string; thumbUrl: string | null } | null
+}
+
+export interface AchievementDishesRes {
+  orders: AchievementDish[]
+  cooks: AchievementDish[]
+}
+
+export function useAchievementDishes(enabled: boolean) {
+  return useQuery<AchievementDishesRes>({
+    queryKey: ['achievements-dishes'],
+    enabled,
+    queryFn: async () => {
+      const response = await apiFetch('/api/achievements/dishes')
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      return response.json()
+    },
+  })
+}
