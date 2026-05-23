@@ -20,6 +20,8 @@ import { achievementsRouter } from './routes/achievements.js'
 import { sharesRouter } from './routes/shares.js'
 import { squareRouter } from './routes/square.js'
 import { aiRouter } from './routes/ai.js'
+import { quotaRouter } from './routes/quota.js'
+import { QuotaExceededError } from './lib/quota.js'
 
 function isSqliteUniqueError(error: unknown): error is Error {
   return error instanceof Error && error.message.includes('UNIQUE constraint failed')
@@ -48,12 +50,29 @@ export function createApp() {
     .route('/api/families', familiesRouter)
     .route('/api/square', squareRouter)
     .route('/api/ai', aiRouter)
+    .route('/api/quota', quotaRouter)
 
   app.onError((error, c) => {
     if (error instanceof ZodError) {
       return c.json(
         { error: 'Validation failed', details: error.flatten() },
         400,
+      )
+    }
+
+    if (error instanceof QuotaExceededError) {
+      return c.json(
+        {
+          error: 'quota_exceeded',
+          resource: error.resource,
+          used: error.used,
+          limit: error.limit,
+          message:
+            error.resource === 'recipes'
+              ? '免费版最多创建 30 道菜，已达上限'
+              : '免费版最多上传 60 张图，已达上限',
+        },
+        409,
       )
     }
 

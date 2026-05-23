@@ -43,6 +43,13 @@
       "when": 1779517321425,
       "tag": "0005_nifty_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1779549584523,
+      "tag": "0006_wealthy_secret_warriors",
+      "breakpoints": true
     }
   ]
 }

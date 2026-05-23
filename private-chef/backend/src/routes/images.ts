@@ -6,6 +6,7 @@ import { recipes, recipeImages } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { getPresignedUploadUrl } from '../lib/cos.js'
 import { resolveImageUrls } from '../lib/image-urls.js'
+import { assertCanUploadImage } from '../lib/quota.js'
 
 type AuthEnv = {
   Variables: {
@@ -59,6 +60,8 @@ imagesRouter.post('/recipes/:id/images', async (c) => {
   if (!recipe) {
     return c.json({ error: 'Recipe not found' }, 404)
   }
+
+  assertCanUploadImage(familyId)
 
   const body = await c.req.json()
   const parsed = saveImageSchema.safeParse(body)

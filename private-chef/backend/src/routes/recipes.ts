@@ -4,6 +4,7 @@ import { sqlite } from '../db/index.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { notifyNewRecipe } from '../lib/wechat.js'
 import { resolveImageUrls } from '../lib/image-urls.js'
+import { assertCanCreateRecipe } from '../lib/quota.js'
 import {
   createShareResponse,
   getShareCardPreview,
@@ -396,6 +397,8 @@ recipesRouter.post('/', async (c) => {
       400
     )
   }
+
+  assertCanCreateRecipe(familyId)
 
   const { title, description, steps, cook_minutes, servings, tags: tagIds } =
     parsed.data

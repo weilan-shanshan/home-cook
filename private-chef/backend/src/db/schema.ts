@@ -6,6 +6,7 @@ import {
   text,
   unique,
   check,
+  index,
 } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
@@ -26,6 +27,7 @@ export const families = sqliteTable('families', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   inviteCode: text('invite_code').notNull().unique(),
+  plan: text('plan').notNull().default('free'),
   createdBy: integer('created_by')
     .notNull()
     .references(() => users.id),
@@ -58,29 +60,35 @@ export const familyMembers = sqliteTable(
 export type FamilyMember = typeof familyMembers.$inferSelect
 export type NewFamilyMember = typeof familyMembers.$inferInsert
 
-export const recipes = sqliteTable('recipes', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  familyId: integer('family_id')
-    .notNull()
-    .references(() => families.id),
-  title: text('title').notNull(),
-  description: text('description'),
-  steps: text('steps'),
-  cookMinutes: integer('cook_minutes'),
-  servings: integer('servings').default(2),
-  isPublic: integer('is_public', { mode: 'boolean' }).notNull().default(false),
-  sourceRecipeId: integer('source_recipe_id'),
-  sourceFamilyId: integer('source_family_id'),
-  createdBy: integer('created_by')
-    .notNull()
-    .references(() => users.id),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
-})
+export const recipes = sqliteTable(
+  'recipes',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    familyId: integer('family_id')
+      .notNull()
+      .references(() => families.id),
+    title: text('title').notNull(),
+    description: text('description'),
+    steps: text('steps'),
+    cookMinutes: integer('cook_minutes'),
+    servings: integer('servings').default(2),
+    isPublic: integer('is_public', { mode: 'boolean' }).notNull().default(false),
+    sourceRecipeId: integer('source_recipe_id'),
+    sourceFamilyId: integer('source_family_id'),
+    createdBy: integer('created_by')
+      .notNull()
+      .references(() => users.id),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+    updatedAt: text('updated_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    familyIdIdx: index('recipes_family_id_idx').on(t.familyId),
+  }),
+)
 
 export type Recipe = typeof recipes.$inferSelect
 export type NewRecipe = typeof recipes.$inferInsert
@@ -146,18 +154,24 @@ export const aiUsage = sqliteTable(
 export type AiUsage = typeof aiUsage.$inferSelect
 export type NewAiUsage = typeof aiUsage.$inferInsert
 
-export const recipeImages = sqliteTable('recipe_images', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  recipeId: integer('recipe_id')
-    .notNull()
-    .references(() => recipes.id, { onDelete: 'cascade' }),
-  url: text('url').notNull(),
-  thumbUrl: text('thumb_url'),
-  sortOrder: integer('sort_order').notNull().default(0),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
-})
+export const recipeImages = sqliteTable(
+  'recipe_images',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    recipeId: integer('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    url: text('url').notNull(),
+    thumbUrl: text('thumb_url'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => ({
+    recipeIdIdx: index('recipe_images_recipe_id_idx').on(t.recipeId),
+  }),
+)
 
 export type RecipeImage = typeof recipeImages.$inferSelect
 export type NewRecipeImage = typeof recipeImages.$inferInsert

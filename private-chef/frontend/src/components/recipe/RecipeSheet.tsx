@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/use-toast'
 import { useCreateRecipe, useSaveRecipeImage, useTags } from '@/hooks/useRecipes'
+import { useQuota } from '@/hooks/useQuota'
 import { uploadImage } from '@/lib/upload'
 import { RecipeFormCore, type RecipeFormValues } from './RecipeFormCore'
 import type { ImageItem } from './RecipeImageGrid'
@@ -37,6 +38,7 @@ export function RecipeSheet({ open, onOpenChange, mode = 'single', onSubmitted }
   const { toast } = useToast()
   const navigate = useNavigate()
   const { data: tags = [] } = useTags()
+  const { data: quota } = useQuota()
   const createMutation = useCreateRecipe()
   const saveImageMutation = useSaveRecipeImage()
 
@@ -213,6 +215,22 @@ export function RecipeSheet({ open, onOpenChange, mode = 'single', onSubmitted }
                 </div>
               )}
               <h2 className="font-serif text-2xl text-ink-900">新增菜品</h2>
+              {quota && quota.plan === 'free' && quota.recipes.limit !== null && (
+                <p
+                  className={`text-xs ${
+                    quota.recipes.used >= quota.recipes.limit
+                      ? 'text-amber-600 font-medium'
+                      : 'text-ink-500'
+                  }`}
+                >
+                  菜品 {quota.recipes.used}/{quota.recipes.limit}
+                  {quota.images.limit !== null && (
+                    <span className="ml-2">
+                      · 图片 {quota.images.used}/{quota.images.limit}
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
             <SheetClose asChild>
               <button

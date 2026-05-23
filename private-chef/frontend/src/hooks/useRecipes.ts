@@ -82,8 +82,15 @@ export interface SaveImageReq {
 export type TagsRes = RecipeTag[]
 
 function getErrorMessage(errorData: unknown, defaultMessage: string): string {
-  if (errorData && typeof errorData === 'object' && 'error' in errorData) {
-    return String((errorData as Record<string, unknown>).error)
+  if (errorData && typeof errorData === 'object') {
+    const data = errorData as Record<string, unknown>
+    // Prefer user-facing `message` (used by quota_exceeded etc.) over machine-readable `error`.
+    if (typeof data.message === 'string' && data.message.length > 0) {
+      return data.message
+    }
+    if ('error' in data) {
+      return String(data.error)
+    }
   }
   return defaultMessage
 }
@@ -143,6 +150,7 @@ export function useCreateRecipe() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['quota'] })
     },
   })
 }
@@ -257,11 +265,15 @@ export function useSaveRecipeImage() {
         body: JSON.stringify(json),
         credentials: 'include',
       })
-      if (!res.ok) throw new Error('Failed to save image')
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(getErrorMessage(error, 'Failed to save image'))
+      }
       return res.json()
     },
     onSuccess: (_, { recipeId }) => {
       queryClient.invalidateQueries({ queryKey: ['recipe', recipeId] })
+      queryClient.invalidateQueries({ queryKey: ['quota'] })
     }
   })
 }

@@ -10,6 +10,7 @@ import {
 } from '../db/schema.js'
 import { authMiddleware, type AuthUser } from '../middleware/auth.js'
 import { resolveImageUrls } from '../lib/image-urls.js'
+import { assertCanCreateRecipe } from '../lib/quota.js'
 
 type AuthEnv = {
   Variables: {
@@ -334,6 +335,8 @@ squareRouter.post('/recipes/:id/clone', async (c) => {
   if (source.familyId === familyId) {
     return c.json({ error: '不能复制自己家的菜' }, 400)
   }
+
+  assertCanCreateRecipe(familyId)
 
   // Create new recipe row in caller's family with source attribution.
   const [created] = await db
