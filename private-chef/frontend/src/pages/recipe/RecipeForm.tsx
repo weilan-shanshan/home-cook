@@ -116,7 +116,7 @@ export default function RecipeForm() {
         })
         const saved = await saveImageMutation.mutateAsync({
           recipeId,
-          json: { url: uploaded.url, sort_order: images.length + idx },
+          json: { url: uploaded.url, thumb_url: uploaded.thumbUrl, sort_order: images.length + idx },
         })
         setImages((prev) =>
           prev.map((i) =>

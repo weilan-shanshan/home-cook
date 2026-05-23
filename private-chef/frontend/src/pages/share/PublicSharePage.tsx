@@ -191,7 +191,7 @@ export default function PublicSharePage() {
                     <img
                       src={item.image.thumbUrl || item.image.url}
                       alt={item.title}
-                      className="h-40 w-full rounded-2xl object-cover"
+                      className="aspect-square w-full rounded-2xl object-cover"
                     />
                   ) : (
                     <DishThumb
@@ -199,7 +199,7 @@ export default function PublicSharePage() {
                       name={item.title}
                       size="lg"
                       rounded="2xl"
-                      className="w-full h-40"
+                      className="w-full aspect-square"
                     />
                   )}
                   <div className="font-medium text-ink-900">{item.title}</div>

@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from 'react-router'
 import { useRecipe, useDeleteRecipe, DeleteRecipeError } from '@/hooks/useRecipes'
 import { useToggleFavorite } from '@/hooks/useFavorites'
+import { useSetPrimaryImage } from '@/hooks/useSetPrimaryImage'
 import { useCookLogs, useCreateCookLog, useCreateRating, CookLogDetail, CookLogRating } from '@/hooks/useCookLogs'
 import { Star, Heart, ArrowLeft, Calendar, Plus, MessageSquare, Pencil, Trash2 } from 'lucide-react'
 import { RatingBadge } from '@/components/recipe/RatingBadge'
 import { RecipeComments } from '@/components/recipe/RecipeComments'
+import { ImageLightbox } from '@/components/recipe/ImageLightbox'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import {
@@ -214,6 +216,7 @@ export default function RecipeDetail() {
   const { data: recipe, isLoading, error } = useRecipe(recipeId)
   const deleteMutation = useDeleteRecipe()
   const favoriteMutation = useToggleFavorite()
+  const setPrimaryMutation = useSetPrimaryImage()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [referencedBlock, setReferencedBlock] = useState<{
@@ -222,6 +225,8 @@ export default function RecipeDetail() {
   } | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const touchStartX = useRef<number | null>(null)
 
   if (isLoading) {
     return <div className="p-8 text-center animate-pulse">正在加载菜谱...</div>
@@ -265,14 +270,64 @@ export default function RecipeDetail() {
     favoriteMutation.mutate({ recipeId, isFavorited: recipe.is_favorited })
   }
 
-  const currentImage = recipe.images?.[currentImageIndex]?.url ?? null
+  const images = recipe.images ?? []
+  const safeIndex = Math.min(currentImageIndex, Math.max(0, images.length - 1))
+  const currentImage = images[safeIndex]
+  // List/hero uses thumbnail (small) — full size only used inside the lightbox.
+  const currentImageSrc = currentImage?.thumb_url ?? currentImage?.url ?? null
+  const primaryImageId = images[0]?.id ?? null
+
+  const goPrevImage = () => {
+    if (images.length === 0) return
+    setCurrentImageIndex((i) => (i - 1 + images.length) % images.length)
+  }
+  const goNextImage = () => {
+    if (images.length === 0) return
+    setCurrentImageIndex((i) => (i + 1) % images.length)
+  }
+
+  const handleHeroTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleHeroTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(dx) < 40) return
+    if (dx > 0) goPrevImage()
+    else goNextImage()
+  }
+
+  const handleSetPrimary = (imageId: number) => {
+    setPrimaryMutation.mutate(
+      { recipeId, imageId },
+      {
+        onSuccess: () => {
+          toast({ title: '首图已更新' })
+          // After reorder the chosen image becomes index 0.
+          setCurrentImageIndex(0)
+        },
+        onError: (e) => {
+          toast({
+            title: '设置失败',
+            description: e instanceof Error ? e.message : '请重试',
+            variant: 'destructive',
+          })
+        },
+      },
+    )
+  }
 
   return (
     // Full-bleed: negate the px-4 padding from app-shell and the top padding
     <div className="-mx-4 -mt-[var(--app-shell-top-padding)] pb-32 animate-in fade-in duration-500">
 
       {/* Hero */}
-      <div className="relative bg-brand aspect-[3/4] flex items-center justify-center overflow-hidden">
+      <div
+        className="relative bg-brand aspect-square flex items-center justify-center overflow-hidden"
+        onTouchStart={handleHeroTouchStart}
+        onTouchEnd={handleHeroTouchEnd}
+      >
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -290,33 +345,38 @@ export default function RecipeDetail() {
           <Share2 className="w-5 h-5" />
         </button>
 
-        {currentImage ? (
-          <img
-            src={currentImage}
-            alt={recipe.title}
-            className="w-full h-full object-cover"
-          />
+        {currentImageSrc ? (
+          <button
+            type="button"
+            aria-label="查看大图"
+            onClick={() => setLightboxOpen(true)}
+            className="w-full h-full"
+          >
+            <img
+              src={currentImageSrc}
+              alt={recipe.title}
+              className="w-full h-full object-cover"
+            />
+          </button>
         ) : (
           <DishThumb id={recipe.id} name={recipe.title} size="lg" className="w-32 h-32" />
         )}
 
         {/* Pagination dots */}
-        {recipe.images && recipe.images.length > 1 ? (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {recipe.images.map((_, i) => (
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, i) => (
               <button
                 key={i}
                 type="button"
-                onClick={() => setCurrentImageIndex(i)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setCurrentImageIndex(i)
+                }}
                 aria-label={`图片 ${i + 1}`}
-                className={`rounded-full transition-all ${i === currentImageIndex ? 'w-2 h-2 bg-white' : 'w-2 h-2 bg-white/40'}`}
+                className={`rounded-full transition-all ${i === safeIndex ? 'w-2 h-2 bg-white' : 'w-2 h-2 bg-white/40'}`}
               />
             ))}
-          </div>
-        ) : (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
-            <span className="w-2 h-2 rounded-full bg-white/90" />
-            <span className="w-2 h-2 rounded-full bg-white/40" />
           </div>
         )}
       </div>
@@ -394,6 +454,15 @@ export default function RecipeDetail() {
       <div className="mt-6">
         <CookLogsSection recipeId={recipeId} />
       </div>
+
+      <ImageLightbox
+        open={lightboxOpen}
+        images={images.map((img) => ({ id: img.id, url: img.url }))}
+        startIndex={safeIndex}
+        onClose={() => setLightboxOpen(false)}
+        onSetPrimary={handleSetPrimary}
+        primaryImageId={primaryImageId}
+      />
 
       <ShareDialog
         open={shareDialogOpen}

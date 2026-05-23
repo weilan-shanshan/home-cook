@@ -44,7 +44,7 @@ export function RecipeCard({ recipe, actionSlot, onClick }: RecipeCardProps) {
           <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
         </Button>
       </div>
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/30">
+      <div className="relative aspect-square w-full overflow-hidden bg-muted/30">
         {recipe.first_image ? (
           <img
             src={recipe.first_image.thumb_url || recipe.first_image.url}

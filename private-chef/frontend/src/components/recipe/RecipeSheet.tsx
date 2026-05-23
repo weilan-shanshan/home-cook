@@ -95,7 +95,7 @@ export function RecipeSheet({ open, onOpenChange, mode = 'single', onSubmitted }
         })
         await saveImageMutation.mutateAsync({
           recipeId,
-          json: { url: uploaded.url, sort_order: idx },
+          json: { url: uploaded.url, thumb_url: uploaded.thumbUrl, sort_order: idx },
         })
       } catch (err) {
         toast({

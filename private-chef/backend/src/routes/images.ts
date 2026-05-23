@@ -98,6 +98,47 @@ imagesRouter.post('/recipes/:id/images', async (c) => {
   )
 })
 
+imagesRouter.post('/images/:id/primary', async (c) => {
+  const imageId = Number(c.req.param('id'))
+  if (!Number.isFinite(imageId) || imageId <= 0) {
+    return c.json({ error: 'Invalid image id' }, 400)
+  }
+
+  const familyId = c.get('familyId')
+
+  const [image] = await db
+    .select({ id: recipeImages.id, recipeId: recipeImages.recipeId })
+    .from(recipeImages)
+    .innerJoin(recipes, eq(recipeImages.recipeId, recipes.id))
+    .where(and(eq(recipeImages.id, imageId), eq(recipes.familyId, familyId)))
+    .limit(1)
+
+  if (!image) {
+    return c.json({ error: 'Image not found' }, 404)
+  }
+
+  // Re-number sort_order so the target image becomes 0 and others shift down.
+  const siblings = await db
+    .select({ id: recipeImages.id, sortOrder: recipeImages.sortOrder })
+    .from(recipeImages)
+    .where(eq(recipeImages.recipeId, image.recipeId))
+    .orderBy(recipeImages.sortOrder)
+
+  const reordered = [
+    image.id,
+    ...siblings.filter((s) => s.id !== image.id).map((s) => s.id),
+  ]
+
+  for (let i = 0; i < reordered.length; i++) {
+    await db
+      .update(recipeImages)
+      .set({ sortOrder: i })
+      .where(eq(recipeImages.id, reordered[i]))
+  }
+
+  return c.json({ success: true })
+})
+
 imagesRouter.delete('/images/:id', async (c) => {
   const imageId = Number(c.req.param('id'))
   if (!Number.isFinite(imageId) || imageId <= 0) {

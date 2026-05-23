@@ -4,7 +4,6 @@ import { useProfileSummary } from '@/hooks/useProfileSummary'
 import { useHomeSummary } from '@/hooks/useHomeSummary'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useAchievementsSummary } from '@/hooks/useAchievementsSummary'
-import { useCookLogs } from '@/hooks/useCookLogs'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { StatTile } from '@/components/home/StatTile'
 import { HomeRecentComments } from '@/components/home/HomeRecentComments'
@@ -12,7 +11,6 @@ import { InstallEntryCard } from '@/components/pwa/InstallEntryCard'
 import { DishThumb } from '@/components/recipe/DishThumb'
 import { Heart, ListChecks, Trophy, Bell, LogOut, ChevronRight, Loader2, Star, Users, Tag } from 'lucide-react'
 import { HomeFamilyTastesCard } from '@/components/home/HomeFamilyTastesCard'
-import type { CookLogsListRes } from '@/hooks/useCookLogs'
 
 const BASE_LINKS = [
   { to: '/favorites',    label: '收藏',   icon: Heart },
@@ -48,15 +46,6 @@ function MiniProgressBar({ value, max, label }: { value: number; max: number; la
   )
 }
 
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const d = Math.floor(diff / 86_400_000)
-  if (d === 0) return '今天'
-  if (d === 1) return '昨天'
-  if (d < 7) return `${d} 天前`
-  return `${Math.floor(d / 7)} 周前`
-}
-
 export default function Profile() {
   const navigate = useNavigate()
   const { data: user, isLoading: isLoadingUser } = useCurrentUser()
@@ -64,7 +53,6 @@ export default function Profile() {
   const { data: home, isLoading: isLoadingHome } = useHomeSummary()
   const { data: favorites = [] } = useFavorites()
   const { data: achievementsSummary } = useAchievementsSummary()
-  const { data: cookLogsRaw } = useCookLogs(undefined)
   const { mutate: logout, isPending: isLoggingOut } = useLogout()
 
   const handleLogout = () => {
@@ -109,12 +97,6 @@ export default function Profile() {
   // 6.3 — 成就预览
   const myScore = achievementsSummary?.me?.score ?? 0
   const myRank = achievementsSummary?.me?.rank ?? 0
-
-  // 6.4 — 近期烹饪
-  const cookLogs = (() => {
-    const raw = cookLogsRaw as CookLogsListRes | undefined
-    return raw?.data?.slice(0, 3) ?? []
-  })()
 
   return (
     <main className="space-y-5 pb-20">
@@ -268,38 +250,6 @@ export default function Profile() {
                 <span className="text-[10px] rounded-full bg-rose-100 text-rose-500 px-2 py-0.5 shrink-0">已解锁</span>
               </div>
             )}
-          </div>
-        </section>
-      )}
-
-      {/* 6.4 — 近期烹饪 */}
-      {cookLogs.length > 0 && (
-        <section>
-          <div className="flex items-end justify-between mb-3">
-            <h2 className="font-serif text-lg text-ink-900">最近做过</h2>
-          </div>
-          <div className="surface-card divide-y divide-cream-100">
-            {cookLogs.map((log) => (
-              <div key={log.id} className="flex items-center gap-3 p-4">
-                <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-semibold shrink-0">
-                  {(log.cooked_by_name ?? '?').charAt(0)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-ink-900 font-medium truncate">
-                    {log.recipe_title ?? `菜谱 #${log.recipe_id}`}
-                  </div>
-                  <div className="text-[11px] text-ink-400 mt-0.5">
-                    {log.cooked_by_name} · {relativeTime(log.cooked_at)}
-                  </div>
-                </div>
-                {log.avg_rating != null && log.avg_rating > 0 && (
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    <Star className="w-3 h-3 fill-honey-400 text-honey-400" />
-                    <span className="text-[11px] text-ink-600">{log.avg_rating.toFixed(1)}</span>
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
         </section>
       )}
