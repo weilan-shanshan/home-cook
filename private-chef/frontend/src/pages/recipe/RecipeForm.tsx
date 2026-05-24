@@ -162,8 +162,13 @@ export default function RecipeForm() {
           tags: values.tagIds,
         },
       })
-      void queueUploads()
-      toast({ title: '菜谱已保存', description: '图片继续在后台上传' })
+      const hasPendingImages = images.some((i) => i.status === 'picked')
+      if (hasPendingImages) {
+        void queueUploads()
+        toast({ title: '菜谱已保存', description: '新图片继续在后台上传' })
+      } else {
+        toast({ title: '菜谱已保存' })
+      }
       navigate(`/recipe/${recipeId}`)
     } catch (err) {
       toast({
